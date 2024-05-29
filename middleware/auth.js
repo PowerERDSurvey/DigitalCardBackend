@@ -1,11 +1,11 @@
 const jwt = require('jsonwebtoken');
-// const getLatestUserToken = require("../config/usertoken.js").getLatestUserToken;
+const getLatestUserToken = require("../config/usertoken.js").getLatestUserToken;
 
 module.exports = (req, res, next) => {
   try {
-//    console.log('req.headers.cookie',req.headers.cookie);
-//    console.log('reqbody',req.body);
-//    console.log('req.cookies',req.cookies);
+   console.log('req.headers.cookie',req.headers.cookie);
+   console.log('reqbody',req.body);
+   console.log('req.cookies',req.cookies);
     let token = req.headers['x-access-token'] || req.headers.authorization; // Express headers are auto converted to lowercase
     
     if (!token || token.includes('token=')) {
@@ -36,25 +36,25 @@ module.exports = (req, res, next) => {
           res.redirect('/Login');
         }
       } 
-      // else {
-      //   let latestToken = getLatestUserToken(decoded.user.ID);
-      //   latestToken.then((userToken) => {
-      //       if (userToken.dataValues.token === token) {
-      //         req.user = decoded.user;
-      //         //console.log('isAuthenticated', `Logged in user data fetched from token.`, decoded);
-      //         next();
-      //       } else {
-      //         if (req.url.startsWith('/api/')) {
-      //           res.status(401).send(ERROR_INVALID_TOKEN);
-      //         } else {
-      //           res.redirect('/Login');
-      //         }
-      //       }
-      //     }
-      //   ).catch((error)=>{
-      //     console.error("latest token error usertoken ", error);
-      //   });
-      // }
+      else {
+        let latestToken = getLatestUserToken(decoded.user.ID);
+        latestToken.then((userToken) => {
+            if (userToken.dataValues.token === token) {
+              req.user = decoded.user;
+              //console.log('isAuthenticated', `Logged in user data fetched from token.`, decoded);
+              next();
+            } else {
+              if (req.url.startsWith('/api/')) {
+                res.status(401).send(ERROR_INVALID_TOKEN);
+              } else {
+                res.redirect('/Login');
+              }
+            }
+          }
+        ).catch((error)=>{
+          console.error("latest token error usertoken ", error);
+        });
+      }
     });
   } else if (req.url.startsWith('/api/')) {
     res.status(401).send(ERROR_MISSING_TOKEN);
