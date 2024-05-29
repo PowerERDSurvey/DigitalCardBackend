@@ -20,12 +20,12 @@ router.post("/user",function(req,res){
 	var moment = require('moment');
 	var currentTime = moment().utc().valueOf();
 	var requestBody = req.body;
-    var encryptedString = cryptr.encrypt(requestBody.NEW_PASSWORD);
+    var encryptedString = cryptr.encrypt(requestBody.password);
 	requestBody.PASSWORD = encryptedString;
     console.log(requestBody);
 	var response;
     var responseObj;
-    helperUtil.checkEmailValid(requestBody.EMAIL).then((isEmailValid)=>{//will return email id is valid or invalid
+    helperUtil.checkEmailValid(requestBody.email).then((isEmailValid)=>{//will return email id is valid or invalid
 
 		if (!isEmailValid) {
 			message = "Email Address already exist.";

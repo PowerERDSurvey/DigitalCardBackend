@@ -13,10 +13,10 @@ let users = {
         User.create(
             {
                 // ORG_ID:inputParams.ORG_ID,
-                firstName:inputParams.FIRST_NAME,
-                lastName:inputParams.LAST_NAME,
+                firstName:inputParams.username,
+                // lastName:inputParams.LAST_NAME,
                 password:inputParams.PASSWORD,
-                email:inputParams.EMAIL
+                email:inputParams.email
             }).then((user)=>{
                 console.log('user'+user);
                 cb(null, user);
@@ -26,7 +26,26 @@ let users = {
         },
     update: async function(inputParams, cb){
         User.update(
-            { lastName: 'Doe' },
+
+            { firstName: inputParams.firstName,
+                lastName: inputParams.lastName,
+                email: inputParams.email,
+                isActive: inputParams.isActive,
+                verificationCode: inputParams.verificationCode,
+                isEmailVerified: inputParams.isEmailVerified,
+                mobileNumber: inputParams.mobileNumber,
+                emailAddress: inputParams.emailAddress,
+                companyName: inputParams.companyName,
+                designation: inputParams.designation,
+                whatsapp: inputParams.whatsapp,
+                facebook: inputParams.facebook,
+                instagram: inputParams.instagram,
+                linkedin: inputParams.linkedin,
+                website: inputParams.website,
+                city: inputParams.city,
+                zipCode: inputParams.zipCode,
+                country: inputParams.country,
+                state: inputParams.state},
             {
               where: {
                 id: inputParams.id,

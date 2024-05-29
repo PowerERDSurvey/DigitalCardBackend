@@ -18,7 +18,7 @@ module.exports = {
       email: {
         type: Sequelize.STRING
       },
-      IsActive: {
+      isActive: {
         type: Sequelize.BOOLEAN
       },
       verificationCode: {
@@ -26,6 +26,48 @@ module.exports = {
       },
       isEmailVerified: {
         type: Sequelize.BOOLEAN
+      },
+      mobileNumber: {
+        type: Sequelize.INTEGER
+      },
+      emailAddress: {
+        type: Sequelize.STRING
+      },
+      companyName: {
+        type: Sequelize.STRING
+      },
+      designation: {
+        type: Sequelize.STRING
+      },
+      whatsapp: {
+        type: Sequelize.STRING
+      },
+      facebook: {
+        type: Sequelize.STRING
+      },
+      instagram: {
+        type: Sequelize.STRING
+      },
+      linkedin: {
+        type: Sequelize.STRING
+      },
+      website: {
+        type: Sequelize.STRING
+      },
+      city: {
+        type: Sequelize.STRING
+      },
+      zipCode: {
+        type: Sequelize.STRING
+      },
+      country: {
+        type: Sequelize.STRING
+      },
+      state: {
+        type: Sequelize.STRING
+      },
+      password: {
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,
