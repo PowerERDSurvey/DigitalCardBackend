@@ -8,23 +8,30 @@ let utils = {
 //  getActiveEmails:function(id,curEmail){
  checkEmailValid:function(curEmail){
   var isValid = true;
-   return new Promise((resolve, reject)=>{
-    //  userModel.getAllEmailAddress(id,function(error,result){
-     userModel.getActiveEmails(function(error,result){
-       if(error){
-         reject(error);
-       }else{
-         
-           for ( var email of result ) {
-             if (email.email == curEmail) {
-              isValid = false;
-               break;
-             }
+  return new Promise((resolve, reject)=>{
+      if (!curEmail) {
+        isValid = false;
+      }else{
+        //  userModel.getAllEmailAddress(id,function(error,result){
+          userModel.getActiveEmails(function(error,result){
+            if(error){
+              reject(error);
+            }else{
+              
+                for ( var email of result ) {
+                  if (email.email == curEmail) {
+                  isValid = false;
+                    break;
+                  }
+              }
+              
+            
           }
-         
-       resolve(isValid);
-     }
-      });
+          });
+      }
+   
+   
+  resolve(isValid);
  });
  }
 }

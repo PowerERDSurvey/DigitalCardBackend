@@ -7,8 +7,8 @@ let userModel = {
             getActiveEmails: function(inputParams,cb){
                 userRepo.getActiveEmails(inputParams,cb);
             },
-            update: function(inputParams,cb){
-                userRepo.update(inputParams,cb);
+            update: function(UserId,inputParams,cb){
+                userRepo.update(UserId,inputParams,cb);
             }
     
 

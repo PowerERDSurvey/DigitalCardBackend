@@ -5,7 +5,7 @@ var Cryptr = require('cryptr');
 var cryptr = new Cryptr('myTotalySecretKey');
 const helperUtil = require('../util/helper.js');
 const auth = require('../middleware/auth');
-// var bodyParser = require('body-parser').json();
+var bodyParser = require('body-parser').json();
 
 
 // create new user API 
@@ -14,13 +14,14 @@ router.post("/user",function(req,res){
 	const user = req.user;
     console.log("user"+req.FIRST_NAME);
 
-	var name = req.FIRST_NAME + " " + req.LAST_NAME;
-	// var name = user.FIRST_NAME + " " + user.LAST_NAME;
-    console.log("name"+name);
 	var moment = require('moment');
 	var currentTime = moment().utc().valueOf();
 	var requestBody = req.body;
-    var encryptedString = cryptr.encrypt(requestBody.password);
+    var encryptedString = null;
+    if (requestBody.password) {
+        encryptedString =cryptr.encrypt(requestBody.password);
+    }
+    
 	requestBody.PASSWORD = encryptedString;
     console.log(requestBody);
 	var response;
@@ -45,7 +46,8 @@ router.post("/user",function(req,res){
                     response = {"status": httpStatusCode, "error" : responseObj, "message":message};
                 } else {
                     httpStatusCode = 200;
-                    responseObj = result.dataValues;
+                    responseObj = {ID:result.dataValues.id};
+                    
                     response = {"status": httpStatusCode, "data" : responseObj, "message":message};
                 }
                 res.status(httpStatusCode).send(response);
@@ -61,14 +63,13 @@ router.post("/user",function(req,res){
 });
 
 // update user detail
-router.put("/user",function(req,res){
+router.put("/user:ID",auth,bodyParser,function(req,res){
 		
-	const user = req.user;
-    console.log("user"+req.FIRST_NAME);
+	var UserId = req.params.ID;
 	var requestBody = req.body;
     console.log(req.body);
 	var response;
-    userModel.update(requestBody, function(err, result){
+    userModel.update(UserId,requestBody, function(err, result){
         var httpStatusCode = 0;
         var responseObj = "";
         var message = "User updates successfully.";

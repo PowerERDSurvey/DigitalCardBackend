@@ -17,6 +17,7 @@ let users = {
                 // lastName:inputParams.LAST_NAME,
                 password:inputParams.PASSWORD,
                 email:inputParams.email,
+                type:inputParams.email,
                 isActive:true
             }).then((user)=>{
                 console.log('user'+user);
@@ -25,7 +26,7 @@ let users = {
                 cb(err,null);
             });
         },
-    update: async function(inputParams, cb){
+    update: async function(UserId,inputParams, cb){
         User.update(
 
             { firstName: inputParams.firstName,
@@ -49,7 +50,7 @@ let users = {
                 state: inputParams.state},
             {
               where: {
-                id: inputParams.id,
+                id: UserId,
               },
             },
           ).then((user)=>{
