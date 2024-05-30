@@ -1,0 +1,89 @@
+var Cryptr = require('cryptr');
+cryptr = new Cryptr('myTotalySecretKey');
+const jwt = require('jsonwebtoken');
+const express = require("express");
+var router = express.Router();
+
+const { Sequelize, DataTypes } = require('sequelize');
+
+const sequelize = new Sequelize(global.gConfig.database, global.gConfig.username, global.gConfig.password, {
+	host: global.gConfig.host,
+	dialect: global.gConfig.dialect /* one of 'mysql' | 'postgres' | 'sqlite' | 'mariadb' | 'mssql' | 'db2' | 'snowflake' | 'oracle' */
+});
+var User = require('../models/user')(sequelize, DataTypes);
+
+const {insertToUsertToken, listUserTokens, getLatestUserToken, deleteExpiredTokens} = require("../config/usertoken.js");
+
+module.exports.authenticate=async function(req,res){
+    var userame=req.body.username;
+    var password=req.body.password;
+
+     User.findAll({
+      where: {
+        firstName: userame
+      },
+    }).then((results)=>{
+       if(results.length >0){
+            decryptedString = cryptr.decrypt(results[0].password);
+
+            if(password==decryptedString){
+              const user = results[0];
+                if(user.isActive){
+                  // if ( user.IS_EMAIL_VERIFIED ) {
+                    user.authenticated = true;
+                    const token = jwt.sign(
+                      { user: user},
+                      'RANDOM_TOKEN_SECRET',
+                      { expiresIn: '24h' });
+                    // listUserTokens(user.ID);
+                    // latestUserToken = getLatestUserToken(user.ID);
+                    deleteExpiredTokens(user.id);
+                    insertToUsertToken(user.id, token).then((usertoken) => {
+                      // console.log("insert usertoken",usertoken);
+                      res.json({"token" : token});
+                    }).catch((err)=>{
+                      console.log("insert error usertoken",err);
+                    });
+                  // } 
+                  // else {
+                  //   res.json({
+                  //     status:false,
+                  //     statusCode:402,
+                  //     message:"Email not verified. Please complete Email Verification process"
+                  //   });
+                  // }
+                }
+                else {
+                  res.json({
+                    status:false,
+                    statusCode:400,
+                    message:"User is disabled"
+                  })
+                }
+              
+              
+            }else{
+                res.json({
+                  status:false,
+                  statusCode:401,
+                  message:"Email and password does not match"
+                 });
+            }
+          
+        }
+        else{
+          res.json({
+              status:false,  
+              statusCode:404,  
+            message:"Email does not exits"
+          });
+        }
+    }).catch((err)=>{
+      res.json({
+        status:false,
+        statusCode:500,
+        message:'there are some error with query'
+        })
+    })
+
+}

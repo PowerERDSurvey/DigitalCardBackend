@@ -4,7 +4,7 @@ const userModel = require("../models/mvc_User");
 var Cryptr = require('cryptr');
 var cryptr = new Cryptr('myTotalySecretKey');
 const helperUtil = require('../util/helper.js');
-// const auth = require('../middleware/auth');
+const auth = require('../middleware/auth');
 // var bodyParser = require('body-parser').json();
 
 

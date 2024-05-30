@@ -16,7 +16,8 @@ let users = {
                 firstName:inputParams.username,
                 // lastName:inputParams.LAST_NAME,
                 password:inputParams.PASSWORD,
-                email:inputParams.email
+                email:inputParams.email,
+                isActive:true
             }).then((user)=>{
                 console.log('user'+user);
                 cb(null, user);

@@ -37,6 +37,10 @@ var User = require("./controllers/user.js");
 console.log(User);
 app.use("/",User);
 
+var authenticateController=require('./controllers/authenticate');
+
+app.post('/api/authenticate',authenticateController.authenticate);
+
 
 
 app.listen(port,()=>{
