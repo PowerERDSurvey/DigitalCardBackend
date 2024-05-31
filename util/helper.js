@@ -38,7 +38,7 @@ let utils = {
   checkPasswordValid:function(curPass){
     var isValid = true;
     return new Promise((resolve, reject)=>{
-        if (!curEmail) {
+        if (!curPass) {
           isValid = false;
         }else{
           //  userModel.getAllEmailAddress(id,function(error,result){

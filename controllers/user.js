@@ -63,7 +63,7 @@ router.post("/user",function(req,res){
                     })
                 }
             }).catch((err)=>{
-                message = "Email Addresses retrieved Failed.";
+                message = "Password retrieved Failed.";
                 httpStatusCode = 500;
                 responseObj = err;
                 response = {"status": httpStatusCode, "error" : responseObj, "message":message};
