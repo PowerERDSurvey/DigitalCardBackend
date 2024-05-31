@@ -9,7 +9,10 @@ let userModel = {
             },
             update: function(UserId,inputParams,cb){
                 userRepo.update(UserId,inputParams,cb);
-            }
+            },
+            getActivePassword: function(inputParams,cb){
+                userRepo.getActivePassword(inputParams,cb);
+            },
     
 
 }

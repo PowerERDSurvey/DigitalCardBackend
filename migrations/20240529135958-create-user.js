@@ -1,4 +1,7 @@
 'use strict';
+
+const { uniq } = require('lodash');
+
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
@@ -16,7 +19,9 @@ module.exports = {
         type: Sequelize.STRING
       },
       email: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true
       },
       isActive: {
         type: Sequelize.BOOLEAN
@@ -31,7 +36,9 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       emailAddress: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true
       },
       companyName: {
         type: Sequelize.STRING
@@ -67,7 +74,9 @@ module.exports = {
         type: Sequelize.STRING
       },
       password: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true
       },
       createdAt: {
         allowNull: false,

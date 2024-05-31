@@ -17,7 +17,7 @@ let users = {
                 // lastName:inputParams.LAST_NAME,
                 password:inputParams.PASSWORD,
                 email:inputParams.email,
-                type:inputParams.email,
+                signupType:inputParams.email,
                 isActive:true
             }).then((user)=>{
                 console.log('user'+user);
@@ -71,6 +71,22 @@ let users = {
 		  
 		User.findAll(queryInputs).then((email_addresses)=>{
 		  cb(null, email_addresses);
+		}).catch((err)=>{
+		  cb(err, null);
+		});
+  
+	   },
+       getActivePassword: function (cb) {
+		var queryInputs = {
+			attributes: ['password'],
+			where: {
+			  IsActive: true, 
+			}
+		   };
+		   
+		  
+		User.findAll(queryInputs).then((password)=>{
+		  cb(null, password);
 		}).catch((err)=>{
 		  cb(err, null);
 		});

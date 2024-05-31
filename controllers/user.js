@@ -34,24 +34,51 @@ router.post("/user",function(req,res){
 			responseObj = {"errorCode": 400};
 			response = {"status": httpStatusCode, "error" : responseObj, "message":message};
 			res.status(httpStatusCode).send(response);
-		}else{
-            userModel.create(requestBody, function(err, result){
-                var httpStatusCode = 0;
-                var responseObj = "";
-                var message = "User created successfully.";
-                if (err) {
-                    message = "User creation Failed.";
-                    httpStatusCode = 500;
-                    responseObj = err;
+		}else if (requestBody.type) {
+            helperUtil.checkPasswordValid(requestBody.password).then((isPasswordValid)=>{
+                if (!isPasswordValid) {
+                    message = "Password Address already exist.";
+                    httpStatusCode = 400;
+                    responseObj = {"errorCode": 400};
                     response = {"status": httpStatusCode, "error" : responseObj, "message":message};
-                } else {
-                    httpStatusCode = 200;
-                    responseObj = {ID:result.dataValues.id};
-                    
-                    response = {"status": httpStatusCode, "data" : responseObj, "message":message};
+                    res.status(httpStatusCode).send(response);
                 }
+                else{
+                    userModel.create(requestBody, function(err, result){
+                        var httpStatusCode = 0;
+                        var responseObj = "";
+                        var message = "User created successfully.";
+                        if (err) {
+                            message = "User creation Failed.";
+                            httpStatusCode = 500;
+                            responseObj = err;
+                            response = {"status": httpStatusCode, "error" : responseObj, "message":message};
+                        } else {
+                            httpStatusCode = 200;
+                            responseObj = {ID:result.dataValues.id};
+                            
+                            response = {"status": httpStatusCode, "data" : responseObj, "message":message};
+                        }
+                        res.status(httpStatusCode).send(response);
+                    })
+                }
+            }).catch((err)=>{
+                message = "Email Addresses retrieved Failed.";
+                httpStatusCode = 500;
+                responseObj = err;
+                response = {"status": httpStatusCode, "error" : responseObj, "message":message};
                 res.status(httpStatusCode).send(response);
             })
+            
+        }
+        else{
+            message = "signup type missing.";
+			httpStatusCode = 400;
+			responseObj = {"errorCode": 400};
+			response = {"status": httpStatusCode, "error" : responseObj, "message":message};
+			res.status(httpStatusCode).send(response);
+
+            
         }
         }).catch((err)=>{
             message = "Email Addresses retrieved Failed.";
