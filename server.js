@@ -7,7 +7,7 @@ const config = require('./config/config.js');
 const port = process.env.PORT || 8080;
 
 var corsoption ={
-    origin : 'http://localhost:8081'
+    origin : 'http://localhost:3000'
 }
 const app=express();
 

@@ -40,7 +40,8 @@ module.exports.authenticate=async function(req,res){
                     deleteExpiredTokens(user.id);
                     insertToUsertToken(user.id, token).then((usertoken) => {
                       // console.log("insert usertoken",usertoken);
-                      res.json({"statusCode":200,"token" : token});
+                      responsedata={"id":user.id,"userame":user.firstname,"email":user.email}
+                      res.json({"status":200,"token" : token,"data":responsedata});
                     }).catch((err)=>{
                       console.log("insert error usertoken",err);
                     });
@@ -48,7 +49,7 @@ module.exports.authenticate=async function(req,res){
                   // else {
                   //   res.json({
                   //     status:false,
-                  //     statusCode:402,
+                  //     status:402,
                   //     message:"Email not verified. Please complete Email Verification process"
                   //   });
                   // }
@@ -56,7 +57,7 @@ module.exports.authenticate=async function(req,res){
                 else {
                   res.json({
                     status:false,
-                    statusCode:400,
+                    status:400,
                     message:"User is disabled"
                   })
                 }
@@ -65,7 +66,7 @@ module.exports.authenticate=async function(req,res){
             }else{
                 res.json({
                   status:false,
-                  statusCode:401,
+                  status:401,
                   message:"Email and password does not match"
                  });
             }
@@ -74,14 +75,14 @@ module.exports.authenticate=async function(req,res){
         else{
           res.json({
               status:false,  
-              statusCode:404,  
+              status:404,  
             message:"Email does not exits"
           });
         }
     }).catch((err)=>{
       res.json({
         status:false,
-        statusCode:500,
+        status:500,
         message:'there are some error with query'
         })
     })

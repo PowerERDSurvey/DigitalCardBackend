@@ -63,7 +63,7 @@ router.post("/user",function(req,res){
 });
 
 // update user detail
-router.put("/user:ID",auth,bodyParser,function(req,res){
+router.put("/user/:ID",auth,bodyParser,function(req,res){
 		
 	var UserId = req.params.ID;
 	var requestBody = req.body;
