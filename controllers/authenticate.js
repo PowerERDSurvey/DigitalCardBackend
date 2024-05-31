@@ -40,7 +40,7 @@ module.exports.authenticate=async function(req,res){
                     deleteExpiredTokens(user.id);
                     insertToUsertToken(user.id, token).then((usertoken) => {
                       // console.log("insert usertoken",usertoken);
-                      responsedata={"id":user.id,"userame":user.firstname,"email":user.email}
+                      responsedata={"id":user.id,"userame":user.firstName,"email":user.email}
                       res.json({"status":200,"token" : token,"data":responsedata});
                     }).catch((err)=>{
                       console.log("insert error usertoken",err);

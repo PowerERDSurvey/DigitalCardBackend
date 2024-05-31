@@ -37,7 +37,7 @@ module.exports = (req, res, next) => {
         }
       } 
       else {
-        let latestToken = getLatestUserToken(decoded.user.ID);
+        let latestToken = getLatestUserToken(decoded.user.id);
         latestToken.then((userToken) => {
             if (userToken.dataValues.token === token) {
               req.user = decoded.user;
