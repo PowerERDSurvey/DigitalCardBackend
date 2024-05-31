@@ -20,7 +20,7 @@ module.exports.authenticate=async function(req,res){
 
      User.findAll({
       where: {
-        firstName: userame
+        userName: userame
       },
     }).then((results)=>{
        if(results.length >0){
