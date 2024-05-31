@@ -114,4 +114,42 @@ router.put("/user/:ID",auth,bodyParser,function(req,res){
     });
 });
 
+router.post("/user/:ID",auth,bodyParser,function(req,res){
+    var UserId = req.params.ID;
+	var response;
+    userModel.getOneUser(UserId,function(err, result){
+        var httpStatusCode = 0;
+        var responseObj = "";
+        var message = "User get successfully.";
+        if (err) {
+            message = "User get Failed.";
+            httpStatusCode = 500;
+            responseObj = err;
+            response = {"status": httpStatusCode, "error" : responseObj, "message":message};
+        } else {
+            httpStatusCode = 200;
+            responseObj = {"id":result.id,
+            "firstName":result.firstName,
+            "lastName":result.lastName,
+            "email":result.email,
+            "mobileNumber":result.mobileNumber,
+            "companyName":result.companyName,
+            "designation":result.designation,
+            "whatsapp":result.whatsapp,
+            "facebook":result.facebook,
+            "instagram":result.instagram,
+            "linkedin":result.linkedin,
+            "website":result.website,
+            "city":result.city,
+            "zipCode":result.zipCode,
+            "country":result.country,
+            "state":result.state,
+          };
+            response = {"status": httpStatusCode, "data" : responseObj, "message":message};
+        }
+        res.status(httpStatusCode).send(response);
+    });
+    getOneUser
+});
+
 module.exports = router;

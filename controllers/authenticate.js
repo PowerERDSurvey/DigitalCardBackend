@@ -41,7 +41,8 @@ module.exports.authenticate=async function(req,res){
                     insertToUsertToken(user.id, token).then((usertoken) => {
                       // console.log("insert usertoken",usertoken);
                       responsedata={"id":user.id,
-                      "userame":user.firstName,
+                      "firstName":user.firstName,
+                      "lastName":user.firstName,
                       "email":user.email,
                       "mobileNumber":user.mobileNumber,
                       "companyName":user.companyName,
@@ -82,7 +83,7 @@ module.exports.authenticate=async function(req,res){
                 res.json({
                   status:false,
                   status:401,
-                  message:"Email and password does not match"
+                  message:"userName and password does not match"
                  });
             }
           
@@ -91,7 +92,7 @@ module.exports.authenticate=async function(req,res){
           res.json({
               status:false,  
               status:404,  
-            message:"Email does not exits"
+            message:"User does not exist."
           });
         }
     }).catch((err)=>{

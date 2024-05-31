@@ -13,6 +13,9 @@ let userModel = {
             getActivePassword: function(inputParams,cb){
                 userRepo.getActivePassword(inputParams,cb);
             },
+            getOneUser: function(inputParams,cb){
+                userRepo.getOneUser(inputParams,cb);
+            },
     
 
 }

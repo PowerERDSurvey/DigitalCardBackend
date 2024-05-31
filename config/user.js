@@ -13,7 +13,7 @@ let users = {
         User.create(
             {
                 // ORG_ID:inputParams.ORG_ID,
-                firstName:inputParams.username,
+                userName:inputParams.username,
                 // lastName:inputParams.LAST_NAME,
                 password:inputParams.PASSWORD,
                 email:inputParams.email,
@@ -92,5 +92,15 @@ let users = {
 		});
   
 	   },
+       getOneUser: function (userId,cb) {
+        User.findOne({
+            where: { id: userId},
+            rejectOnEmpty: true,
+          }).then((user)=>{
+            cb(null, user);
+          }).catch((err)=>{
+            cb(err, null);
+          });
+       },
     }
 module.exports = users;
