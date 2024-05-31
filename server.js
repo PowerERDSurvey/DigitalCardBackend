@@ -3,6 +3,9 @@ const cors=require("cors");
 const dotenv = require("dotenv").config();
 const bodyParser = require("body-parser");
 // const config = require('./config/dbConfig');
+
+var multer = require('multer');
+var uploadFile = multer({dest:'./uploads/'});
 const config = require('./config/config.js');
 const port = process.env.PORT || 8080;
 
@@ -27,6 +30,8 @@ app.use(cors(corsoption));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+//app.use(uploadOne.array()); 
+app.use(uploadFile.any()); 
 //testing
 
 // app.get('/contact',(req,res)=>{

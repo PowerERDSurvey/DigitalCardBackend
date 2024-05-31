@@ -1,16 +1,12 @@
 const multer = require("multer");
 global.__basedir = __dirname + "/..";
 
-
-const excelFilter = (req, file, cb) => {
-  if (
-    file.mimetype.includes("excel") ||
-    file.mimetype.includes("spreadsheetml")
-  ) {
-    
+const imageFilter = (req, file, cb) => {
+  // Check if the file's MIME type is either 'image/jpeg' or 'image/png'
+  if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
     cb(null, true);
   } else {
-    cb("Please upload only excel file. other files are not allowed", false);
+    cb("Please upload only JPG or PNG files. Other files are not allowed.", false);
   }
 };
 
@@ -23,5 +19,6 @@ var storage = multer.diskStorage({
   },
 });
 
-var uploadFile = multer({ storage: storage, fileFilter: excelFilter });
+var uploadFile = multer({ storage: storage, fileFilter: imageFilter });
+
 module.exports = uploadFile;

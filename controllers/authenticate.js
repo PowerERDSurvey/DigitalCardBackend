@@ -40,7 +40,22 @@ module.exports.authenticate=async function(req,res){
                     deleteExpiredTokens(user.id);
                     insertToUsertToken(user.id, token).then((usertoken) => {
                       // console.log("insert usertoken",usertoken);
-                      responsedata={"id":user.id,"userame":user.firstName,"email":user.email}
+                      responsedata={"id":user.id,
+                      "userame":user.firstName,
+                      "email":user.email,
+                      "mobileNumber":user.mobileNumber,
+                      "companyName":user.companyName,
+                      "designation":user.designation,
+                      "whatsapp":user.whatsapp,
+                      "facebook":user.facebook,
+                      "instagram":user.instagram,
+                      "linkedin":user.linkedin,
+                      "website":user.website,
+                      "city":user.city,
+                      "zipCode":user.zipCode,
+                      "country":user.country,
+                      "state":user.state,
+                    }
                       res.json({"status":200,"token" : token,"data":responsedata});
                     }).catch((err)=>{
                       console.log("insert error usertoken",err);
