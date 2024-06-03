@@ -1,4 +1,6 @@
 const express = require("express");
+
+const jwt = require('jsonwebtoken');
 var router = express.Router();
 const userModel = require("../models/mvc_User");
 var Cryptr = require('cryptr');
@@ -7,6 +9,7 @@ const helperUtil = require('../util/helper.js');
 const auth = require('../middleware/auth');
 var bodyParser = require('body-parser').json();
 
+const {insertToUsertToken, listUserTokens, getLatestUserToken, deleteExpiredTokens} = require("../config/usertoken.js");
 
 
 
@@ -31,22 +34,103 @@ router.post("/user",function(req,res){
      helperUtil.checkEmailValid(requestBody.email).then((isEmailValid)=>{//will return email id is valid or invalid
 
 		if (!isEmailValid) {
-            message = "Email Address already exist .";
+            
+
+            
+
+
+            if (requestBody.type == 'GOOGLE_SSO') {
+                userModel.getActiveEmails(function(error,result){
+                    if(error){
+                        message = "Error on getting Active Emails";
+                        httpStatusCode = 500; 
+                        response = {"status": httpStatusCode, "message":message};
+                        return res.status(httpStatusCode).send(response);
+
+                    }else{
+                      
+                        for ( var email of result ) {
+                          if (email.email == requestBody.email) {
+                            if(email.isActive){
+
+                                // if ( email.IS_EMAIL_VERIFIED ) {
+                                  email.authenticated = true;
+                                  const token = jwt.sign(
+                                    { email: email},
+                                    'RANDOM_TOKEN_SECRET',
+                                    { expiresIn: '24h' });
+                                  // listUserTokens(email.ID);
+                                  // latestUserToken = getLatestUserToken(email.ID);
+                                  deleteExpiredTokens(email.id);
+                                  insertToUsertToken(email.id, token).then((usertoken) => {
+                                    // console.log("insert usertoken",usertoken);
+                                    var responsedata={"id":email.id,
+                                    "firstName":email.firstName,
+                                    "lastName":email.firstName,
+                                    "email":email.email,
+                                    "mobileNumber":email.mobileNumber,
+                                    "companyName":email.companyName,
+                                    "designation":email.designation,
+                                    "whatsapp":email.whatsapp,
+                                    "facebook":email.facebook,
+                                    "instagram":email.instagram,
+                                    "linkedin":email.linkedin,
+                                    "website":email.website,
+                                    "city":email.city,
+                                    "zipCode":email.zipCode,
+                                    "country":email.country,
+                                    "state":email.state,
+                                    "Address": email.Address,
+                                  }
+                                    return res.json({"status":200,"token" : token,"data":responsedata});
+                                  }).catch((err)=>{
+                                    console.log("insert error usertoken",err);
+                                  });
+                                // } 
+                                // else {
+                                //   res.json({
+                                //     status:false,
+                                //     status:402,
+                                //     message:"Email not verified. Please complete Email Verification process"
+                                //   });
+                                // }
+                              }
+                              else {
+                                res.json({
+                                  status:false,
+                                  status:400,
+                                  message:"User is disabled"
+                                })
+                              }
+                            break;
+                          }
+                      }
+
+                    
+                  }
+                  });
+                
+			    
+            }
+			else{
+message = "Email Address already exist .";
 			httpStatusCode = 400;
 			responseObj = {"errorCode": 400};
-            if (requestBody.type == 'GOOGLE_SSO') {
-                message = "";
-                httpStatusCode = 200; 
-                response = {"status": httpStatusCode, "message":message};
-			    return res.status(httpStatusCode).send(response);
+            response = {"status": httpStatusCode, "error" : responseObj, "message":message};
+			return res.status(httpStatusCode).send(response);
             }
 			
-			response = {"status": httpStatusCode, "error" : responseObj, "message":message};
-			return res.status(httpStatusCode).send(response);
 		}else if (requestBody.type) {
             if (requestBody.type == 'GOOGLE_SSO') {
-                // requestBody.PASSWORD = '';
-                userModel.create(requestBody, function(err, result){
+                   var inputObj ={
+                      firstName:requestBody.username,
+                      password:requestBody.PASSWORD,
+                      email:requestBody.email,
+                      signupType:requestBody.type,
+                      isActive:true
+                  }
+                  
+                userModel.create(inputObj, function(err, result){
                     var httpStatusCode = 0;
                     var responseObj = "";
                     var message = "User created successfully.";
@@ -55,13 +139,59 @@ router.post("/user",function(req,res){
                         httpStatusCode = 500;
                         responseObj = err;
                         response = {"status": httpStatusCode, "error" : responseObj, "message":message};
+                        return res.status(httpStatusCode).send(response);
                     } else {
-                        httpStatusCode = 200;
-                        responseObj = {ID:result.dataValues.id};
-                        
-                        response = {"status": httpStatusCode, "data" : responseObj, "message":message};
+                        if(result.isActive){
+                            // if ( result.IS_EMAIL_VERIFIED ) {
+                              result.authenticated = true;
+                              const token = jwt.sign(
+                                { user: result},
+                                'RANDOM_TOKEN_SECRET',
+                                { expiresIn: '24h' });
+                              // listUserTokens(result.ID);
+                              // latestUserToken = getLatestUserToken(result.ID);
+                              deleteExpiredTokens(result.id);
+                              insertToUsertToken(result.id, token).then((usertoken) => {
+                                // console.log("insert usertoken",usertoken);
+                               var responsedata={"id":result.id,
+                                "firstName":result.firstName,
+                                "lastName":result.firstName,
+                                "email":result.email,
+                                "mobileNumber":result.mobileNumber,
+                                "companyName":result.companyName,
+                                "designation":result.designation,
+                                "whatsapp":result.whatsapp,
+                                "facebook":result.facebook,
+                                "instagram":result.instagram,
+                                "linkedin":result.linkedin,
+                                "website":result.website,
+                                "city":result.city,
+                                "zipCode":result.zipCode,
+                                "country":result.country,
+                                "state":result.state,
+                                "Address": result.Address,
+                              }
+                                return res.json({"status":200,"token" : token,"data":responsedata});
+                              }).catch((err)=>{
+                                console.log("insert error usertoken",err);
+                              });
+                            // } 
+                            // else {
+                            //   res.json({
+                            //     status:false,
+                            //     status:402,
+                            //     message:"Email not verified. Please complete Email Verification process"
+                            //   });
+                            // }
+                          }
+                          else {
+                            return res.json({
+                              status:false,
+                              status:400,
+                              message:"User is disabled"
+                            })
+                          }
                     }
-                    return res.status(httpStatusCode).send(response);
                 })
             }else{
                 helperUtil.checkPasswordValid(requestBody.PASSWORD).then((isPasswordValid)=>{
@@ -73,7 +203,15 @@ router.post("/user",function(req,res){
                         return res.status(httpStatusCode).send(response);
                     }
                     else{
-                        userModel.create(requestBody, function(err, result){
+
+                       var inputObj ={
+                          userName:requestBody.username,
+                          password:requestBody.PASSWORD,
+                          email:requestBody.email,
+                          signupType:requestBody.type,
+                          isActive:true
+                      }
+                        userModel.create(inputObj, function(err, result){
                             var httpStatusCode = 0;
                             var responseObj = "";
                             var message = "User created successfully.";

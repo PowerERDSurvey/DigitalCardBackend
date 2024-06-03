@@ -10,16 +10,8 @@ var User = require('../models/user')(sequelize, DataTypes);
 let users = {
     create: async function (inputParams, cb) {
         console.log('inputParams'+inputParams);
-        User.create(
-            {
-                // ORG_ID:inputParams.ORG_ID,
-                userName:inputParams.username,
-                // lastName:inputParams.LAST_NAME,
-                password:inputParams.PASSWORD,
-                email:inputParams.email,
-                signupType:inputParams.type,
-                isActive:true
-            }).then((user)=>{
+        
+        User.create(inputParams).then((user)=>{
                 console.log('user'+user);
                 cb(null, user);
             }).catch((err)=>{
@@ -63,7 +55,7 @@ let users = {
     },
     getActiveEmails: function (cb) {
 		var queryInputs = {
-			attributes: ['email'],
+			// attributes: ['email'],
 			where: {
 			  IsActive: true, 
 			}
