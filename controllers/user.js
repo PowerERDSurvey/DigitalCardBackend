@@ -8,8 +8,28 @@ const auth = require('../middleware/auth');
 var bodyParser = require('body-parser').json();
 
 
+function userCreation(requestBody,response,res){
+    userModel.create(requestBody, function(err, result){
+        var httpStatusCode = 0;
+        var responseObj = "";
+        var message = "User created successfully.";
+        if (err) {
+            message = "User creation Failed.";
+            httpStatusCode = 500;
+            responseObj = err;
+            response = {"status": httpStatusCode, "error" : responseObj, "message":message};
+        } else {
+            httpStatusCode = 200;
+            responseObj = {ID:result.dataValues.id};
+            
+            response = {"status": httpStatusCode, "data" : responseObj, "message":message};
+        }
+        res.status(httpStatusCode).send(response);
+    })
+}
+
 // create new user API 
-router.post("/user",function(req,res){
+router.post("/user",async function(req,res){
 		
 	const user = req.user;
     console.log("user"+req.FIRST_NAME);
@@ -26,49 +46,46 @@ router.post("/user",function(req,res){
     console.log(requestBody);
 	var response;
     var responseObj;
-    helperUtil.checkEmailValid(requestBody.email).then((isEmailValid)=>{//will return email id is valid or invalid
+    await helperUtil.checkEmailValid(requestBody.email).then((isEmailValid)=>{//will return email id is valid or invalid
 
 		if (!isEmailValid) {
-			message = "Email Address already exist .";
+            message = "Email Address already exist .";
 			httpStatusCode = 400;
 			responseObj = {"errorCode": 400};
+            if (requestBody.type == 'GOOGLE_SSO') {
+                message = "";
+                httpStatusCode = 200; 
+                response = {"status": httpStatusCode, "message":message};
+			    res.status(httpStatusCode).send(response);
+            }
+			
 			response = {"status": httpStatusCode, "error" : responseObj, "message":message};
 			res.status(httpStatusCode).send(response);
 		}else if (requestBody.type) {
-            helperUtil.checkPasswordValid(requestBody.PASSWORD).then((isPasswordValid)=>{
-                if (!isPasswordValid) {
-                    message = "Password Address already exist Or password Empty.";
-                    httpStatusCode = 400;
-                    responseObj = {"errorCode": 400};
+            if (requestBody.type == 'GOOGLE_SSO') {
+                requestBody.PASSWORD = null;
+                userCreation(requestBody,response,res);
+            }else{
+                helperUtil.checkPasswordValid(requestBody.PASSWORD).then((isPasswordValid)=>{
+                    if (!isPasswordValid) {
+                        message = "Password Address already exist Or password Empty.";
+                        httpStatusCode = 400;
+                        responseObj = {"errorCode": 400};
+                        response = {"status": httpStatusCode, "error" : responseObj, "message":message};
+                        res.status(httpStatusCode).send(response);
+                    }
+                    else{
+                        userCreation(requestBody,response,res);
+                    }
+                }).catch((err)=>{
+                    message = "Password retrieved Failed.";
+                    httpStatusCode = 500;
+                    responseObj = err;
                     response = {"status": httpStatusCode, "error" : responseObj, "message":message};
                     res.status(httpStatusCode).send(response);
-                }
-                else{
-                    userModel.create(requestBody, function(err, result){
-                        var httpStatusCode = 0;
-                        var responseObj = "";
-                        var message = "User created successfully.";
-                        if (err) {
-                            message = "User creation Failed.";
-                            httpStatusCode = 500;
-                            responseObj = err;
-                            response = {"status": httpStatusCode, "error" : responseObj, "message":message};
-                        } else {
-                            httpStatusCode = 200;
-                            responseObj = {ID:result.dataValues.id};
-                            
-                            response = {"status": httpStatusCode, "data" : responseObj, "message":message};
-                        }
-                        res.status(httpStatusCode).send(response);
-                    })
-                }
-            }).catch((err)=>{
-                message = "Password retrieved Failed.";
-                httpStatusCode = 500;
-                responseObj = err;
-                response = {"status": httpStatusCode, "error" : responseObj, "message":message};
-                res.status(httpStatusCode).send(response);
-            })
+                })
+            }
+           
             
         }
         else{

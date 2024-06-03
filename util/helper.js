@@ -6,7 +6,7 @@ let utils = {
 
 
 //  getActiveEmails:function(id,curEmail){
- checkEmailValid:function(curEmail){
+ checkEmailValid:async function(curEmail){
   var isValid = true;
   return new Promise((resolve, reject)=>{
       if (!curEmail) {
