@@ -56,6 +56,7 @@ module.exports.authenticate=async function(req,res){
                       "zipCode":user.zipCode,
                       "country":user.country,
                       "state":user.state,
+                      "Address": inputParams.Address,
                     }
                       res.json({"status":200,"token" : token,"data":responsedata});
                     }).catch((err)=>{

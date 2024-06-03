@@ -47,7 +47,8 @@ let users = {
                 city: inputParams.city,
                 zipCode: inputParams.zipCode,
                 country: inputParams.country,
-                state: inputParams.state},
+                state: inputParams.state,
+              Address: inputParams.address},
             {
               where: {
                 id: UserId,
