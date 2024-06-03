@@ -17,14 +17,22 @@ const {insertToUsertToken, listUserTokens, getLatestUserToken, deleteExpiredToke
 module.exports.authenticate=async function(req,res){
     var userame=req.body.username;
     var password=req.body.password;
-
+    
      User.findAll({
       where: {
         userName: userame
+        // userName: {
+        //   [Sequelize.Op.eq]: sequelize.where(sequelize.col('userName'), '=', userame)
+        //   // [Sequelize.Op.eq]: sequelize.where(sequelize.col('userName'), '=', userame)
+        // }
       },
+      // collation: 'utf8_bin'
+      
     }).then((results)=>{
        if(results.length >0){
-            decryptedString = cryptr.decrypt(results[0].password);
+        var checkCasesen =userame === results[0].userName;
+        if (checkCasesen) {
+          decryptedString = cryptr.decrypt(results[0].password);
 
             if(password==decryptedString){
               const user = results[0];
@@ -87,6 +95,14 @@ module.exports.authenticate=async function(req,res){
                   message:"userName and password does not match"
                  });
             }
+        } else {
+          res.json({
+            status:false,
+            status:401,
+            message:"userName does not match"
+           });
+        }
+            
           
         }
         else{
@@ -100,6 +116,7 @@ module.exports.authenticate=async function(req,res){
       res.json({
         status:false,
         status:500,
+        error:err,
         message:'there are some error with query'
         })
     })

@@ -21,7 +21,6 @@ module.exports = (sequelize, DataTypes) => {
     verificationCode: DataTypes.STRING,
     isEmailVerified: DataTypes.BOOLEAN,
     mobileNumber: DataTypes.STRING,
-    emailAddress: DataTypes.STRING,
     companyName: DataTypes.STRING,
     designation: DataTypes.STRING,
     whatsapp: DataTypes.STRING,

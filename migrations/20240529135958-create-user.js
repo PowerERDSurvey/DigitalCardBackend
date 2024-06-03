@@ -20,7 +20,7 @@ module.exports = {
       },
       email: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
         unique: true
       },
       isActive: {
@@ -34,11 +34,6 @@ module.exports = {
       },
       mobileNumber: {
         type: Sequelize.STRING
-      },
-      emailAddress: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
       },
       companyName: {
         type: Sequelize.STRING
