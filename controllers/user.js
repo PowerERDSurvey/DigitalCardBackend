@@ -29,7 +29,7 @@ function userCreation(requestBody,response,res){
 }
 
 // create new user API 
-router.post("/user",async function(req,res){
+router.post("/user",function(req,res){
 		
 	const user = req.user;
     console.log("user"+req.FIRST_NAME);
@@ -46,7 +46,7 @@ router.post("/user",async function(req,res){
     console.log(requestBody);
 	var response;
     var responseObj;
-    await helperUtil.checkEmailValid(requestBody.email).then((isEmailValid)=>{//will return email id is valid or invalid
+     helperUtil.checkEmailValid(requestBody.email).then((isEmailValid)=>{//will return email id is valid or invalid
 
 		if (!isEmailValid) {
             message = "Email Address already exist .";

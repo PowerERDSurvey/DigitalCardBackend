@@ -6,11 +6,12 @@ let utils = {
 
 
 //  getActiveEmails:function(id,curEmail){
- checkEmailValid:async function(curEmail){
+ checkEmailValid:function(curEmail){
   var isValid = true;
   return new Promise((resolve, reject)=>{
       if (!curEmail) {
         isValid = false;
+        resolve(isValid);
       }else{
         //  userModel.getAllEmailAddress(id,function(error,result){
           userModel.getActiveEmails(function(error,result){
@@ -24,14 +25,14 @@ let utils = {
                     break;
                   }
               }
-              
+              resolve(isValid);
             
           }
           });
       }
    
    
-  resolve(isValid);
+  
  });
  },
  //  getActiveEmails:function(id,curEmail){
@@ -40,6 +41,7 @@ let utils = {
     return new Promise((resolve, reject)=>{
         if (!curPass) {
           isValid = false;
+          resolve(isValid);
         }else{
           //  userModel.getAllEmailAddress(id,function(error,result){
             userModel.getActivePassword(function(error,users){
@@ -53,14 +55,14 @@ let utils = {
                       break;
                     }
                 }
-                
+                resolve(isValid);
               
             }
             });
         }
      
      
-    resolve(isValid);
+   
    });
    }
 }
