@@ -29,15 +29,15 @@ router.post("/user",function(req,res){
     helperUtil.checkEmailValid(requestBody.email).then((isEmailValid)=>{//will return email id is valid or invalid
 
 		if (!isEmailValid) {
-			message = "Email Address already exist.";
+			message = "Email Address already exist .";
 			httpStatusCode = 400;
 			responseObj = {"errorCode": 400};
 			response = {"status": httpStatusCode, "error" : responseObj, "message":message};
 			res.status(httpStatusCode).send(response);
 		}else if (requestBody.type) {
-            helperUtil.checkPasswordValid(requestBody.password).then((isPasswordValid)=>{
+            helperUtil.checkPasswordValid(requestBody.PASSWORD).then((isPasswordValid)=>{
                 if (!isPasswordValid) {
-                    message = "Password Address already exist.";
+                    message = "Password Address already exist Or password Empty.";
                     httpStatusCode = 400;
                     responseObj = {"errorCode": 400};
                     response = {"status": httpStatusCode, "error" : responseObj, "message":message};
