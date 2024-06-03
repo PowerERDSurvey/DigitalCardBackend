@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
     isActive: DataTypes.BOOLEAN,
     verificationCode: DataTypes.STRING,
     isEmailVerified: DataTypes.BOOLEAN,
-    mobileNumber: DataTypes.INTEGER,
+    mobileNumber: DataTypes.STRING,
     emailAddress: DataTypes.STRING,
     companyName: DataTypes.STRING,
     designation: DataTypes.STRING,

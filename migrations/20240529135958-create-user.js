@@ -33,7 +33,7 @@ module.exports = {
         type: Sequelize.BOOLEAN
       },
       mobileNumber: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       emailAddress: {
         type: Sequelize.STRING,
