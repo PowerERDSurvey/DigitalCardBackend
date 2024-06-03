@@ -37,7 +37,7 @@ router.post("/user",async function(req,res){
 	var moment = require('moment');
 	var currentTime = moment().utc().valueOf();
 	var requestBody = req.body;
-    var encryptedString = null;
+    var encryptedString = '';
     if (requestBody.password) {
         encryptedString =cryptr.encrypt(requestBody.password);
     }
@@ -63,7 +63,8 @@ router.post("/user",async function(req,res){
 			res.status(httpStatusCode).send(response);
 		}else if (requestBody.type) {
             if (requestBody.type == 'GOOGLE_SSO') {
-                requestBody.PASSWORD = null;
+                requestBody.PASSWORD = '';
+
                 userCreation(requestBody,response,res);
             }else{
                 helperUtil.checkPasswordValid(requestBody.PASSWORD).then((isPasswordValid)=>{

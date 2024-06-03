@@ -17,7 +17,7 @@ let users = {
                 // lastName:inputParams.LAST_NAME,
                 password:inputParams.PASSWORD,
                 email:inputParams.email,
-                signupType:inputParams.email,
+                signupType:inputParams.type,
                 isActive:true
             }).then((user)=>{
                 console.log('user'+user);
