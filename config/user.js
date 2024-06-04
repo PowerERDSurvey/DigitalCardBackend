@@ -45,13 +45,18 @@ let users = {
               where: {
                 id: UserId,
               },
+              returning: true, 
             },
-          ).then((user)=>{
-            console.log('user'+user);
-            cb(null, user);
-        }).catch((err)=>{
-            cb(err,null);
-        });
+          ).then(() => {
+            return User.findOne({ where: { id: UserId } }); // Fetch the updated user
+          })
+          .then((updatedUser) => {
+            console.log('Updated user:', updatedUser);
+            cb(null, updatedUser);
+          })
+          .catch((err) => {
+            cb(err, null);
+          });
     },
     getActiveEmails: function (cb) {
 		var queryInputs = {
