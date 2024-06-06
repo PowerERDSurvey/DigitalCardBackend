@@ -68,7 +68,8 @@ router.post("/user", function (req, res) {
                                             "id": email.id,
                                             "firstName": email.firstName,
                                             "lastName": email.firstName,
-                                            "email": email.email,
+                                            "primaryEmail": email.primaryEmail,
+                                            "secondryEmail": email.secondryEmail,
                                             "mobileNumber": email.mobileNumber,
                                             "companyName": email.companyName,
                                             "designation": email.designation,
@@ -127,7 +128,7 @@ router.post("/user", function (req, res) {
                 var inputObj = {
                     firstName: requestBody.username,
                     password: requestBody.PASSWORD,
-                    email: requestBody.email,
+                    primaryEmail: requestBody.email,
                     signupType: requestBody.type,
                     isActive: true
                 }
@@ -159,7 +160,8 @@ router.post("/user", function (req, res) {
                                     "id": result.id,
                                     "firstName": result.firstName,
                                     "lastName": result.firstName,
-                                    "email": result.email,
+                                    "primaryEmail": result.primaryEmail,
+                                    "secondryEmail": result.secondryEmail,
                                     "mobileNumber": result.mobileNumber,
                                     "companyName": result.companyName,
                                     "designation": result.designation,
@@ -211,7 +213,7 @@ router.post("/user", function (req, res) {
                         var inputObj = {
                             userName: requestBody.username,
                             password: requestBody.PASSWORD,
-                            email: requestBody.email,
+                            primaryEmail: requestBody.email,
                             signupType: requestBody.type,
                             isActive: true
                         }
