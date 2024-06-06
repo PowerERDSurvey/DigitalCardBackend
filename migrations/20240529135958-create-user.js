@@ -18,7 +18,12 @@ module.exports = {
       lastName: {
         type: Sequelize.STRING
       },
-      email: {
+      primaryEmail: {
+        type: Sequelize.STRING,
+        allowNull: true,
+        unique: true
+      },
+      SecondryEmail: {
         type: Sequelize.STRING,
         allowNull: true,
         unique: true

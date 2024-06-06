@@ -329,8 +329,10 @@ router.post("/user/:ID", auth, bodyParser, function (req, res) {
             responseObj = {
                 "id": result.id,
                 "firstName": result.firstName,
+                "userName": result.userName,
                 "lastName": result.lastName,
-                "email": result.email,
+                "primaryEmail": result.primaryEmail,
+                "SecondryEmail": result.SecondryEmail,
                 "mobileNumber": result.mobileNumber,
                 "companyName": result.companyName,
                 "designation": result.designation,
