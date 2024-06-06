@@ -64,6 +64,47 @@ let utils = {
      
    
    });
+   },
+//upload uswr related files
+   uplaodUserImage: async function(user,file){
+    try {
+      const { id } = user;
+      const files = file;
+      const images = [];
+
+      if (files.profilePhoto) {
+        const profilePhoto = files.profilePhoto[0];
+        const profileImage = await userImage.create({
+          filename: profilePhoto.filename,
+          filepath: profilePhoto.path,
+          type: 'profile',
+          userId: id,
+        });
+        images.push(profileImage);
+      }
+  
+      if (files.coverPhoto) {
+        const coverPhoto = files.coverPhoto[0];
+        const coverImage = await userImage.create({
+          filename: coverPhoto.filename,
+          filepath: coverPhoto.path,
+          type: 'cover',
+          userId: id,
+        });
+        images.push(coverImage);
+      }
+      return images;
+    } catch (error) {
+      return error;
+    }
+    
+
+    // const user = await User.findByPk(id);
+    // if (!user) {
+    //   return res.status(404).json({ error: 'User not found' });
+    // }
+
+    
    }
 }
  

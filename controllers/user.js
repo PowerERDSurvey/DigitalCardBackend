@@ -9,6 +9,10 @@ const helperUtil = require('../util/helper.js');
 const auth = require('../middleware/auth');
 var bodyParser = require('body-parser').json();
 
+
+const userImage = require('../models/userimage.js');
+const uploadFile = require('../middleware/upload.js');
+
 const { insertToUsertToken, listUserTokens, getLatestUserToken, deleteExpiredTokens } = require("../config/usertoken.js");
 
 
@@ -263,14 +267,16 @@ router.post("/user", function (req, res) {
 });
 
 // update user detail
-// router.put("/user/:ID", auth, bodyParser, function (req, res) {
-    router.put("/user/:ID", function (req, res) {
+router.put("/user/:ID",auth,bodyParser,uploadFile.fields([
+    { name: 'profilePhoto', maxCount: 1 },
+    { name: 'coverPhoto', maxCount: 1 }
+  ]), function (req, res) {
 
     var UserId = req.params.ID;
     var requestBody = req.body;
     console.log(req.body);
     var response;
-    userModel.update(UserId, requestBody, function (err, result) {
+    userModel.update(UserId, requestBody, async function (err, result) {
         var httpStatusCode = 0;
         var responseObj = "";
         var message = "User updates successfully.";
@@ -280,9 +286,27 @@ router.post("/user", function (req, res) {
             responseObj = err;
             response = { "status": httpStatusCode, "error": responseObj, "message": message };
         } else {
-            httpStatusCode = 200;
-            responseObj = result.dataValues;
-            response = { "status": httpStatusCode, "data": responseObj, "message": message };
+           
+            if (req.files) {
+                // const imageUpload = helperUtil.
+                try {
+                   
+                
+                    httpStatusCode = 200;
+                    responseObj = result.dataValues;
+                    // responseObj= {..., "images":images};
+                    responseObj.images = images;
+                    response = { "status": httpStatusCode, "data": responseObj, "message": message };
+                  } catch (error) {
+                    return res.status(400).json({ error: error.message });
+                  }
+            } else {
+                httpStatusCode = 200;
+                responseObj = result.dataValues;
+                response = { "status": httpStatusCode, "data": responseObj, "message": message };
+            }
+            
+            
         }
         res.status(httpStatusCode).send(response);
     });
@@ -319,6 +343,7 @@ router.post("/user/:ID", auth, bodyParser, function (req, res) {
                 "zipCode": result.zipCode,
                 "country": result.country,
                 "state": result.state,
+                "type": result.signupType,
             };
             response = { "status": httpStatusCode, "data": responseObj, "message": message };
         }

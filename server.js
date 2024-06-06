@@ -31,7 +31,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 //app.use(uploadOne.array()); 
-app.use(uploadFile.any()); 
+// app.use(uploadFile.any()); 
 //testing
 
 // app.get('/contact',(req,res)=>{
