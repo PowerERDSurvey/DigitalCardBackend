@@ -50,9 +50,11 @@ module.exports.authenticate=async function(req,res){
                       // console.log("insert usertoken",usertoken);
                       responsedata={"id":user.id,
                       "firstName":user.firstName,
+                      "userName": user.userName,
                       "lastName":user.firstName,
-                      "email":user.email,
-                      "mobileNumber":user.mobileNumber,
+                      "primaryEmail": user.primaryEmail,
+                      "SecondryEmail": user.SecondryEmail,
+                      "mobileNumber": user.mobileNumber,
                       "companyName":user.companyName,
                       "designation":user.designation,
                       "whatsapp":user.whatsapp,
@@ -65,6 +67,7 @@ module.exports.authenticate=async function(req,res){
                       "country":user.country,
                       "state":user.state,
                       "Address": user.Address,
+                      "type": user.signupType,
                     }
                       res.json({"status":200,"token" : token,"data":responsedata});
                     }).catch((err)=>{
