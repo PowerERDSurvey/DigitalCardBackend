@@ -12,11 +12,38 @@ module.exports = {
           allowNull: true,
         },
       ),
+      queryInterface.addColumn(
+        'Users', // table name
+        'department', // new field name
+        {
+          type: Sequelize.STRING,
+          allowNull: false,
+        },
+      ),
+      queryInterface.addColumn(
+        'Users', // table name
+        'youtube', // new field name
+        {
+          type: Sequelize.STRING,
+          allowNull: false,
+        },
+      ),
+      queryInterface.addColumn(
+        'Users', // table name
+        'aboutMe', // new field name
+        {
+          type: Sequelize.STRING(500),
+          allowNull: true,
+        },
+      ),
     ]);
   },
 
   async down (queryInterface, Sequelize) {
     return Promise.all([
+      queryInterface.removeColumn('Users', 'aboutMe'),
+      queryInterface.removeColumn('Users', 'youtube'),
+      queryInterface.removeColumn('Users', 'department'),
       queryInterface.removeColumn('Users', 'signupType'),
     ]);
   }
