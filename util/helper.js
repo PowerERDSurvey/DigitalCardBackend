@@ -1,3 +1,10 @@
+const { Sequelize, DataTypes } = require('sequelize');
+
+const sequelize = new Sequelize(global.gConfig.database, global.gConfig.username, global.gConfig.password, {
+	host: global.gConfig.host,
+	dialect: global.gConfig.dialect /* one of 'mysql' | 'postgres' | 'sqlite' | 'mariadb' | 'mssql' | 'db2' | 'snowflake' | 'oracle' */
+});
+const userImage = require('../models/userimage.js')(sequelize, DataTypes);
 const userModel = require("../models/mvc_User");//import user.js model file
 const { resolve } = require("path");
 
@@ -66,37 +73,36 @@ let utils = {
    });
    },
 //upload uswr related files
-   uplaodUserImage: async function(user,file){
+   uplaodUserImage: async function(user,files){
     try {
-      const { id } = user;
-      const files = file;
+      // const { id } = user;
       const images = [];
 
       if (files.profilePhoto) {
-        const profilePhoto = files.profilePhoto[0];
-        const profileImage = await userImage.create({
-          filename: profilePhoto.filename,
-          filepath: profilePhoto.path,
-          type: 'profile',
-          userId: id,
-        });
-        images.push(profileImage);
+          const profilePhoto = files.profilePhoto[0];
+          const profileImage = await userImage.create({
+              filename: profilePhoto.filename,
+              filepath: profilePhoto.path,
+              type: 'profile',
+              userId: user,
+          });
+          images.push(profileImage);
       }
-  
+
       if (files.coverPhoto) {
-        const coverPhoto = files.coverPhoto[0];
-        const coverImage = await userImage.create({
-          filename: coverPhoto.filename,
-          filepath: coverPhoto.path,
-          type: 'cover',
-          userId: id,
-        });
-        images.push(coverImage);
+          const coverPhoto = files.coverPhoto[0];
+          const coverImage = await userImage.create({
+              filename: coverPhoto.filename,
+              filepath: coverPhoto.path,
+              type: 'cover',
+              userId: user,
+          });
+          images.push(coverImage);
       }
       return images;
-    } catch (error) {
-      return error;
-    }
+  } catch (error) {
+      throw new Error('Image upload failed: ' + error.message);
+  }
     
 
     // const user = await User.findByPk(id);

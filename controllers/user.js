@@ -10,10 +10,12 @@ const auth = require('../middleware/auth');
 var bodyParser = require('body-parser').json();
 
 
-const userImage = require('../models/userimage.js');
-const uploadFile = require('../middleware/upload.js');
+
+const upload = require('../middleware/upload.js');
 
 const { insertToUsertToken, listUserTokens, getLatestUserToken, deleteExpiredTokens } = require("../config/usertoken.js");
+const { JSON } = require("sequelize");
+const { json } = require("body-parser");
 
 
 
@@ -267,13 +269,15 @@ router.post("/user", function (req, res) {
 });
 
 // update user detail
-router.put("/user/:ID",auth,bodyParser,uploadFile.fields([
+router.put("/user/:ID",auth,bodyParser,upload.fields([
     { name: 'profilePhoto', maxCount: 1 },
     { name: 'coverPhoto', maxCount: 1 }
   ]), function (req, res) {
 
+   
+
     var UserId = req.params.ID;
-    var requestBody = req.body;
+    var requestBody =  req.body;
     console.log(req.body);
     var response;
     userModel.update(UserId, requestBody, async function (err, result) {
@@ -290,16 +294,20 @@ router.put("/user/:ID",auth,bodyParser,uploadFile.fields([
             if (req.files) {
                 // const imageUpload = helperUtil.
                 try {
-                   
-                
-                    httpStatusCode = 200;
-                    responseObj = result.dataValues;
-                    // responseObj= {..., "images":images};
-                    responseObj.images = images;
-                    response = { "status": httpStatusCode, "data": responseObj, "message": message };
-                  } catch (error) {
+                    const images = await helperUtil.uplaodUserImage(UserId, req.files);
+                    if (images) {
+                        httpStatusCode = 200;
+                        responseObj = result.dataValues;
+                        responseObj.images = images;
+                        response = { "status": httpStatusCode, "data": responseObj, "message": message };
+                    } else {
+                        httpStatusCode = 400;
+                        response = { "status": httpStatusCode, "message": "Image upload failed" };
+                    }
+                    return res.status(httpStatusCode).json(response);
+                } catch (error) {
                     return res.status(400).json({ error: error.message });
-                  }
+                }
             } else {
                 httpStatusCode = 200;
                 responseObj = result.dataValues;
@@ -308,7 +316,7 @@ router.put("/user/:ID",auth,bodyParser,uploadFile.fields([
             
             
         }
-        res.status(httpStatusCode).send(response);
+        return res.status(httpStatusCode).send(response);
     });
 });
 
