@@ -24,7 +24,7 @@ let users = {
             { firstName: inputParams.firstName,
                 lastName: inputParams.lastName,
                 primaryEmail: inputParams.primaryEmail,
-                secondryEmail: inputParams.secondryEmail,
+                SecondryEmail: inputParams.SecondryEmail,
                 isActive: inputParams.isActive,
                 verificationCode: inputParams.verificationCode,
                 isEmailVerified: inputParams.isEmailVerified,
