@@ -56,7 +56,7 @@ router.post("/user", function (req, res) {
                     } else {
 
                         for (var email of result) {
-                            if (email.email == requestBody.email) {
+                            if (email.primaryEmail == requestBody.email) {
                                 if (email.isActive) {
 
                                     // if ( email.IS_EMAIL_VERIFIED ) {
@@ -73,8 +73,9 @@ router.post("/user", function (req, res) {
                                         var responsedata = {
                                             "id": email.id,
                                             "firstName": email.firstName,
-                                            "lastName": email.firstName,
-                                            "email": email.email,
+                                            "lastName": email.lastName,
+                                            "primaryEmail": email.primaryEmail,
+                                            "secondryEmail": email.secondryEmail,
                                             "mobileNumber": email.mobileNumber,
                                             "companyName": email.companyName,
                                             "designation": email.designation,
@@ -133,7 +134,7 @@ router.post("/user", function (req, res) {
                 var inputObj = {
                     firstName: requestBody.username,
                     password: requestBody.PASSWORD,
-                    email: requestBody.email,
+                    primaryEmail: requestBody.email,
                     signupType: requestBody.type,
                     isActive: true
                 }
@@ -164,8 +165,9 @@ router.post("/user", function (req, res) {
                                 var responsedata = {
                                     "id": result.id,
                                     "firstName": result.firstName,
-                                    "lastName": result.firstName,
-                                    "email": result.email,
+                                    "lastName": result.lastName,
+                                    "primaryEmail": result.primaryEmail,
+                                    "secondryEmail": result.secondryEmail,
                                     "mobileNumber": result.mobileNumber,
                                     "companyName": result.companyName,
                                     "designation": result.designation,
@@ -217,7 +219,7 @@ router.post("/user", function (req, res) {
                         var inputObj = {
                             userName: requestBody.username,
                             password: requestBody.PASSWORD,
-                            email: requestBody.email,
+                            primaryEmail: requestBody.email,
                             signupType: requestBody.type,
                             isActive: true
                         }

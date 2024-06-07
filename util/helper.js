@@ -27,7 +27,7 @@ let utils = {
             }else{
               
                 for ( var email of result ) {
-                  if (email.email == curEmail) {
+                  if (email.primaryEmail == curEmail) {
                   isValid = false;
                     break;
                   }
