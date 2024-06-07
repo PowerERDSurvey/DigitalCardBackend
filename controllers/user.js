@@ -50,7 +50,7 @@ router.post("/user", function (req, res) {
                     } else {
 
                         for (var email of result) {
-                            if (email.email == requestBody.email) {
+                            if (email.primaryEmail == requestBody.email) {
                                 if (email.isActive) {
 
                                     // if ( email.IS_EMAIL_VERIFIED ) {
@@ -67,7 +67,7 @@ router.post("/user", function (req, res) {
                                         var responsedata = {
                                             "id": email.id,
                                             "firstName": email.firstName,
-                                            "lastName": email.firstName,
+                                            "lastName": email.lastName,
                                             "primaryEmail": email.primaryEmail,
                                             "secondryEmail": email.secondryEmail,
                                             "mobileNumber": email.mobileNumber,
@@ -159,7 +159,7 @@ router.post("/user", function (req, res) {
                                 var responsedata = {
                                     "id": result.id,
                                     "firstName": result.firstName,
-                                    "lastName": result.firstName,
+                                    "lastName": result.lastName,
                                     "primaryEmail": result.primaryEmail,
                                     "secondryEmail": result.secondryEmail,
                                     "mobileNumber": result.mobileNumber,

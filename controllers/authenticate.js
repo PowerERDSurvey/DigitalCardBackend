@@ -51,7 +51,7 @@ module.exports.authenticate=async function(req,res){
                       responsedata={"id":user.id,
                       "firstName":user.firstName,
                       "userName": user.userName,
-                      "lastName":user.firstName,
+                      "lastName":user.lastName,
                       "primaryEmail": user.primaryEmail,
                       "SecondryEmail": user.SecondryEmail,
                       "mobileNumber": user.mobileNumber,
