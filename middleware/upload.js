@@ -14,16 +14,24 @@ const path = require('path');
 
 
 // Set up multer for file storage
-const storage = multer.diskStorage({
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, 'uploads/');
+//   },
+//   filename: (req, file, cb) => {
+//     cb(null, Date.now() + path.extname(file.originalname));
+//   }
+// });
+var storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+    cb(null, __basedir + "/resources/static/assets/uploads/");
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
+    cb(null, `${Date.now()}-bezkoder-${file.originalname}`);
+  },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage: storage, limits: { fileSize: 40000000 } });
 
 // Create the uploads directory if it doesn't exist
 const fs = require('fs');
@@ -35,14 +43,7 @@ if (!fs.existsSync(uploadsDir)) {
 
 
 
-// var storage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     cb(null, __basedir + "/resources/static/assets/uploads/");
-//   },
-//   filename: (req, file, cb) => {
-//     cb(null, `${Date.now()}-bezkoder-${file.originalname}`);
-//   },
-// });
+
 
 // var uploadFile = multer({ storage: storage, fileFilter: imageFilter }).array("files",10);
 

@@ -37,8 +37,8 @@ router.post("/user", function (req, res) {
     console.log(requestBody);
     var response;
     var responseObj;
-    helperUtil.checkEmailValid(requestBody.email).then((isEmailValid) => {//will return email id is valid or invalid
-
+    helperUtil.checkEmailValid(requestBody.email).then(async (isEmailValid) => {//will return email id is valid or invalid
+        const userImages =await userImageModel.getAllUserImageByUserId(user.id);
         if (!isEmailValid) {
 
 
@@ -70,6 +70,7 @@ router.post("/user", function (req, res) {
                                     deleteExpiredTokens(email.id);
                                     insertToUsertToken(email.id, token).then((usertoken) => {
                                         // console.log("insert usertoken",usertoken);
+                                        
                                         var responsedata = {
                                             "id": email.id,
                                             "firstName": email.firstName,
@@ -90,6 +91,7 @@ router.post("/user", function (req, res) {
                                             "state": email.state,
                                             "Address": email.Address,
                                             "type": email.signupType,
+                                            "images":userImages,
                                         }
                                         return res.json({ "status": 200, "token": token, "data": responsedata });
                                     }).catch((err) => {
@@ -182,6 +184,7 @@ router.post("/user", function (req, res) {
                                     "state": result.state,
                                     "Address": result.Address,
                                     "type": result.signupType,
+                                    "images":userImages,
                                 }
                                 return res.json({ "status": 200, "token": token, "data": responsedata });
                             }).catch((err) => {
@@ -271,56 +274,56 @@ router.post("/user", function (req, res) {
 });
 
 // update user detail
-router.put("/user/:ID",auth,bodyParser,upload.fields([
-    { name: 'profilePhoto', maxCount: 1 },
-    { name: 'coverPhoto', maxCount: 1 }
-  ]), function (req, res) {
+// router.put("/user/:ID",auth,bodyParser,upload.fields([
+//     { name: 'profilePhoto', maxCount: 1 },
+//     { name: 'coverPhoto', maxCount: 1 }
+//   ]), function (req, res) {
 
    
 
-    var UserId = req.params.ID;
-    var requestBody =  req.body;
-    console.log(req.body);
-    var response;
-    userModel.update(UserId, requestBody, async function (err, result) {
-        var httpStatusCode = 0;
-        var responseObj = "";
-        var message = "User updates successfully.";
-        if (err) {
-            message = "User updation Failed.";
-            httpStatusCode = 500;
-            responseObj = err;
-            response = { "status": httpStatusCode, "error": responseObj, "message": message };
-        } else {
+//     var UserId = req.params.ID;
+//     var requestBody =  req.body;
+//     console.log(req.body);
+//     var response;
+//     userModel.update(UserId, requestBody, async function (err, result) {
+//         var httpStatusCode = 0;
+//         var responseObj = "";
+//         var message = "User updates successfully.";
+//         if (err) {
+//             message = "User updation Failed.";
+//             httpStatusCode = 500;
+//             responseObj = err;
+//             response = { "status": httpStatusCode, "error": responseObj, "message": message };
+//         } else {
            
-            if (req.files) {
-                // const imageUpload = helperUtil.
-                try {
-                    const images = await helperUtil.uplaodUserImage(UserId, req.files);
-                    if (images) {
-                        httpStatusCode = 200;
-                        responseObj = result.dataValues;
-                        responseObj.images = images;
-                        response = { "status": httpStatusCode, "data": responseObj, "message": message };
-                    } else {
-                        httpStatusCode = 400;
-                        response = { "status": httpStatusCode, "message": "Image upload failed" };
-                    }
-                    return res.status(httpStatusCode).json(response);
-                } catch (error) {
-                    return res.status(400).json({ error: error.message });
-                }
-            } else {
-                httpStatusCode = 200;
-                responseObj = result.dataValues;
-                response = { "status": httpStatusCode, "data": responseObj, "message": message };
-            }
+//             if (req.files) {
+//                 // const imageUpload = helperUtil.
+//                 try {
+//                     const images = await helperUtil.uplaodUserImage(UserId, req.files);
+//                     if (images) {
+//                         httpStatusCode = 200;
+//                         responseObj = result.dataValues;
+//                         responseObj.images = images;
+//                         response = { "status": httpStatusCode, "data": responseObj, "message": message };
+//                     } else {
+//                         httpStatusCode = 400;
+//                         response = { "status": httpStatusCode, "message": "Image upload failed" };
+//                     }
+//                     return res.status(httpStatusCode).json(response);
+//                 } catch (error) {
+//                     return res.status(400).json({ error: error.message });
+//                 }
+//             } else {
+//                 httpStatusCode = 200;
+//                 responseObj = result.dataValues;
+//                 response = { "status": httpStatusCode, "data": responseObj, "message": message };
+//             }
             
             
-        }
-        return res.status(httpStatusCode).send(response);
-    });
-});
+//         }
+//         return res.status(httpStatusCode).send(response);
+//     });
+// });
 
 router.post("/user/:ID", auth, bodyParser, function (req, res) {
     var UserId = req.params.ID;

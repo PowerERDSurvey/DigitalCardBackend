@@ -3,11 +3,18 @@ const cors=require("cors");
 const dotenv = require("dotenv").config();
 const bodyParser = require("body-parser");
 // const config = require('./config/dbConfig');
-
+var path = require('path');
+global.__basedir = __dirname ;
 var multer = require('multer');
 var uploadFile = multer({dest:'./uploads/'});
 const config = require('./config/config.js');
 const port = process.env.PORT || 8080;
+
+const auth = require('./middleware/auth.js');
+const userModel = require("./models/mvc_User");
+
+const upload = require('./middleware/upload.js');
+// var bodyParser = require('body-parser').json();
 
 var corsoption ={
     origin : 'http://localhost:3000'
@@ -15,20 +22,21 @@ var corsoption ={
 const app=express();
 
 
-app.use(express.static(__dirname + "/public"));
+// app.use(express.static(path.join(__dirname, 'uploads')));
+// app.use(express.static(__dirname + "/public"));
 console.log(__dirname,'DIR')
-app.use(function(req, res, next) {
-    if (req.get('x-amz-sns-message-type')) {
-        req.headers['content-type'] = 'application/json';
-    }
-    next();
-});
+// app.use(function(req, res, next) {
+//     if (req.get('x-amz-sns-message-type')) {
+//         req.headers['content-type'] = 'application/json';
+//     }
+//     next();
+// });
 
 //midleware
 
 app.use(cors(corsoption));
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true }));
+app.use(bodyParser.json({ limit: '50mb' }));
 
 //app.use(uploadOne.array()); 
 // app.use(uploadFile.any()); 
@@ -41,6 +49,60 @@ app.use(bodyParser.json());
 var User = require("./controllers/user.js");
 console.log(User);
 app.use("/",User);
+
+// app.use();
+
+app.put("/user/:ID",auth,upload.fields([
+    { name: 'profilePhoto', maxCount: 1 },
+    { name: 'coverPhoto', maxCount: 1 }
+  ]), function (req, res) {
+
+   
+
+    var UserId = req.params.ID;
+    var requestBody =  req.body;
+    console.log(req.body);
+    var response;
+    userModel.update(UserId, requestBody, async function (err, result) {
+        var httpStatusCode = 0;
+        var responseObj = "";
+        var message = "User updates successfully.";
+        if (err) {
+            message = "User updation Failed.";
+            httpStatusCode = 500;
+            responseObj = err;
+            response = { "status": httpStatusCode, "error": responseObj, "message": message };
+        } else {
+           
+            if (req.files) {
+                // const imageUpload = helperUtil.
+                try {
+                    const images = await helperUtil.uplaodUserImage(UserId, req.files);
+                    if (images) {
+                        httpStatusCode = 200;
+                        responseObj = result.dataValues;
+                        responseObj.images = images;
+                        response = { "status": httpStatusCode, "data": responseObj, "message": message };
+                    } else {
+                        httpStatusCode = 400;
+                        response = { "status": httpStatusCode, "message": "Image upload failed" };
+                    }
+                    return res.status(httpStatusCode).json(response);
+                } catch (error) {
+                    return res.status(400).json({ error: error.message });
+                }
+            } else {
+                httpStatusCode = 200;
+                responseObj = result.dataValues;
+                response = { "status": httpStatusCode, "data": responseObj, "message": message };
+            }
+            
+            
+        }
+        return res.status(httpStatusCode).send(response);
+    });
+});
+
 
 var authenticateController=require('./controllers/authenticate');
 
