@@ -18,7 +18,7 @@ const insertToUsertToken =  function (userId, token)
 
 } //const insertToUsertToken =  function (userId, token)
 
-const listUserTokens = function (userId)
+const listUserTokens = async function (userId)
 {
 
   var queryInputs = {};
@@ -54,7 +54,7 @@ const listUserTokens = function (userId)
 
 } //const listUserTokens = function (userId)
 
-const getLatestUserToken = function (userId)
+const getLatestUserToken = async function (userId)
 {
 
   var queryInputs = {};
@@ -79,7 +79,7 @@ const getLatestUserToken = function (userId)
 } //const listUserTokens = function (userId)
 
 
-const deleteExpiredTokens = function (userId)
+const deleteExpiredTokens = async function (userId)
 {
 
   const currentDate = new Date();
@@ -93,7 +93,7 @@ const deleteExpiredTokens = function (userId)
     }
   };
 
-  UserToken.destroy(queryInputs)
+  await UserToken.destroy(queryInputs)
   .then((deletionInfo)=>{
     console.info("delete usertoken",deletionInfo);
     })

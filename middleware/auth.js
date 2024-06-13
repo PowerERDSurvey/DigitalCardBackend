@@ -28,7 +28,7 @@ module.exports = (req, res, next) => {
       // Remove Bearer from string
       token = token.slice(6, token.length);
     }
-    jwt.verify(token, 'RANDOM_TOKEN_SECRET', (err, decoded) => {
+    jwt.verify(token, 'RANDOM_TOKEN_SECRET', async (err, decoded) => {
       if (err) {
         if (req.url.startsWith('/api/')) {
           res.status(401).send(ERROR_INVALID_TOKEN);
@@ -37,23 +37,23 @@ module.exports = (req, res, next) => {
         }
       } 
       else {
-        let latestToken = getLatestUserToken(decoded.user.id);
-        latestToken.then((userToken) => {
-            if (userToken.dataValues.token === token) {
-              req.user = decoded.user;
-              //console.log('isAuthenticated', `Logged in user data fetched from token.`, decoded);
-              next();
+        try {
+          let latestToken = await getLatestUserToken(decoded.user.id);
+          if (latestToken.dataValues.token === token) {
+            req.user = decoded.user;
+            //console.log('isAuthenticated', `Logged in user data fetched from token.`, decoded);
+            next();
+          } else {
+            if (req.url.startsWith('/api/')) {
+              res.status(401).send(ERROR_INVALID_TOKEN);
             } else {
-              if (req.url.startsWith('/api/')) {
-                res.status(401).send(ERROR_INVALID_TOKEN);
-              } else {
-                res.redirect('/Login');
-              }
+              res.redirect('/Login');
             }
           }
-        ).catch((error)=>{
+        } catch (error) {
           console.error("latest token error usertoken ", error);
-        });
+        }
+       
       }
     });
   } else if (req.url.startsWith('/api/')) {
