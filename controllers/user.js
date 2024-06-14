@@ -356,6 +356,7 @@ router.post("/user/:ID", auth, bodyParser, function (req, res) {
                 "country": result.country,
                 "state": result.state,
                 "type": result.signupType,
+                
             };
             response = { "status": httpStatusCode, "data": responseObj, "message": message };
         }

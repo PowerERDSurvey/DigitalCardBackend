@@ -18,6 +18,9 @@ module.exports = {
       type: {
         type: Sequelize.STRING
       },
+      data:{
+        type:Sequelize.BLOB('long')
+      },
       userId: {
         type: Sequelize.INTEGER,
         allowNull: false,

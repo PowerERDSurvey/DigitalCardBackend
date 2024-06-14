@@ -1,4 +1,5 @@
 const { update } = require('lodash');
+const fs = require('fs');
 const { Sequelize, DataTypes, where } = require('sequelize');
 
 const sequelize = new Sequelize(global.gConfig.database, global.gConfig.username, global.gConfig.password, {
@@ -12,6 +13,8 @@ var userImage = require('../models/userimage')(sequelize, DataTypes);
 let userImages = {
     createByUserId: async function (inputparam,Itype,user ) {
         var createUserImage={};
+        const fileData = fs.readFileSync(inputparam.path);
+        const fileBlob = Buffer.from(fileData, 'binary');
         try {
             const getUserImage = await this.getUserImageByIdandType(user,Itype);
     
@@ -21,12 +24,14 @@ let userImages = {
                     filepath: inputparam.path,
                       type: Itype,
                       userId: user,
+                      data:fileBlob,
                 })
             }
             else{
                 createUserImage = await userImage.update({
                     filename: inputparam.filename,
-                    filepath: inputparam.path
+                    filepath: inputparam.path,
+                    data:fileBlob,
                 }, {
                     where: {
                         userId: getUserImage.userId,
