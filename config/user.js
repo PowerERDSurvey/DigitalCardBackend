@@ -41,7 +41,9 @@ let users = {
                 country: inputParams.country,
                 state: inputParams.state,
               Address: inputParams.address,
-              youtube:inputParams.youtube
+              aboutMe:inputParams.aboutMe,
+              youtube:inputParams.youtube,
+              department:inputParams.department
             },
             {
               where: {
