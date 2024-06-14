@@ -20,7 +20,7 @@ module.exports.authenticate=async function(req,res){
     var userame=req.body.username;
     var password=req.body.password;
     
-     User.findAll({
+     await User.findAll({
       where: {
         userName: userame
         // userName: {
@@ -30,7 +30,7 @@ module.exports.authenticate=async function(req,res){
       },
       // collation: 'utf8_bin'
       
-    }).then((results)=>{
+    }).then(async(results)=>{
        if(results.length >0){
         var checkCasesen =userame === results[0].userName;
         if (checkCasesen) {
@@ -48,8 +48,8 @@ module.exports.authenticate=async function(req,res){
                       { expiresIn: '24h' });
                     // listUserTokens(user.ID);
                     // latestUserToken = getLatestUserToken(user.ID);
-                    deleteExpiredTokens(user.id);
-                    insertToUsertToken(user.id, token).then(async (usertoken) => {
+                    await deleteExpiredTokens(user.id);
+                    await insertToUsertToken(user.id, token).then(async (usertoken) => {
                       // var images=[];
 
                       const userImages =await userImageModel.getAllUserImageByUserId(user.id);

@@ -12,6 +12,7 @@ const port = process.env.PORT || 8080;
 
 const auth = require('./middleware/auth.js');
 const userModel = require("./models/mvc_User");
+const helperUtil = require('./util/helper.js');
 
 const upload = require('./middleware/upload.js');
 // var bodyParser = require('body-parser').json();
