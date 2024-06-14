@@ -54,7 +54,7 @@ const listUserTokens = async function (userId)
 
 } //const listUserTokens = function (userId)
 
-const getLatestUserToken = function (userId)
+const getLatestUserToken = async function (userId)
 {
 
   var queryInputs = {};

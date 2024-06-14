@@ -8,6 +8,7 @@ global.__basedir = __dirname ;
 var multer = require('multer');
 var uploadFile = multer({dest:'./uploads/'});
 const config = require('./config/config.js');
+const helperUtil = require('./util/helper.js')
 const port = process.env.PORT || 8080;
 
 const auth = require('./middleware/auth.js');
@@ -109,12 +110,44 @@ var authenticateController=require('./controllers/authenticate');
 
 app.post('/api/authenticate',authenticateController.authenticate);
 
+let server;
 
+if (require.main === module) {
+    server = app.listen(port, () => {
+        console.log(`Server running on port ${port}`);
+    });
+}
 
-app.listen(port,()=>{
-console.log(`post running with ${port}`);
-})
-
+module.exports = {
+    app,
+    start: () => {
+        return new Promise((resolve, reject) => {
+            server = app.listen(port, (err) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    console.log(`Server running on port ${port}`);
+                    resolve(server);
+                }
+            });
+        });
+    },
+    stop: () => {
+        return new Promise((resolve, reject) => {
+            if (server) {
+                server.close((err) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve();
+                    }
+                });
+            } else {
+                resolve();
+            }
+        });
+    }
+};
 
 // const express = require("express");
 // const meth = require("method-override");

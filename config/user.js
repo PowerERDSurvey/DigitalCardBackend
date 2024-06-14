@@ -40,7 +40,11 @@ let users = {
                 zipCode: inputParams.zipCode,
                 country: inputParams.country,
                 state: inputParams.state,
-              Address: inputParams.address},
+              Address: inputParams.address,
+              aboutMe:inputParams.aboutMe,
+              youtube:inputParams.youtube,
+              department:inputParams.department
+            },
             {
               where: {
                 id: UserId,

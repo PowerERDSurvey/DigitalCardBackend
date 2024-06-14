@@ -3,6 +3,7 @@ const express = require("express");
 const jwt = require('jsonwebtoken');
 var router = express.Router();
 const userModel = require("../models/mvc_User");
+const userImageModel =require('../models/mvc_UserImage.js')
 var Cryptr = require('cryptr');
 var cryptr = new Cryptr('myTotalySecretKey');
 const helperUtil = require('../util/helper.js');
@@ -38,13 +39,8 @@ router.post("/user", function (req, res) {
     var response;
     var responseObj;
     helperUtil.checkEmailValid(requestBody.email).then(async (isEmailValid) => {//will return email id is valid or invalid
-        const userImages =await userImageModel.getAllUserImageByUserId(user.id);
+        // const userImages =await userImageModel.getAllUserImageByUserId(user.id);
         if (!isEmailValid) {
-
-
-
-
-
             if (requestBody.type == 'GOOGLE_SSO') {
                 userModel.getActiveEmails(function (error, result) {
                     if (error) {
@@ -68,9 +64,9 @@ router.post("/user", function (req, res) {
                                     // listUserTokens(email.ID);
                                     // latestUserToken = getLatestUserToken(email.ID);
                                     deleteExpiredTokens(email.id);
-                                    insertToUsertToken(email.id, token).then((usertoken) => {
+                                    insertToUsertToken(email.id, token).then(async (usertoken) => {
                                         // console.log("insert usertoken",usertoken);
-                                        
+                                        const userImages =await userImageModel.getAllUserImageByUserId(email.id);
                                         var responsedata = {
                                             "id": email.id,
                                             "firstName": email.firstName,
@@ -162,8 +158,9 @@ router.post("/user", function (req, res) {
                             // listUserTokens(result.ID);
                             // latestUserToken = getLatestUserToken(result.ID);
                             deleteExpiredTokens(result.id);
-                            insertToUsertToken(result.id, token).then((usertoken) => {
+                            insertToUsertToken(result.id, token).then(async (usertoken) => {
                                 // console.log("insert usertoken",usertoken);
+                                const userImages =await userImageModel.getAllUserImageByUserId(result.id);
                                 var responsedata = {
                                     "id": result.id,
                                     "firstName": result.firstName,
@@ -359,6 +356,7 @@ router.post("/user/:ID", auth, bodyParser, function (req, res) {
                 "country": result.country,
                 "state": result.state,
                 "type": result.signupType,
+                
             };
             response = { "status": httpStatusCode, "data": responseObj, "message": message };
         }
