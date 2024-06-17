@@ -2,11 +2,13 @@ const express=require("express");
 const cors=require("cors");
 const dotenv = require("dotenv").config();
 const bodyParser = require("body-parser");
+// const config = require('./config/dbConfig');
 var path = require('path');
 global.__basedir = __dirname ;
 var multer = require('multer');
 var uploadFile = multer({dest:'./uploads/'});
 const config = require('./config/config.js');
+const helperUtil = require('./util/helper.js')
 const port = process.env.PORT || 8080;
 
 const auth = require('./middleware/auth.js');

@@ -5,7 +5,6 @@ const express = require("express");
 var router = express.Router();
 const userImageModel = require('../models/mvc_UserImage.js');
 const baseDir=global.__dirname;
-// const userModel = require("./models/mvc_User");
 
 const {sequelize ,DataTypes} = require('../config/sequelize');
 var User = require('../models/user')(sequelize, DataTypes);

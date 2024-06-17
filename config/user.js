@@ -3,6 +3,7 @@ const { sequelize, DataTypes } = require('../config/sequelize');
 var User = require('../models/user')(sequelize, DataTypes);
 
 
+
 let users = {
   create: async function (inputParams, cb) {
     console.log('inputParams' + inputParams);
@@ -86,4 +87,5 @@ let users = {
     })
   }
 }
+
 module.exports = users;
