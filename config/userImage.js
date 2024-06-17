@@ -1,12 +1,6 @@
 const { update } = require('lodash');
 const fs = require('fs');
-const { Sequelize, DataTypes, where } = require('sequelize');
-
-const sequelize = new Sequelize(global.gConfig.database, global.gConfig.username, global.gConfig.password, {
-	host: global.gConfig.host,
-	dialect: global.gConfig.dialect /* one of 'mysql' | 'postgres' | 'sqlite' | 'mariadb' | 'mssql' | 'db2' | 'snowflake' | 'oracle' */
-});
-
+const {sequelize ,DataTypes} = require('../config/sequelize');
 // import userImage from ('../models/userimage')(sequelize, DataTypes);
 var userImage = require('../models/userimage')(sequelize, DataTypes);
 

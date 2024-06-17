@@ -17,7 +17,7 @@ module.exports = {
         'department', // new field name
         {
           type: Sequelize.STRING,
-          allowNull: false,
+          allowNull: true,
         },
       ),
       queryInterface.addColumn(
@@ -25,7 +25,7 @@ module.exports = {
         'youtube', // new field name
         {
           type: Sequelize.STRING,
-          allowNull: false,
+          allowNull: true,
         },
       ),
       queryInterface.addColumn(

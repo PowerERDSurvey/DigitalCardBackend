@@ -17,7 +17,9 @@ let userModel = {
                 userRepo.getOneUser(inputParams,cb);
             },
     
-
+            getUsertokenById: async function (userId,verificationCode) {
+                return await userRepo.getUsertokenById(userId,verificationCode);
+            }
 }
 
 module.exports = userModel;

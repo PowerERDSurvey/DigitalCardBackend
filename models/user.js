@@ -44,6 +44,7 @@ module.exports = (sequelize, DataTypes) => {
     aboutMe:DataTypes.STRING,
     youtube:DataTypes.STRING,
     department:DataTypes.STRING,
+    verificationExpires: DataTypes.DATE,
   }, {
     sequelize,
     modelName: 'User',

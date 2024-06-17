@@ -6,12 +6,7 @@ var router = express.Router();
 const userImageModel = require('../models/mvc_UserImage.js');
 const baseDir=global.__dirname;
 
-const { Sequelize, DataTypes } = require('sequelize');
-
-const sequelize = new Sequelize(global.gConfig.database, global.gConfig.username, global.gConfig.password, {
-	host: global.gConfig.host,
-	dialect: global.gConfig.dialect /* one of 'mysql' | 'postgres' | 'sqlite' | 'mariadb' | 'mssql' | 'db2' | 'snowflake' | 'oracle' */
-});
+const {sequelize ,DataTypes} = require('../config/sequelize');
 var User = require('../models/user')(sequelize, DataTypes);
 
 const {insertToUsertToken, listUserTokens, getLatestUserToken, deleteExpiredTokens} = require("../config/usertoken.js");
@@ -96,10 +91,14 @@ module.exports.authenticate=async function(req,res){
                   // }
                 }
                 else {
+                    if(user.verificationCode != 'verified') {
+                      res.json({message: "An email send to your account please verify"})
+                    }
+
                   res.json({
                     status:false,
                     status:400,
-                    message:"User is disabled"
+                    message:"Error in backend while email verify please contact backend developer"
                   })
                 }
               

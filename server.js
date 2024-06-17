@@ -62,9 +62,35 @@ app.put("/user/:ID",auth,upload.fields([
    
 
     var UserId = req.params.ID;
-    var requestBody =  req.body;
+    // var requestBody =  req.body;
+    var requestBody =  {
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        primaryEmail: req.body.primaryEmail,
+        SecondryEmail: req.body.SecondryEmail,
+        isActive: req.body.isActive,
+        verificationCode: req.body.verificationCode,
+        isEmailVerified: req.body.isEmailVerified,
+        mobileNumber: req.body.mobileNumber,
+        companyName: req.body.companyName,
+        designation: req.body.designation,
+        whatsapp: req.body.whatsapp,
+        facebook: req.body.facebook,
+        instagram: req.body.instagram,
+        linkedin: req.body.linkedin,
+        website: req.body.website,
+        city: req.body.city,
+        zipCode: req.body.zipCode,
+        country: req.body.country,
+        state: req.body.state,
+        Address: req.body.address,
+        aboutMe: req.body.aboutMe,
+        youtube: req.body.youtube,
+        department: req.body.department
+      };
     console.log(req.body);
     var response;
+    
     userModel.update(UserId, requestBody, async function (err, result) {
         var httpStatusCode = 0;
         var responseObj = "";
