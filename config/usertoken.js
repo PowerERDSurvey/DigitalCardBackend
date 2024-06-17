@@ -1,12 +1,7 @@
-const { Sequelize, DataTypes } = require('sequelize');
-
-const sequelize = new Sequelize(global.gConfig.database, global.gConfig.username, global.gConfig.password, {
-	host: global.gConfig.host,
-	dialect: global.gConfig.dialect /* one of 'mysql' | 'postgres' | 'sqlite' | 'mariadb' | 'mssql' | 'db2' | 'snowflake' | 'oracle' */
-});
+const {sequelize ,DataTypes} = require('../config/sequelize');
 const UserToken = require('../models/usertokens')(sequelize, DataTypes);
 
-const insertToUsertToken =  function (userId, token)
+const insertToUsertToken =  async function (userId, token)
 {
 
   return UserToken.create(
@@ -18,7 +13,7 @@ const insertToUsertToken =  function (userId, token)
 
 } //const insertToUsertToken =  function (userId, token)
 
-const listUserTokens = function (userId)
+const listUserTokens = async function (userId)
 {
 
   var queryInputs = {};
@@ -38,7 +33,7 @@ const listUserTokens = function (userId)
 
   queryInputs.order = [['createdAt', 'DESC']]
 
-  UserToken.findAll(queryInputs)
+  await UserToken.findAll(queryInputs)
   .then((userTokens) => {
         // userTokens.forEach((userToken)=>{
         //     console.log("log userId",userToken.dataValues.userId);
@@ -54,7 +49,7 @@ const listUserTokens = function (userId)
 
 } //const listUserTokens = function (userId)
 
-const getLatestUserToken = function (userId)
+const getLatestUserToken = async function (userId)
 {
 
   var queryInputs = {};
@@ -79,7 +74,7 @@ const getLatestUserToken = function (userId)
 } //const listUserTokens = function (userId)
 
 
-const deleteExpiredTokens = function (userId)
+const deleteExpiredTokens =  async function (userId)
 {
 
   const currentDate = new Date();
@@ -93,7 +88,7 @@ const deleteExpiredTokens = function (userId)
     }
   };
 
-  UserToken.destroy(queryInputs)
+  await UserToken.destroy(queryInputs)
   .then((deletionInfo)=>{
     console.info("delete usertoken",deletionInfo);
     })

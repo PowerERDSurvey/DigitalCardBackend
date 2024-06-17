@@ -3,13 +3,11 @@ cryptr = new Cryptr('myTotalySecretKey');
 const jwt = require('jsonwebtoken');
 const express = require("express");
 var router = express.Router();
+const userImageModel = require('../models/mvc_UserImage.js');
+const baseDir=global.__dirname;
+// const userModel = require("./models/mvc_User");
 
-const { Sequelize, DataTypes } = require('sequelize');
-
-const sequelize = new Sequelize(global.gConfig.database, global.gConfig.username, global.gConfig.password, {
-	host: global.gConfig.host,
-	dialect: global.gConfig.dialect /* one of 'mysql' | 'postgres' | 'sqlite' | 'mariadb' | 'mssql' | 'db2' | 'snowflake' | 'oracle' */
-});
+const {sequelize ,DataTypes} = require('../config/sequelize');
 var User = require('../models/user')(sequelize, DataTypes);
 
 const {insertToUsertToken, listUserTokens, getLatestUserToken, deleteExpiredTokens} = require("../config/usertoken.js");
@@ -18,7 +16,7 @@ module.exports.authenticate=async function(req,res){
     var userame=req.body.username;
     var password=req.body.password;
     
-     User.findAll({
+     await User.findAll({
       where: {
         userName: userame
         // userName: {
@@ -28,7 +26,7 @@ module.exports.authenticate=async function(req,res){
       },
       // collation: 'utf8_bin'
       
-    }).then((results)=>{
+    }).then(async(results)=>{
        if(results.length >0){
         var checkCasesen =userame === results[0].userName;
         if (checkCasesen) {
@@ -37,6 +35,7 @@ module.exports.authenticate=async function(req,res){
             if(password==decryptedString){
               const user = results[0];
                 if(user.isActive){
+
                   // if ( user.IS_EMAIL_VERIFIED ) {
                     user.authenticated = true;
                     const token = jwt.sign(
@@ -45,8 +44,17 @@ module.exports.authenticate=async function(req,res){
                       { expiresIn: '24h' });
                     // listUserTokens(user.ID);
                     // latestUserToken = getLatestUserToken(user.ID);
-                    deleteExpiredTokens(user.id);
-                    insertToUsertToken(user.id, token).then((usertoken) => {
+                    await deleteExpiredTokens(user.id);
+                    await insertToUsertToken(user.id, token).then(async (usertoken) => {
+                      // var images=[];
+
+                      const userImages =await userImageModel.getAllUserImageByUserId(user.id);
+                      // userImages.forEach(element => {
+                      //   element.filepath = path.join(baseDir, element.filepath);
+                      //   // element.filepath = path.join(baseDir, 'uploads',profileImage.filename);
+                      //   images.push(element);
+                      // });
+                      
                       // console.log("insert usertoken",usertoken);
                       responsedata={"id":user.id,
                       "firstName":user.firstName,
@@ -68,6 +76,7 @@ module.exports.authenticate=async function(req,res){
                       "state":user.state,
                       "Address": user.Address,
                       "type": user.signupType,
+                      "images":userImages,
                     }
                       res.json({"status":200,"token" : token,"data":responsedata});
                     }).catch((err)=>{
@@ -83,10 +92,14 @@ module.exports.authenticate=async function(req,res){
                   // }
                 }
                 else {
+                    if(user.verificationCode != 'verified') {
+                      res.json({message: "An email send to your account please verify"})
+                    }
+
                   res.json({
                     status:false,
                     status:400,
-                    message:"User is disabled"
+                    message:"Error in backend while email verify please contact backend developer"
                   })
                 }
               

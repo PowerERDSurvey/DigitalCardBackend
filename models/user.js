@@ -11,6 +11,10 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      User.hasMany(models.userImage, {
+        foreignKey: 'userId',
+        as: 'images',
+      });
     }
   }
   User.init({
@@ -40,6 +44,7 @@ module.exports = (sequelize, DataTypes) => {
     aboutMe:DataTypes.STRING,
     youtube:DataTypes.STRING,
     department:DataTypes.STRING,
+    verificationExpires: DataTypes.DATE,
   }, {
     sequelize,
     modelName: 'User',

@@ -3,13 +3,20 @@ const express = require("express");
 const jwt = require('jsonwebtoken');
 var router = express.Router();
 const userModel = require("../models/mvc_User");
+const userImageModel =require('../models/mvc_UserImage.js')
 var Cryptr = require('cryptr');
 var cryptr = new Cryptr('myTotalySecretKey');
 const helperUtil = require('../util/helper.js');
 const auth = require('../middleware/auth');
 var bodyParser = require('body-parser').json();
 
+
+const sendVerificationEmail = require('../util/emailSender.js');
+const upload = require('../middleware/upload.js');
+
 const { insertToUsertToken, listUserTokens, getLatestUserToken, deleteExpiredTokens } = require("../config/usertoken.js");
+const { JSON } = require("sequelize");
+const { json } = require("body-parser");
 
 
 
@@ -31,14 +38,9 @@ router.post("/user", function (req, res) {
     console.log(requestBody);
     var response;
     var responseObj;
-    helperUtil.checkEmailValid(requestBody.email).then((isEmailValid) => {//will return email id is valid or invalid
-
+    helperUtil.checkEmailValid(requestBody.email).then(async (isEmailValid) => {//will return email id is valid or invalid
+        // const userImages =await userImageModel.getAllUserImageByUserId(user.id);
         if (!isEmailValid) {
-
-
-
-
-
             if (requestBody.type == 'GOOGLE_SSO') {
                 userModel.getActiveEmails(function (error, result) {
                     if (error) {
@@ -62,8 +64,9 @@ router.post("/user", function (req, res) {
                                     // listUserTokens(email.ID);
                                     // latestUserToken = getLatestUserToken(email.ID);
                                     deleteExpiredTokens(email.id);
-                                    insertToUsertToken(email.id, token).then((usertoken) => {
+                                    insertToUsertToken(email.id, token).then(async (usertoken) => {
                                         // console.log("insert usertoken",usertoken);
+                                        const userImages =await userImageModel.getAllUserImageByUserId(email.id);
                                         var responsedata = {
                                             "id": email.id,
                                             "firstName": email.firstName,
@@ -84,6 +87,7 @@ router.post("/user", function (req, res) {
                                             "state": email.state,
                                             "Address": email.Address,
                                             "type": email.signupType,
+                                            "images":userImages,
                                         }
                                         return res.json({ "status": 200, "token": token, "data": responsedata });
                                     }).catch((err) => {
@@ -154,8 +158,9 @@ router.post("/user", function (req, res) {
                             // listUserTokens(result.ID);
                             // latestUserToken = getLatestUserToken(result.ID);
                             deleteExpiredTokens(result.id);
-                            insertToUsertToken(result.id, token).then((usertoken) => {
+                            insertToUsertToken(result.id, token).then(async (usertoken) => {
                                 // console.log("insert usertoken",usertoken);
+                                const userImages =await userImageModel.getAllUserImageByUserId(result.id);
                                 var responsedata = {
                                     "id": result.id,
                                     "firstName": result.firstName,
@@ -176,6 +181,7 @@ router.post("/user", function (req, res) {
                                     "state": result.state,
                                     "Address": result.Address,
                                     "type": result.signupType,
+                                    "images":userImages,
                                 }
                                 return res.json({ "status": 200, "token": token, "data": responsedata });
                             }).catch((err) => {
@@ -209,18 +215,25 @@ router.post("/user", function (req, res) {
                         return res.status(httpStatusCode).send(response);
                     }
                     else {
+                        var primemail =requestBody.email;
+                        const token = jwt.sign(
+                            { primemail},
+                            'RANDOM_TOKEN_SECRET',
+                            { expiresIn: '2h' });
 
                         var inputObj = {
                             userName: requestBody.username,
                             password: requestBody.PASSWORD,
                             primaryEmail: requestBody.email,
                             signupType: requestBody.type,
-                            isActive: true
+                            verificationCode : token,
+                            verificationExpires : Date.now() + 7200000,
+                            // isActive: true
                         }
-                        userModel.create(inputObj, function (err, result) {
+                        userModel.create(inputObj, async function (err, result) {
                             var httpStatusCode = 0;
                             var responseObj = "";
-                            var message = "User created successfully.";
+                            var message = `User created successfully. verification link send to ${primemail} `;
                             if (err) {
                                 message = "User creation Failed.";
                                 httpStatusCode = 500;
@@ -229,8 +242,16 @@ router.post("/user", function (req, res) {
                             } else {
                                 httpStatusCode = 200;
                                 responseObj = { ID: result.dataValues.id };
+                                try {
+                                    const emailsend = await sendVerificationEmail(result.dataValues.id,primemail, token);
+                                if(!emailsend) return res.status(400).statusMessage('verification email send failed');
 
                                 response = { "status": httpStatusCode, "data": responseObj, "message": message };
+                                } catch (error) {
+                                    response = { "status": 400, "data": error, "message": error.message };
+                                    return res.status(400).send(response);
+                                }
+                                
                             }
                             return res.status(httpStatusCode).send(response);
                         })
@@ -264,31 +285,76 @@ router.post("/user", function (req, res) {
     });
 });
 
-// update user detail
-// router.put("/user/:ID", auth, bodyParser, function (req, res) {
-    router.put("/user/:ID", function (req, res) {
+router.get('/user/:id/verify/:token',async function (req,res){
+    try {
+        let userActivateTocken = await userModel.getUsertokenById(req.params.id,req.params.token);
+        if (!userActivateTocken) return res.status(500).send({message:'invalid link'});
+        var requestBody = {
+            isActive : true,
+            verificationCode: 'verified',
 
-    var UserId = req.params.ID;
-    var requestBody = req.body;
-    console.log(req.body);
-    var response;
-    userModel.update(UserId, requestBody, function (err, result) {
-        var httpStatusCode = 0;
-        var responseObj = "";
-        var message = "User updates successfully.";
-        if (err) {
-            message = "User updation Failed.";
-            httpStatusCode = 500;
-            responseObj = err;
-            response = { "status": httpStatusCode, "error": responseObj, "message": message };
-        } else {
-            httpStatusCode = 200;
-            responseObj = result.dataValues;
-            response = { "status": httpStatusCode, "data": responseObj, "message": message };
         }
-        res.status(httpStatusCode).send(response);
-    });
+        userModel.update(userActivateTocken.id, requestBody, async function (err, result) {
+            if (err) return res.status(500).send({error:err,message:'Email verification faild'});
+            return res.status(200).send({message:'Email Verified successfully'});
+        });
+        
+    } catch (error) {
+        
+    }
 });
+
+// update user detail
+// router.put("/user/:ID",auth,bodyParser,upload.fields([
+//     { name: 'profilePhoto', maxCount: 1 },
+//     { name: 'coverPhoto', maxCount: 1 }
+//   ]), function (req, res) {
+
+   
+
+//     var UserId = req.params.ID;
+//     var requestBody =  req.body;
+//     console.log(req.body);
+//     var response;
+//     userModel.update(UserId, requestBody, async function (err, result) {
+//         var httpStatusCode = 0;
+//         var responseObj = "";
+//         var message = "User updates successfully.";
+//         if (err) {
+//             message = "User updation Failed.";
+//             httpStatusCode = 500;
+//             responseObj = err;
+//             response = { "status": httpStatusCode, "error": responseObj, "message": message };
+//         } else {
+           
+//             if (req.files) {
+//                 // const imageUpload = helperUtil.
+//                 try {
+//                     const images = await helperUtil.uplaodUserImage(UserId, req.files);
+//                     if (images) {
+//                         httpStatusCode = 200;
+//                         responseObj = result.dataValues;
+//                         responseObj.images = images;
+//                         response = { "status": httpStatusCode, "data": responseObj, "message": message };
+//                     } else {
+//                         httpStatusCode = 400;
+//                         response = { "status": httpStatusCode, "message": "Image upload failed" };
+//                     }
+//                     return res.status(httpStatusCode).json(response);
+//                 } catch (error) {
+//                     return res.status(400).json({ error: error.message });
+//                 }
+//             } else {
+//                 httpStatusCode = 200;
+//                 responseObj = result.dataValues;
+//                 response = { "status": httpStatusCode, "data": responseObj, "message": message };
+//             }
+            
+            
+//         }
+//         return res.status(httpStatusCode).send(response);
+//     });
+// });
 
 router.post("/user/:ID", auth, bodyParser, function (req, res) {
     var UserId = req.params.ID;
@@ -323,6 +389,8 @@ router.post("/user/:ID", auth, bodyParser, function (req, res) {
                 "zipCode": result.zipCode,
                 "country": result.country,
                 "state": result.state,
+                "type": result.signupType,
+                
             };
             response = { "status": httpStatusCode, "data": responseObj, "message": message };
         }
