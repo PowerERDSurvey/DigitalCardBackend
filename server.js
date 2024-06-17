@@ -13,7 +13,7 @@ const port = process.env.PORT || 8080;
 
 const auth = require('./middleware/auth.js');
 const userModel = require("./models/mvc_User");
-const helperUtil = require('./util/helper.js');
+// const helperUtil = require('./util/helper.js');
 
 const upload = require('./middleware/upload.js');
 // var bodyParser = require('body-parser').json();
@@ -51,6 +51,10 @@ app.use(bodyParser.json({ limit: '50mb' }));
 var User = require("./controllers/user.js");
 console.log(User);
 app.use("/",User);
+
+
+var CardCreation = require('./controllers/businessCard.js');
+app.use("/",CardCreation);
 
 // app.use();
 
