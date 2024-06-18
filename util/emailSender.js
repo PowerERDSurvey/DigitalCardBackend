@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
 
 
 
-const sendVerificationEmail = (userId,email, token) => {
+const sendVerificationEmail = async (userId,email, token) => {
   var url =  `${process.env.BaseURL}/user/${userId}/verify/${token}`;
   const mailOptions = {
     from: process.env.EMAIL_USER,
@@ -20,8 +20,11 @@ const sendVerificationEmail = (userId,email, token) => {
     subject: 'Account Verification',
     text: `Please verify your account by clicking the link: ${url}`,
   };
-
-  return transporter.sendMail(mailOptions);
+  try {
+    return await transporter.sendMail(mailOptions);
+  } catch (error) {
+    console.log('Error sendVerificationEmail - ', error);
+  }
 };
 
 module.exports = sendVerificationEmail;

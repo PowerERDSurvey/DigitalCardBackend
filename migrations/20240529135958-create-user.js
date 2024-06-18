@@ -23,7 +23,7 @@ module.exports = {
         allowNull: true,
         unique: true
       },
-      SecondryEmail: {
+      secondaryEmail: {
         type: Sequelize.STRING,
         allowNull: true,
         unique: true

@@ -76,7 +76,7 @@ app.put("/user/:ID",auth,upload.fields([
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         primaryEmail: req.body.primaryEmail,
-        SecondryEmail: req.body.SecondryEmail,
+        secondaryEmail: req.body.secondaryEmail,
         isActive: req.body.isActive,
         verificationCode: req.body.verificationCode,
         isEmailVerified: req.body.isEmailVerified,

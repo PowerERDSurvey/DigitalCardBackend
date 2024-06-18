@@ -28,7 +28,7 @@ module.exports = {
       primaryEmail: {
         type: Sequelize.STRING
       },
-      SecondryEmail: {
+      secondaryEmail: {
         type: Sequelize.STRING
       },
       isActive: {

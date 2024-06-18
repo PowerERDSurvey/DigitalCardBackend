@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     firstName: DataTypes.STRING,
     lastName: DataTypes.STRING,
     primaryEmail: DataTypes.STRING,
-    SecondryEmail: DataTypes.STRING,
+    secondaryEmail: DataTypes.STRING,
     isActive: DataTypes.BOOLEAN,
     verificationCode: DataTypes.STRING,
     isEmailVerified: DataTypes.BOOLEAN,
