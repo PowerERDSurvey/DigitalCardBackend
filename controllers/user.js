@@ -288,7 +288,7 @@ router.post("/user", function (req, res) {
 router.get('/user/:id/verify/:token',async function (req,res){
     try {
         let userActivateTocken = await userModel.getUsertokenById(req.params.id,req.params.token);
-        if (!userActivateTocken) return res.status(500).send({message:'invalid link'});
+        if (!userActivateTocken) return res.status(400).send({message:'invalid link/ user already verified'});
         var requestBody = {
             isActive : true,
             verificationCode: 'verified',
@@ -300,7 +300,7 @@ router.get('/user/:id/verify/:token',async function (req,res){
         });
         
     } catch (error) {
-        
+        return res.status(500).send({message:'Email Verified successfully','error':error});
     }
 });
 

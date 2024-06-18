@@ -11,6 +11,7 @@ router.get('/user/getAllCard/:userId',auth,bodyParser,async function (req, res) 
     var message = "";
     var httpStatusCode = 500;
     var responseObj = {};
+    if (!userId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
     try {
         const cardCollection = await cardModel.getALLCardbyUserId(userId);
         if (!cardCollection) return  await helperUtil.responseSender(res,'error',400,responseObj, 'there is no cards in active state for this User');
@@ -31,6 +32,7 @@ router.get('/user/getOneCard/:cardId',auth,bodyParser,async function (req, res) 
     var message = "";
     var httpStatusCode = 500;
     var responseObj = {};
+    if (!cardId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
     try {
         const cardCollection = await cardModel.getACardbyCardId(cardId);
         // if (cardCollection == null)  return res.status(httpStatusCode).send( { "status": httpStatusCode, "error": responseObj, "message": message });
@@ -50,6 +52,7 @@ router.post('/user/createCard/:userId',auth,bodyParser,async function (req, res)
     var message = "";
     var httpStatusCode = 500;
     var responseObj = {};
+    if (!userId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
     try {
         var inputparam = {
             userId:userId,
@@ -96,6 +99,7 @@ router.put('/user/card/update/:cardId',auth,bodyParser,async function (req, res)
     var message = "";
     var httpStatusCode = 500;
     var responseObj = {};
+    if (!cardId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
     try {
         var inputparam = {
             firstName: req.body.firstName,
@@ -140,6 +144,7 @@ router.get('/user/card/activate/:cardId',auth,bodyParser,async function (req, re
     var message = "";
     var httpStatusCode = 500;
     var responseObj = {};
+    if (!cardId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
     try {
         var inputparam = {
             isActive: req.body.isActive,

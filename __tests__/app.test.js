@@ -62,7 +62,7 @@ describe('test mock', () => {
             //  console.log('res',res);
             expect(res.statusCode).toEqual(200);
             
-            expect(res.body.message).toBe('User created successfully.');
+            expect(res.body.message).toBe(`User created successfully. verification link send to ${mockUser.email}`);
         })
     });
     it('create user with 400 status',()=>{

@@ -83,7 +83,7 @@ let users = {
     return await User.findOne({
       where: { id: userId,verificationCode : verificationCodeParam },
       attributes: ['id','verificationCode', 'verificationExpires', 'isActive'],
-      rejectOnEmpty: true,
+      // rejectOnEmpty: true,
     })
   }
 }
