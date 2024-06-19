@@ -304,99 +304,23 @@ router.get('/user/:id/verify/:token',async function (req,res){
     }
 });
 
-// update user detail
-// router.put("/user/:ID",auth,bodyParser,upload.fields([
-//     { name: 'profilePhoto', maxCount: 1 },
-//     { name: 'coverPhoto', maxCount: 1 }
-//   ]), function (req, res) {
 
-   
-
-//     var UserId = req.params.ID;
-//     var requestBody =  req.body;
-//     console.log(req.body);
-//     var response;
-//     userModel.update(UserId, requestBody, async function (err, result) {
-//         var httpStatusCode = 0;
-//         var responseObj = "";
-//         var message = "User updates successfully.";
-//         if (err) {
-//             message = "User updation Failed.";
-//             httpStatusCode = 500;
-//             responseObj = err;
-//             response = { "status": httpStatusCode, "error": responseObj, "message": message };
-//         } else {
-           
-//             if (req.files) {
-//                 // const imageUpload = helperUtil.
-//                 try {
-//                     const images = await helperUtil.uplaodUserImage(UserId, req.files);
-//                     if (images) {
-//                         httpStatusCode = 200;
-//                         responseObj = result.dataValues;
-//                         responseObj.images = images;
-//                         response = { "status": httpStatusCode, "data": responseObj, "message": message };
-//                     } else {
-//                         httpStatusCode = 400;
-//                         response = { "status": httpStatusCode, "message": "Image upload failed" };
-//                     }
-//                     return res.status(httpStatusCode).json(response);
-//                 } catch (error) {
-//                     return res.status(400).json({ error: error.message });
-//                 }
-//             } else {
-//                 httpStatusCode = 200;
-//                 responseObj = result.dataValues;
-//                 response = { "status": httpStatusCode, "data": responseObj, "message": message };
-//             }
-            
-            
-//         }
-//         return res.status(httpStatusCode).send(response);
-//     });
-// });
-
-router.post("/user/:ID", auth, bodyParser, function (req, res) {
+router.get("/user/:ID", auth, bodyParser, async function (req, res) {
     var UserId = req.params.ID;
-    var response;
-    userModel.getOneUser(UserId, function (err, result) {
-        var httpStatusCode = 0;
-        var responseObj = "";
-        var message = "User get successfully.";
-        if (err) {
-            message = "User get Failed.";
-            httpStatusCode = 500;
-            responseObj = err;
-            response = { "status": httpStatusCode, "error": responseObj, "message": message };
-        } else {
-            httpStatusCode = 200;
-            responseObj = {
-                "id": result.id,
-                "firstName": result.firstName,
-                "userName": result.userName,
-                "lastName": result.lastName,
-                "primaryEmail": result.primaryEmail,
-                "secondaryEmail": result.secondaryEmail,
-                "mobileNumber": result.mobileNumber,
-                "companyName": result.companyName,
-                "designation": result.designation,
-                "whatsapp": result.whatsapp,
-                "facebook": result.facebook,
-                "instagram": result.instagram,
-                "linkedin": result.linkedin,
-                "website": result.website,
-                "city": result.city,
-                "zipCode": result.zipCode,
-                "country": result.country,
-                "state": result.state,
-                "type": result.signupType,
-                
-            };
-            response = { "status": httpStatusCode, "data": responseObj, "message": message };
-        }
-        res.status(httpStatusCode).send(response);
-    });
-    getOneUser
+    var message = "";
+    var httpStatusCode = 500;
+    var responseObj = {};
+    if (!UserId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
+    try {
+        const UserCollection = await userModel.getUser(UserId);
+        if (UserCollection == null) return await helperUtil.responseSender(res,'error',400,responseObj, 'No user exist');
+        responseObj = {"cardCollection" : cardCollection};
+        return await helperUtil.responseSender(res,'data',200,responseObj, 'user retrived successfully');
+    }catch(error){
+        message = "user retrieved Failed.";
+        responseObj = error;
+        return await helperUtil.responseSender(res,'error',httpStatusCode, responseObj, message);
+    }
 });
 
 module.exports = router;

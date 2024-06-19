@@ -85,6 +85,9 @@ let users = {
       attributes: ['id','verificationCode', 'verificationExpires', 'isActive'],
       // rejectOnEmpty: true,
     })
+  },
+  getUser: async function (userId) {
+    return await User.findOne({where: { id: userId}})
   }
 }
 

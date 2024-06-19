@@ -13,6 +13,8 @@ const port = process.env.PORT || 8080;
 
 const auth = require('./middleware/auth.js');
 const userModel = require("./models/mvc_User");
+
+const userImageModel = require("./models/mvc_UserImage.js");
 // const helperUtil = require('./util/helper.js');
 
 const upload = require('./middleware/upload.js');
@@ -47,6 +49,8 @@ app.use(bodyParser.json({ limit: '50mb' }));
 // app.get('/contact',(req,res)=>{
 //     res.send("get all contact");
 // })
+
+app.use('/uploads', express.static(path.join(__dirname, 'resources/static/assets/uploads')));
 
 var User = require("./controllers/user.js");
 console.log(User);
@@ -114,7 +118,10 @@ app.put("/user/:ID",auth,upload.fields([
             if (req.files) {
                 // const imageUpload = helperUtil.
                 try {
-                    const images = await helperUtil.uplaodUserImage(UserId, req.files);
+                    const imagesUpdation = await helperUtil.uplaodUserImage(UserId, req.files);
+                    if(!imagesUpdation) return await helperUtil.responseSender(res,'error',400,responseObj, 'images updated. but waiting for response please contact BC');
+                    const images = await userImageModel.getAllUserImageByUserId(UserId);
+                    if(!images) return await helperUtil.responseSender(res,'error',400,responseObj, 'images getting failed. but waiting for response please contact BC');
                     if (images) {
                         httpStatusCode = 200;
                         responseObj = result.dataValues;

@@ -127,9 +127,13 @@ router.put('/user/card/update/:cardId',auth,bodyParser,async function (req, res)
             department: req.body.department,
             vCardDetails: req.body.vCardDetails,
           };
-        const cardCollection = await cardModel.updateCard(inputparam,cardId);
-        if (!cardCollection)  return await helperUtil.responseSender(res,'error',400,responseObj, 'card updated. but waiting for response please contact BC');
-        responseObj = {"cardCollection" : cardCollection};
+        const cardupdation = await cardModel.updateCard(inputparam,cardId);
+        if (!cardupdation)  return await helperUtil.responseSender(res,'error',400,responseObj, 'card updated. but waiting for response please contact BC');
+        
+        const cardcollection = await cardModel.getACardbyCardId(cardId);
+        if (!cardcollection)  return await helperUtil.responseSender(res,'error',400,responseObj, 'The cards not in active state');
+        
+        responseObj = {"cardCollection" : cardcollection};
         return await helperUtil.responseSender(res,'data',200,responseObj, 'Card Updated successfully');
     }catch(error){
         message = "card Updation Failed.";
