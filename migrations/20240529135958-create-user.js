@@ -26,7 +26,7 @@ module.exports = {
       secondaryEmail: {
         type: Sequelize.STRING,
         allowNull: true,
-        unique: true
+        unique: false
       },
       isActive: {
         type: Sequelize.BOOLEAN

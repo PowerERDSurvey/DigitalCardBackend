@@ -38,9 +38,9 @@ module.exports = (req, res, next) => {
       } 
       else {
         try {
-          let latestToken = await getLatestUserToken(decoded.user.id);
+          let latestToken = await getLatestUserToken(decoded.user ? decoded.user.id : decoded.email.id);
           if (latestToken.dataValues.token === token) {
-            req.user = decoded.user;
+            req.user = decoded.user ? decoded.user : decoded.email;
             //console.log('isAuthenticated', `Logged in user data fetched from token.`, decoded);
             next();
           } else {
