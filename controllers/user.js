@@ -90,6 +90,7 @@ router.post("/user", function (req, res) {
                                             "Address": email.Address,
                                             "type": email.signupType,
                                             "images":userImages,
+                                            "randomKey":user.randomKey,
                                         }
                                         return res.json({ "status": 200, "token": token, "data": responsedata });
                                     }).catch((err) => {
@@ -186,6 +187,7 @@ router.post("/user", function (req, res) {
                                     "Address": result.Address,
                                     "type": result.signupType,
                                     "images":userImages,
+                                    "randomKey":user.randomKey,
                                 }
                                 return res.json({ "status": 200, "token": token, "data": responsedata });
                             }).catch((err) => {
@@ -231,6 +233,7 @@ router.post("/user", function (req, res) {
                             primaryEmail: requestBody.email,
                             signupType: requestBody.type,
                             verificationCode : token,
+                            randomKey:requestBody.randomKey,
                             verificationExpires : Date.now() + 7200000,
                             // isActive: true
                         }

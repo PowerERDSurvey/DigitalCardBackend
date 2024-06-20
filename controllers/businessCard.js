@@ -81,6 +81,7 @@ router.post('/user/createCard/:userId',auth,bodyParser,async function (req, res)
             youtube: req.body.youtube,
             department: req.body.department,
             vCardDetails: req.body.vCardDetails,
+            randomKey:req.body.randomKey,
           };
         const cardCollection = await cardModel.createcreateCard(inputparam);
         if (!cardCollection)  return await helperUtil.responseSender(res,'error',400,responseObj, 'there is no error on database but not created please contact BC service');
