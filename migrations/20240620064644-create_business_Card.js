@@ -19,6 +19,9 @@ module.exports = {
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
       },
+      userRandomkey: {
+        type: Sequelize.STRING,
+      },
       firstName: {
         type: Sequelize.STRING
       },
@@ -98,6 +101,10 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
+      },
+      randomKey:{
+        type: Sequelize.STRING,
+        allowNull: false
       }
     });
   },

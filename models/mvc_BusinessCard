@@ -12,8 +12,8 @@ let cardModel = {
         const returnVal = await cardRepo.getALLCardbyUserId(userId) ;
         return returnVal;
     },
-    getACardbyCardId:async function(cardId){
-        const returnVal = await cardRepo.getACardbyCardId(cardId);
+    getACardbyCardId:async function(userId,cardId){
+        const returnVal = await cardRepo.getACardbyCardId(userId,cardId);
         return returnVal;
     }
 }

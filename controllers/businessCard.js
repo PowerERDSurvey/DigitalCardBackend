@@ -27,14 +27,15 @@ router.get('/user/getAllCard/:userId',auth,bodyParser,async function (req, res) 
 });
 
 
-router.get('/user/getOneCard/:cardId',auth,bodyParser,async function (req, res) {
-    const cardId = req.params.cardId;
+router.get('/user/getOneCard/:userrandomkey/:cardrandomkey',bodyParser,async function (req, res) {
+    const cardKey = req.params.cardrandomkey;
+    const userKey = req.params.userrandomkey;
     var message = "";
     var httpStatusCode = 500;
     var responseObj = {};
-    if (!cardId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
+    if (!cardKey || !userKey) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
     try {
-        const cardCollection = await cardModel.getACardbyCardId(cardId);
+        const cardCollection = await cardModel.getACardbyCardId(userKey , cardKey);
         // if (cardCollection == null)  return res.status(httpStatusCode).send( { "status": httpStatusCode, "error": responseObj, "message": message });
         if (cardCollection == null) return await helperUtil.responseSender(res,'error',400,responseObj, 'The cards not in active state');
         responseObj = {"cardCollection" : cardCollection};
@@ -164,4 +165,7 @@ router.get('/user/card/activate/:cardId',auth,bodyParser,async function (req, re
         return await helperUtil.responseSender(res,'error',httpStatusCode, responseObj, message);
     }
 });
+
+
+router.get('/BUsiness',bodyParser,)
 module.exports = router;

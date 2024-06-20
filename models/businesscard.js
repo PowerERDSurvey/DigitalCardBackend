@@ -41,7 +41,8 @@ module.exports = (sequelize, DataTypes) => {
     aboutMe: DataTypes.STRING,
     youtube: DataTypes.STRING,
     department: DataTypes.STRING,
-    vCardDetails: DataTypes.STRING
+    vCardDetails: DataTypes.STRING,
+    randomKey:DataTypes.STRING
   }, {
     sequelize,
     modelName: 'BusinessCard',
