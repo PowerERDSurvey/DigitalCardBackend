@@ -17,8 +17,8 @@ router.get('/user/getAllCard/:userId',auth,bodyParser,async function (req, res) 
     try {
         const cardCollection = await cardModel.getALLCardbyUserId(userId);
         if (!cardCollection) return  await helperUtil.responseSender(res,'error',400,responseObj, 'there is no cards in active state for this User');
-        const images = await cardImageModel.getAllCardImageByCardId(cardCollection.id);
-        cardCollection.dataValues.images= images;
+        const images = await cardImageModel.getAllCardImageByCardId(cardCollection[0].id); //todo
+        cardCollection[0].dataValues.images= images;
         responseObj = {"cardCollection" : cardCollection};
         return await helperUtil.responseSender(res,'data',200,responseObj, 'Card collected successfully');
     } catch (error) {
