@@ -32,7 +32,11 @@ let businessCard = {
         if (!userid) return  userid;
         const returnVal = await BusinessCard.findOne({where:{randomKey:cardKey, isActive:true, userId :userid.id}})
         return returnVal;
-    }
+    },
+    getACard: async function(cardId){
+        const returnVal = await BusinessCard.findOne({where:{id: cardId, isActive:true}});
+        return returnVal;
+    },
 }
 
 module.exports = businessCard;

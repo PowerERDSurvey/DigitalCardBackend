@@ -15,6 +15,10 @@ let cardModel = {
     getACardbyCardId:async function(userId,cardId){
         const returnVal = await cardRepo.getACardbyCardId(userId,cardId);
         return returnVal;
+    },
+    getACard:async function(cardId){
+        const returnVal = await cardRepo.getACard(cardId);
+        return returnVal;
     }
 }
 

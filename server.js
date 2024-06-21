@@ -10,7 +10,9 @@ var uploadFile = multer({dest:'./uploads/'});
 const config = require('./config/config.js');
 const helperUtil = require('./util/helper.js')
 const port = process.env.PORT || 8080;
+const cardModel = require("./models/mvc_Businesscard");
 
+const cardImageModel = require("./models/mvc_businessCardImage.js");
 const auth = require('./middleware/auth.js');
 const userModel = require("./models/mvc_User");
 
@@ -147,6 +149,68 @@ app.put("/user/:ID",auth,upload.fields([
     });
 });
 
+app.put('/user/card/update/:cardId',auth,upload.fields([
+    { name: 'profilePhoto', maxCount: 1 },
+    { name: 'coverPhoto', maxCount: 1 }
+  ]),async function (req, res) {
+    const cardId = req.params.cardId;
+    var message = "";
+    var httpStatusCode = 500;
+    var responseObj = {};
+    if (!cardId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
+    try {
+        var inputparam = {
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            primaryEmail: req.body.primaryEmail,
+            secondaryEmail: req.body.secondaryEmail,
+            isActive: req.body.isActive,
+            verificationCode: req.body.verificationCode,
+            isEmailVerified: req.body.isEmailVerified,
+            mobileNumber: req.body.mobileNumber,
+            companyName: req.body.companyName,
+            designation: req.body.designation,
+            whatsapp: req.body.whatsapp,
+            facebook: req.body.facebook,
+            instagram: req.body.instagram,
+            linkedin: req.body.linkedin,
+            website: req.body.website,
+            city: req.body.city,
+            zipCode: req.body.zipCode,
+            country: req.body.country,
+            state: req.body.state,
+            Address: req.body.address,
+            aboutMe: req.body.aboutMe,
+            youtube: req.body.youtube,
+            department: req.body.department,
+            vCardDetails: req.body.vCardDetails,
+          };
+        const cardupdation = await cardModel.updateCard(inputparam,cardId);
+        if (!cardupdation)  return await helperUtil.responseSender(res,'error',400,responseObj, 'card updated. but waiting for response please contact BC');
+        
+        // if(!req.files.profilePhoto || req.files.coverPhoto) return await helperUtil.responseSender(res,'error',400,responseObj, 'File missing' );
+        const images = [];
+        if(req.files.profilePhoto ) {
+            const profileImage =await cardImageModel.createByCardId(req.files.profilePhoto[0],"profilePhoto",cardId);
+            images.push(profileImage);
+        }
+        if (req.files.coverPhoto) {
+            const coverPhoto = req.files.coverPhoto[0];
+            const coverImage =await cardImageModel.createByCardId(coverPhoto,"coverPhoto",cardId);
+           images.push(coverImage);
+        }
+
+        const cardcollection = await cardModel.getACard(cardId);
+        if (!cardcollection)  return await helperUtil.responseSender(res,'error',400,responseObj, 'The cards not in active state');
+        cardcollection.dataValues.images = images;
+        responseObj = {"cardCollection" : cardcollection};
+        return await helperUtil.responseSender(res,'data',200,responseObj, 'Card Updated successfully');
+    }catch(error){
+        message = "card Updation Failed.";
+        responseObj = error;
+        return await helperUtil.responseSender(res,'error',httpStatusCode, responseObj, message);
+    }
+});
 
 var authenticateController=require('./controllers/authenticate');
 
