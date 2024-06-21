@@ -14,6 +14,10 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'userId',
         as: 'user'
       });
+      User.hasMany(models.businessCardImage, {
+        foreignKey: 'cardId',
+        as: 'images',
+      });
     }
   }
   BusinessCard.init({

@@ -3,7 +3,9 @@ var router = express.Router();
 const auth = require('../middleware/auth');
 var bodyParser = require('body-parser').json();
 const cardModel = require("../models/mvc_Businesscard");
+const cardImageModel = require("../models/mvc_businessCardImage.js");
 const helperUtil = require('../util/helper.js');
+const upload = require('../middleware/upload.js');
 
 
 router.get('/user/getAllCard/:userId',auth,bodyParser,async function (req, res) {
@@ -96,7 +98,10 @@ router.post('/user/createCard/:userId',auth,bodyParser,async function (req, res)
 });
 
 
-router.put('/user/card/update/:cardId',auth,bodyParser,async function (req, res) {
+router.put('/user/card/update/:cardId',auth,upload.fields([
+    { name: 'profilePhoto', maxCount: 1 },
+    { name: 'coverPhoto', maxCount: 1 }
+  ]),async function (req, res) {
     const cardId = req.params.cardId;
     var message = "";
     var httpStatusCode = 500;
@@ -132,9 +137,21 @@ router.put('/user/card/update/:cardId',auth,bodyParser,async function (req, res)
         const cardupdation = await cardModel.updateCard(inputparam,cardId);
         if (!cardupdation)  return await helperUtil.responseSender(res,'error',400,responseObj, 'card updated. but waiting for response please contact BC');
         
+        if(!req.files) return await helperUtil.responseSender(res,'error',400,responseObj, 'File missing' );
+        const images = [];
+        if(files.profilePhoto ) {
+            const profileImage =await cardImageModel.createByCardId(files.profilePhoto[0],"profilePhoto",cardId);
+            images.push(profileImage);
+        }
+        if (files.coverPhoto) {
+            const coverPhoto = files.coverPhoto[0];
+            const coverImage =await cardImageModel.createByCardId(coverPhoto,"coverPhoto",user);
+           images.push(coverImage);
+        }
+
         const cardcollection = await cardModel.getACardbyCardId(cardId);
         if (!cardcollection)  return await helperUtil.responseSender(res,'error',400,responseObj, 'The cards not in active state');
-        
+        cardcollection.images = images;
         responseObj = {"cardCollection" : cardcollection};
         return await helperUtil.responseSender(res,'data',200,responseObj, 'Card Updated successfully');
     }catch(error){
@@ -167,6 +184,4 @@ router.get('/user/card/activate/:cardId',auth,bodyParser,async function (req, re
     }
 });
 
-
-router.get('/BUsiness',bodyParser,)
 module.exports = router;
