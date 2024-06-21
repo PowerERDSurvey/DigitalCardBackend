@@ -17,6 +17,8 @@ router.get('/user/getAllCard/:userId',auth,bodyParser,async function (req, res) 
     try {
         const cardCollection = await cardModel.getALLCardbyUserId(userId);
         if (!cardCollection) return  await helperUtil.responseSender(res,'error',400,responseObj, 'there is no cards in active state for this User');
+        const images = await cardImageModel.getAllCardImageByCardId(cardCollection.id);
+        cardCollection.dataValues.images= images;
         responseObj = {"cardCollection" : cardCollection};
         return await helperUtil.responseSender(res,'data',200,responseObj, 'Card collected successfully');
     } catch (error) {
@@ -41,7 +43,7 @@ router.get('/user/getOneCard/:userrandomkey/:cardrandomkey',bodyParser,async fun
         // if (cardCollection == null)  return res.status(httpStatusCode).send( { "status": httpStatusCode, "error": responseObj, "message": message });
         if (cardCollection == null) return await helperUtil.responseSender(res,'error',400,responseObj, 'The cards not in active state');
         const images = await cardImageModel.getAllCardImageByCardId(cardCollection.id);
-        cardCollection.images= images;
+        cardCollection.dataValues.images= images;
         responseObj = {"cardCollection" : cardCollection};
         return await helperUtil.responseSender(res,'data',200,responseObj, 'Card collected successfully');
     }catch(error){
