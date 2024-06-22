@@ -9,7 +9,7 @@ module.exports = {
         'randomKey', // new field name
         {
           type: Sequelize.STRING,
-          allowNull: false,
+          allowNull: true,
         },
       ),
     ])
