@@ -4,6 +4,7 @@ const auth = require('../middleware/auth');
 var bodyParser = require('body-parser').json();
 const cardModel = require("../models/mvc_Businesscard");
 const cardImageModel = require("../models/mvc_businessCardImage.js");
+const userImageModel = require("../models/mvc_UserImage.js");
 const helperUtil = require('../util/helper.js');
 const upload = require('../middleware/upload.js');
 
@@ -62,6 +63,7 @@ router.post('/user/createCard/:userId',auth,bodyParser,async function (req, res)
     var responseObj = {};
     if (!userId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
     try {
+        
         var inputparam = {
             userId:userId,
             firstName: req.body.firstName,
@@ -90,9 +92,22 @@ router.post('/user/createCard/:userId',auth,bodyParser,async function (req, res)
             vCardDetails: req.body.vCardDetails,
             randomKey:req.body.randomKey,
           };
+
         const cardCollection = await cardModel.createcreateCard(inputparam);
         if (!cardCollection)  return await helperUtil.responseSender(res,'error',400,responseObj, 'there is no error on database but not created please contact BC service');
         responseObj = {"cardCollection" : cardCollection};
+        const images =[];
+        const getUserImage = await userImageModel.getAllUserImageByUserId(userId);
+        if(getUserImage.length > 0){
+            for (let index = 0; index < getUserImage.length; index++) {
+                getUserImage[index].path =  getUserImage[index].filepath;
+              const Images =await cardImageModel.createByCardId( getUserImage[index], getUserImage[index].type,cardCollection.id);
+          images.push(Images);
+                
+            }
+        
+        };
+        responseObj.cardCollection.dataValues.images = images;
         return await helperUtil.responseSender(res,'data',200,responseObj, 'Card Created successfully');
     }
     catch(error){

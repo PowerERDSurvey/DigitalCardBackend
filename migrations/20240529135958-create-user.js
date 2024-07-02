@@ -47,19 +47,24 @@ module.exports = {
         type: Sequelize.STRING
       },
       whatsapp: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        defaultValue:null
       },
       facebook: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        defaultValue:null
       },
       instagram: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        defaultValue:null
       },
       linkedin: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        defaultValue:null
       },
       website: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        defaultValue:null
       },
       city: {
         type: Sequelize.STRING
