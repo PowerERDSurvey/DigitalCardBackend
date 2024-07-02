@@ -1,16 +1,26 @@
 'use strict';
-
-const { uniq } = require('lodash');
-
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('Users', {
+    await queryInterface.createTable('BusinessCards', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
+      },
+      userId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'Users',
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
+      },
+      userRandomkey: {
+        type: Sequelize.STRING,
       },
       firstName: {
         type: Sequelize.STRING
@@ -19,14 +29,10 @@ module.exports = {
         type: Sequelize.STRING
       },
       primaryEmail: {
-        type: Sequelize.STRING,
-        allowNull: true,
-        unique: true
+        type: Sequelize.STRING
       },
       secondaryEmail: {
-        type: Sequelize.STRING,
-        allowNull: true,
-        unique: false
+        type: Sequelize.STRING
       },
       isActive: {
         type: Sequelize.BOOLEAN
@@ -47,24 +53,19 @@ module.exports = {
         type: Sequelize.STRING
       },
       whatsapp: {
-        type: Sequelize.STRING,
-        defaultValue:null
+        type: Sequelize.STRING
       },
       facebook: {
-        type: Sequelize.STRING,
-        defaultValue:null
+        type: Sequelize.STRING
       },
       instagram: {
-        type: Sequelize.STRING,
-        defaultValue:null
+        type: Sequelize.STRING
       },
       linkedin: {
-        type: Sequelize.STRING,
-        defaultValue:null
+        type: Sequelize.STRING
       },
       website: {
-        type: Sequelize.STRING,
-        defaultValue:null
+        type: Sequelize.STRING
       },
       city: {
         type: Sequelize.STRING
@@ -78,10 +79,20 @@ module.exports = {
       state: {
         type: Sequelize.STRING
       },
-      password: {
-        type: Sequelize.STRING,
-        allowNull: false,
-        unique: true
+      Address: {
+        type: Sequelize.STRING
+      },
+      aboutMe: {
+        type: Sequelize.STRING
+      },
+      youtube: {
+        type: Sequelize.STRING
+      },
+      department: {
+        type: Sequelize.STRING
+      },
+      vCardDetails: {
+        type: Sequelize.STRING(2000)
       },
       createdAt: {
         allowNull: false,
@@ -90,10 +101,14 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
+      },
+      randomKey:{
+        type: Sequelize.STRING,
+        allowNull: true
       }
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Users');
+    await queryInterface.dropTable('BusinessCards');
   }
 };

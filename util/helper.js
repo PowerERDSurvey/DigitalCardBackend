@@ -125,6 +125,13 @@ let utils = {
     // }
 
     
+   },
+   responseSender: async function (res,type,httpStatusCode, responseObj , message) {
+    var response = { "status": httpStatusCode, "data": responseObj, "message": message };
+    if(type == 'error'){
+      response = { "status": httpStatusCode, "error": responseObj, "message": message };
+    }
+    return await res.status(httpStatusCode).send(response);
    }
 }
  

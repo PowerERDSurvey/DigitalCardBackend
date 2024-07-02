@@ -16,6 +16,9 @@ let userModel = {
             getOneUser: function(inputParams,cb){
                 userRepo.getOneUser(inputParams,cb);
             },
+            getUser: async function(inputParams){
+             return  await userRepo.getUser(inputParams);
+            },
     
             getUsertokenById: async function (userId,verificationCode) {
                 return await userRepo.getUsertokenById(userId,verificationCode);

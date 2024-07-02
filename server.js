@@ -10,6 +10,17 @@ var uploadFile = multer({dest:'./uploads/'});
 const config = require('./config/config.js');
 const helperUtil = require('./util/helper.js')
 const port = process.env.PORT || 8080;
+const cardModel = require("./models/mvc_Businesscard");
+
+const cardImageModel = require("./models/mvc_businessCardImage.js");
+const auth = require('./middleware/auth.js');
+const userModel = require("./models/mvc_User");
+
+const userImageModel = require("./models/mvc_UserImage.js");
+// const helperUtil = require('./util/helper.js');
+
+const upload = require('./middleware/upload.js');
+// var bodyParser = require('body-parser').json();
 
 const auth = require('./middleware/auth.js');
 const userModel = require("./models/mvc_User");
@@ -48,9 +59,20 @@ app.use(bodyParser.json({ limit: '50mb' }));
 //     res.send("get all contact");
 // })
 
+app.use('/uploads', express.static(path.join(__dirname, 'resources/static/assets/uploads')));
+
 var User = require("./controllers/user.js");
 console.log(User);
 app.use("/",User);
+
+
+var CardCreation = require('./controllers/businessCard.js');
+app.use("/",CardCreation);
+
+
+
+var CountryANDState = require('./controllers/countryAndState.js');
+app.use("/",CountryANDState);
 
 // app.use();
 
@@ -67,7 +89,7 @@ app.put("/user/:ID",auth,upload.fields([
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         primaryEmail: req.body.primaryEmail,
-        SecondryEmail: req.body.SecondryEmail,
+        secondaryEmail: req.body.secondaryEmail,
         isActive: req.body.isActive,
         verificationCode: req.body.verificationCode,
         isEmailVerified: req.body.isEmailVerified,
@@ -105,7 +127,10 @@ app.put("/user/:ID",auth,upload.fields([
             if (req.files) {
                 // const imageUpload = helperUtil.
                 try {
-                    const images = await helperUtil.uplaodUserImage(UserId, req.files);
+                    const imagesUpdation = await helperUtil.uplaodUserImage(UserId, req.files);
+                    if(!imagesUpdation) return await helperUtil.responseSender(res,'error',400,responseObj, 'images updated. but waiting for response please contact BC');
+                    const images = await userImageModel.getAllUserImageByUserId(UserId);
+                    if(!images) return await helperUtil.responseSender(res,'error',400,responseObj, 'images getting failed. but waiting for response please contact BC');
                     if (images) {
                         httpStatusCode = 200;
                         responseObj = result.dataValues;
@@ -131,6 +156,68 @@ app.put("/user/:ID",auth,upload.fields([
     });
 });
 
+app.put('/user/card/update/:cardId',auth,upload.fields([
+    { name: 'profilePhoto', maxCount: 1 },
+    { name: 'coverPhoto', maxCount: 1 }
+  ]),async function (req, res) {
+    const cardId = req.params.cardId;
+    var message = "";
+    var httpStatusCode = 500;
+    var responseObj = {};
+    if (!cardId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
+    try {
+        var inputparam = {
+            firstName: req.body.firstName,
+            lastName: req.body.lastName,
+            primaryEmail: req.body.primaryEmail,
+            secondaryEmail: req.body.secondaryEmail,
+            isActive: req.body.isActive,
+            verificationCode: req.body.verificationCode,
+            isEmailVerified: req.body.isEmailVerified,
+            mobileNumber: req.body.mobileNumber,
+            companyName: req.body.companyName,
+            designation: req.body.designation,
+            whatsapp: req.body.whatsapp,
+            facebook: req.body.facebook,
+            instagram: req.body.instagram,
+            linkedin: req.body.linkedin,
+            website: req.body.website,
+            city: req.body.city,
+            zipCode: req.body.zipCode,
+            country: req.body.country,
+            state: req.body.state,
+            Address: req.body.address,
+            aboutMe: req.body.aboutMe,
+            youtube: req.body.youtube,
+            department: req.body.department,
+            vCardDetails: req.body.vCardDetails,
+          };
+        const cardupdation = await cardModel.updateCard(inputparam,cardId);
+        if (!cardupdation)  return await helperUtil.responseSender(res,'error',400,responseObj, 'card updated. but waiting for response please contact BC');
+        
+        // if(!req.files.profilePhoto || req.files.coverPhoto) return await helperUtil.responseSender(res,'error',400,responseObj, 'File missing' );
+        const images = [];
+        if(req.files.profilePhoto ) {
+            const profileImage =await cardImageModel.createByCardId(req.files.profilePhoto[0],"profilePhoto",cardId);
+            images.push(profileImage);
+        }
+        if (req.files.coverPhoto) {
+            const coverPhoto = req.files.coverPhoto[0];
+            const coverImage =await cardImageModel.createByCardId(coverPhoto,"coverPhoto",cardId);
+           images.push(coverImage);
+        }
+
+        const cardcollection = await cardModel.getACard(cardId);
+        if (!cardcollection)  return await helperUtil.responseSender(res,'error',400,responseObj, 'The cards not in active state');
+        cardcollection.dataValues.images = images;
+        responseObj = {"cardCollection" : cardcollection};
+        return await helperUtil.responseSender(res,'data',200,responseObj, 'Card Updated successfully');
+    }catch(error){
+        message = "card Updation Failed.";
+        responseObj = error;
+        return await helperUtil.responseSender(res,'error',httpStatusCode, responseObj, message);
+    }
+});
 
 var authenticateController=require('./controllers/authenticate');
 

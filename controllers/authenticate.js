@@ -60,7 +60,7 @@ module.exports.authenticate=async function(req,res){
                       "userName": user.userName,
                       "lastName":user.lastName,
                       "primaryEmail": user.primaryEmail,
-                      "SecondryEmail": user.SecondryEmail,
+                      "secondaryEmail": user.secondaryEmail,
                       "mobileNumber": user.mobileNumber,
                       "companyName":user.companyName,
                       "designation":user.designation,
@@ -68,22 +68,25 @@ module.exports.authenticate=async function(req,res){
                       "facebook":user.facebook,
                       "instagram":user.instagram,
                       "linkedin":user.linkedin,
+                      "youtube": user.youtube,
                       "website":user.website,
                       "city":user.city,
                       "zipCode":user.zipCode,
                       "country":user.country,
                       "state":user.state,
                       "Address": user.Address,
+                      "aboutMe": user.aboutMe,
                       "type": user.signupType,
                       "images":userImages,
+                      "randomKey": user.randomKey,
                     }
-                      res.json({"status":200,"token" : token,"data":responsedata});
+                      return res.json({"status":200,"token" : token,"data":responsedata});
                     }).catch((err)=>{
                       console.log("insert error usertoken",err);
                     });
                   // } 
                   // else {
-                  //   res.json({
+                  //   return res.json({
                   //     status:false,
                   //     status:402,
                   //     message:"Email not verified. Please complete Email Verification process"
@@ -92,10 +95,10 @@ module.exports.authenticate=async function(req,res){
                 }
                 else {
                     if(user.verificationCode != 'verified') {
-                      res.json({message: "An email send to your account please verify"})
+                      return res.json({message: "An email send to your account please verify"})
                     }
 
-                  res.json({
+                  return res.json({
                     status:false,
                     status:400,
                     message:"Error in backend while email verify please contact backend developer"
@@ -104,14 +107,14 @@ module.exports.authenticate=async function(req,res){
               
               
             }else{
-                res.json({
+                return res.json({
                   status:false,
                   status:401,
                   message:"userName and password does not match"
                  });
             }
         } else {
-          res.json({
+          return res.json({
             status:false,
             status:401,
             message:"userName does not match"
@@ -121,14 +124,14 @@ module.exports.authenticate=async function(req,res){
           
         }
         else{
-          res.json({
+          return res.json({
               status:false,  
               status:404,  
             message:"User does not exist."
           });
         }
     }).catch((err)=>{
-      res.json({
+      return res.json({
         status:false,
         status:500,
         error:err,
