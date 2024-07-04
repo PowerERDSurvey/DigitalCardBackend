@@ -26,10 +26,15 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   company.init({
-    name: DataTypes.STRING,
+
+    companyName: DataTypes.STRING,
     address: DataTypes.STRING,
-    phone: DataTypes.STRING,
-    email: DataTypes.STRING,
+    mobileNumber: DataTypes.STRING,
+    emailAddress: DataTypes.STRING,
+    country: DataTypes.STRING,
+    state: DataTypes.STRING,
+    city: DataTypes.STRING,
+    zipcode: DataTypes.STRING,
     randomKey: DataTypes.STRING,
     isActive: DataTypes.BOOLEAN,
     createdBy: DataTypes.INTEGER,

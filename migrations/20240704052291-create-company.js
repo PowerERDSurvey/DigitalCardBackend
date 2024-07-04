@@ -3,22 +3,35 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('companies', {
+
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      name: {
+      companyName: {
         type: Sequelize.STRING
       },
       address: {
         type: Sequelize.STRING
       },
-      phone: {
+      mobileNumber: {
         type: Sequelize.STRING
       },
-      email: {
+      country: {
+        type: Sequelize.STRING
+      },
+      state: {
+        type: Sequelize.STRING
+      },
+      city: {
+        type: Sequelize.STRING
+      },
+      zipcode: {
+        type: Sequelize.STRING
+      },
+      emailAddress: {
         type: Sequelize.STRING
       },
       randomKey: {
