@@ -91,6 +91,8 @@ router.post("/user", function (req, res) {
                                             "type": email.signupType,
                                             "images":userImages,
                                             "randomKey":user.randomKey,
+"role":user.role,
+"companyId":user.companyId
                                         }
                                         return res.json({ "status": 200, "token": token, "data": responsedata });
                                     }).catch((err) => {
@@ -137,7 +139,9 @@ router.post("/user", function (req, res) {
                     password: requestBody.PASSWORD,
                     primaryEmail: requestBody.email,
                     signupType: requestBody.type,
-                    isActive: true
+                    isActive: true,
+                    role:requestBody.role,
+                    companyId:requestBody.companyId
                 }
 
                 userModel.create(inputObj, function (err, result) {
@@ -188,6 +192,8 @@ router.post("/user", function (req, res) {
                                     "type": result.signupType,
                                     "images":userImages,
                                     "randomKey":user.randomKey,
+"role":user.role,
+"companyId":user.companyId
                                 }
                                 return res.json({ "status": 200, "token": token, "data": responsedata });
                             }).catch((err) => {
@@ -235,6 +241,8 @@ router.post("/user", function (req, res) {
                             verificationCode : token,
                             randomKey:requestBody.randomKey,
                             verificationExpires : Date.now() + 7200000,
+                            role:requestBody.role,
+                            companyId:requestBody.companyId
                             // isActive: true
                         }
                         userModel.create(inputObj, async function (err, result) {

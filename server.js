@@ -101,7 +101,9 @@ app.put("/user/:ID",auth,upload.fields([
         Address: req.body.address,
         aboutMe: req.body.aboutMe,
         youtube: req.body.youtube,
-        department: req.body.department
+        department: req.body.department,
+        role:req.body.role,
+        companyId:req.body.companyId
       };
     console.log(req.body);
     var response;

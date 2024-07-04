@@ -15,9 +15,22 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'userId',
         as: 'images',
       });
+      User.hasMany(models.company, {
+        foreignKey: 'createdBy',
+        as: 'company',
+      });
+      User.hasMany(models.company, {
+        foreignKey: 'updatedBy',
+        as: 'company',
+      });
       User.hasMany(models.BusinessCard, {
         foreignKey: 'userId',
         as: 'businessCards',
+      });
+      User.belongsTo(models.company, {
+        foreignKey: 'companyId',
+        as: 'company',
+        onDelete: 'CASCADE',
       });
     }
   }
@@ -50,6 +63,8 @@ module.exports = (sequelize, DataTypes) => {
     department:DataTypes.STRING,
     verificationExpires: DataTypes.DATE,
     randomKey:DataTypes.STRING,
+    role:DataTypes.STRING,
+    companyId:DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'User',

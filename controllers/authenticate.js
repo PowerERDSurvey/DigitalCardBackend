@@ -79,6 +79,8 @@ module.exports.authenticate=async function(req,res){
                       "type": user.signupType,
                       "images":userImages,
                       "randomKey": user.randomKey,
+                      "role":user.role,
+"companyId":user.companyId
                     }
                       return res.json({"status":200,"token" : token,"data":responsedata});
                     }).catch((err)=>{
