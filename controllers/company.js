@@ -3,6 +3,7 @@ var router = express.Router();
 const auth = require('../middleware/auth');
 var bodyParser = require('body-parser').json();
 const companyModel = require("../models/mvc_company");
+const userModel = require("../models/mvc_User.js");
 // const cardImageModel = require("../models/mvc_businessCardImage.js");
 // const userImageModel = require("../models/mvc_UserImage.js");
 const helperUtil = require('../util/helper.js');
@@ -17,6 +18,9 @@ router.get('/getAllCompanies/:superAdmin',auth,bodyParser,async function(req,res
     var responseObj = {};
     if (!userId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
     try {
+        const getSuperAdmin = await userModel.getSuperAdmin(userId);
+        if (!getSuperAdmin) return  await helperUtil.responseSender(res,'error',400,responseObj, 'company only can get by the SuperAdmin');
+
         const companyCollection = await companyModel.get_All_ActiveCompanyById();
         if (companyCollection.length == 0) return  await helperUtil.responseSender(res,'error',400,responseObj, 'there is no company In Active state');
        
@@ -37,13 +41,15 @@ router.post('/createCompany/:SuperAdmin',auth, bodyParser, async function (req, 
     var responseObj = {};
     if (!userId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
     try {
+        const getSuperAdmin = await userModel.getSuperAdmin(userId);
+        if (!getSuperAdmin) return  await helperUtil.responseSender(res,'error',400,responseObj, 'company only can create by the SuperAdmin');
         var inputparam = {
-            "name":req.name,
-            "address":req.address,
-            "phone":req.phone,
-            "email":req.email,
-            "randomKey":req.randomKey,
-            "isActive":req.isActive,
+            "name":req.body.name,
+            "address":req.body.address,
+            "phone":req.body.phone,
+            "email":req.body.email,
+            "randomKey":req.body.randomKey,
+            "isActive":req.body.isActive,
             "createdBy":userId,
             "updatedBy":userId
         };
@@ -61,22 +67,22 @@ router.post('/createCompany/:SuperAdmin',auth, bodyParser, async function (req, 
 
 
 router.put('/updateCompany/:Admin', auth , bodyParser , async function(req,res){
-    const userId = req.params.superAdmin;
+    const userId = req.params.Admin;
     var message = "";
     var httpStatusCode = 500;
     var responseObj = {};
     if (!userId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
     try {
+        const getSuperAdmin = await userModel.getSuperAdmin(userId);
+        if (!getSuperAdmin) return  await helperUtil.responseSender(res,'error',400,responseObj, 'company only can update by the SuperAdmin');
         var inputparam = {
-            "name":req.name,
-            "address":req.address,
-            "phone":req.phone,
-            "email":req.email,
-            "randomKey":req.randomKey,
-            "isActive":req.isActive,
+            "name":req.body.name,
+            "address":req.body.address,
+            "phone":req.body.phone,
+            "email":req.body.email,
             "updatedBy":userId
         };
-        const companyCollection = await companyModel.updateCompany(inputparam, req.companyId);
+        const companyCollection = await companyModel.updateCompany(inputparam, req.body.companyId);
         if (!companyCollection) return  await helperUtil.responseSender(res,'error',400,responseObj, 'company updated but retriving data failed');
        
         responseObj = {"companyCollection" : companyCollection};
@@ -91,14 +97,15 @@ router.put('/updateCompany/:Admin', auth , bodyParser , async function(req,res){
 router.post('/ActivateorDeactivate/:SuperAdmin/:companyRandomkey',auth, bodyParser, async function (req, res) {
     const userId = req.params.SuperAdmin;
     const companyKey = req.params.companyRandomkey;
-    var flag = req.isActive? 'acitivation' :'deActivation';
+    var flag = req.body.isActive == 'true' ? 'Activation' :'deActivation';
     var message = "";
     var httpStatusCode = 500;
     var responseObj = {};
-    if (!userId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
+    if (!userId || !companyKey) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
     try {
-       
-        const companyCollection = await companyModel.activateOrDeactivate(userId,req.isActive, companyKey);
+        const getSuperAdmin = await userModel.getSuperAdmin(userId);
+        if (!getSuperAdmin) return  await helperUtil.responseSender(res,'error',400,responseObj, 'company only can create by the SuperAdmin');
+        const companyCollection = await companyModel.activateOrDeactivate(companyKey,req.body.isActive,userId);
         if (!companyCollection) return  await helperUtil.responseSender(res,'error',400,responseObj, `company ${flag} failed`);
        
         responseObj = {"companyCollection" : companyCollection};

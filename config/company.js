@@ -1,4 +1,4 @@
-const { update } = require('lodash');
+const { update, random } = require('lodash');
 const { sequelize, DataTypes } = require('../config/sequelize');
 var Company = require('../models/company')(sequelize, DataTypes);
 let company = {
@@ -14,7 +14,7 @@ let company = {
             },
             returning: true,
         });
-       const returnVal =  this.getActiveCompanyById(updatedCompany,id);
+       const returnVal =  this.getActiveCompanyById(companyId);
         return returnVal;
 
     },
@@ -33,10 +33,17 @@ let company = {
         return returnVal;
     },
     activateOrDeactivate:async function(companyId, is_active, userId){
-        const returnVal = await Company.update({isActive:is_active, where: {
-            id: companyId,
-            updateBy:userId
-        },})
+        const returnVal = await Company.update(
+            {
+                isActive: is_active,
+                updateBy: userId,
+              },
+              {
+                where: {
+                  randomKey: companyId,
+                },
+              }
+        )
         return returnVal;
     },
 

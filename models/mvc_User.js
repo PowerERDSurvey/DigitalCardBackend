@@ -22,6 +22,10 @@ let userModel = {
     
             getUsertokenById: async function (userId,verificationCode) {
                 return await userRepo.getUsertokenById(userId,verificationCode);
+            },
+    
+            getSuperAdmin: async function (userId) {
+                return await userRepo.getSuperAdmin(userId);
             }
 }
 

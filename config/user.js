@@ -88,6 +88,9 @@ let users = {
   },
   getUser: async function (userId) {
     return await User.findOne({where: { id: userId}})
+  },
+  getSuperAdmin: async function (userId) {
+    return await User.findOne({where: { id: userId, role : 'SUPER_ADMIN', IsActive: true}})
   }
 }
 
