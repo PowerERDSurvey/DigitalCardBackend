@@ -62,6 +62,9 @@ app.use("/",User);
 var CardCreation = require('./controllers/businessCard.js');
 app.use("/",CardCreation);
 
+var CompanyCreation = require('./controllers/company.js');
+app.use("/",CompanyCreation);
+
 
 
 var CountryANDState = require('./controllers/countryAndState.js');

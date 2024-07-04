@@ -1,0 +1,115 @@
+const express = require("express");
+var router = express.Router();
+const auth = require('../middleware/auth');
+var bodyParser = require('body-parser').json();
+const companyModel = require("../models/mvc_company");
+// const cardImageModel = require("../models/mvc_businessCardImage.js");
+// const userImageModel = require("../models/mvc_UserImage.js");
+const helperUtil = require('../util/helper.js');
+// const upload = require('../middleware/upload.js');
+
+
+
+router.get('/getAllCompanies/:superAdmin',auth,bodyParser,async function(req,res){
+    const userId = req.params.superAdmin;
+    var message = "";
+    var httpStatusCode = 500;
+    var responseObj = {};
+    if (!userId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
+    try {
+        const companyCollection = await companyModel.get_All_ActiveCompanyById();
+        if (companyCollection.length == 0) return  await helperUtil.responseSender(res,'error',400,responseObj, 'there is no company In Active state');
+       
+        responseObj = {"companyCollection" : companyCollection};
+        return await helperUtil.responseSender(res,'data',200,responseObj, 'company collected successfully');
+    } catch (error) {
+        message = "company retrieved Failed.";
+        responseObj = error;
+        return await helperUtil.responseSender(res,'error',httpStatusCode, responseObj, message);
+    }
+})
+
+
+router.post('/createCompany/:SuperAdmin',auth, bodyParser, async function (req, res) {
+    const userId = req.params.SuperAdmin;
+    var message = "";
+    var httpStatusCode = 500;
+    var responseObj = {};
+    if (!userId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
+    try {
+        var inputparam = {
+            "name":req.name,
+            "address":req.address,
+            "phone":req.phone,
+            "email":req.email,
+            "randomKey":req.randomKey,
+            "isActive":req.isActive,
+            "createdBy":userId,
+            "updatedBy":userId
+        };
+        const companyCollection = await companyModel.createCompany(inputparam);
+        if (!companyCollection) return  await helperUtil.responseSender(res,'error',400,responseObj, 'company created but retriving data failed');
+       
+        responseObj = {"companyCollection" : companyCollection};
+        return await helperUtil.responseSender(res,'data',200,responseObj, 'company created successfully');
+    } catch (error) {
+        message = "company creation Failed.";
+        responseObj = error;
+        return await helperUtil.responseSender(res,'error',httpStatusCode, responseObj, message);
+    }
+})
+
+
+router.put('/updateCompany/:Admin', auth , bodyParser , async function(req,res){
+    const userId = req.params.superAdmin;
+    var message = "";
+    var httpStatusCode = 500;
+    var responseObj = {};
+    if (!userId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
+    try {
+        var inputparam = {
+            "name":req.name,
+            "address":req.address,
+            "phone":req.phone,
+            "email":req.email,
+            "randomKey":req.randomKey,
+            "isActive":req.isActive,
+            "updatedBy":userId
+        };
+        const companyCollection = await companyModel.updateCompany(inputparam, req.companyId);
+        if (!companyCollection) return  await helperUtil.responseSender(res,'error',400,responseObj, 'company updated but retriving data failed');
+       
+        responseObj = {"companyCollection" : companyCollection};
+        return await helperUtil.responseSender(res,'data',200,responseObj, 'company updated successfully');
+    } catch (error) {
+        message = "company updated Failed.";
+        responseObj = error;
+        return await helperUtil.responseSender(res,'error',httpStatusCode, responseObj, message);
+    } 
+})
+
+router.post('/ActivateorDeactivate/:SuperAdmin/:companyRandomkey',auth, bodyParser, async function (req, res) {
+    const userId = req.params.SuperAdmin;
+    const companyKey = req.params.companyRandomkey;
+    var flag = req.isActive? 'acitivation' :'deActivation';
+    var message = "";
+    var httpStatusCode = 500;
+    var responseObj = {};
+    if (!userId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
+    try {
+       
+        const companyCollection = await companyModel.activateOrDeactivate(userId,req.isActive, companyKey);
+        if (!companyCollection) return  await helperUtil.responseSender(res,'error',400,responseObj, `company ${flag} failed`);
+       
+        responseObj = {"companyCollection" : companyCollection};
+        return await helperUtil.responseSender(res,'data',200,responseObj, `company ${flag} successfully`);
+    } catch (error) {
+        message = `company ${flag} Failed.`;
+        responseObj = error;
+        return await helperUtil.responseSender(res,'error',httpStatusCode, responseObj, message);
+    }
+})
+
+
+
+module.exports = router;
