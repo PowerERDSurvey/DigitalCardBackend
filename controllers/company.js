@@ -44,10 +44,15 @@ router.post('/createCompany/:SuperAdmin',auth, bodyParser, async function (req, 
         const getSuperAdmin = await userModel.getSuperAdmin(userId);
         if (!getSuperAdmin) return  await helperUtil.responseSender(res,'error',400,responseObj, 'company only can create by the SuperAdmin');
         var inputparam = {
-            "name":req.body.name,
+            "companyName":req.body.companyName,
             "address":req.body.address,
-            "phone":req.body.phone,
-            "email":req.body.email,
+            "mobileNumber":req.body.mobileNumber,
+            "emailAddress":req.body.emailAddress,
+            "country":req.body.country,
+            "state":req.body.state,
+            "city":req.body.city,
+            "zipcode": req.body.zipcode,
+            
             "randomKey":req.body.randomKey,
             "isActive":req.body.isActive,
             "createdBy":userId,
@@ -76,10 +81,14 @@ router.put('/updateCompany/:Admin', auth , bodyParser , async function(req,res){
         const getSuperAdmin = await userModel.getSuperAdmin(userId);
         if (!getSuperAdmin) return  await helperUtil.responseSender(res,'error',400,responseObj, 'company only can update by the SuperAdmin');
         var inputparam = {
-            "name":req.body.name,
+            "companyName":req.body.companyName,
             "address":req.body.address,
-            "phone":req.body.phone,
-            "email":req.body.email,
+            "mobileNumber":req.body.mobileNumber,
+            "emailAddress":req.body.emailAddress,
+            "country":req.body.country,
+            "state":req.body.state,
+            "city":req.body.city,
+            "zipcode": req.body.zipcode,
             "updatedBy":userId
         };
         const companyCollection = await companyModel.updateCompany(inputparam, req.body.companyId);
