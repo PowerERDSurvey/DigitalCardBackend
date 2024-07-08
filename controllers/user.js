@@ -358,7 +358,7 @@ router.post("/getUserbyrole", auth, bodyParser , async function(req, res){
     }
 })
 
-router.post('/deleteCompany/:UserId',auth, bodyParser, async function (req, res) {
+router.post('/deleteUser/:UserId',auth, bodyParser, async function (req, res) {
     const UserId = req.params.UserId;
     var message = "";
     var httpStatusCode = 500;
