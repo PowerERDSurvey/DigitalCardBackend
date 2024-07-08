@@ -12,6 +12,10 @@ let companyModel = {
         const returnVal = await companyRepo.get_All_ActiveCompanyById() ;
         return returnVal;
     },
+    getActiveCompanyById: async function(compId){
+        const returnVal = await companyRepo.getActiveCompanyById(compId) ;
+        return returnVal;
+    },
     activateOrDeactivate: async function(companyId, is_active, userId){
         const returnVal = await companyRepo.activateOrDeactivate(companyId, is_active, userId) ;
         return returnVal;

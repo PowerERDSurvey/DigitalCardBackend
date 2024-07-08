@@ -21,7 +21,8 @@ let company = {
     getActiveCompanyById: async function(companyId){
         const returnVal = await Company.findOne({ where: {
             id: companyId,
-            isActive:true
+            isActive:true,
+            isDelete:false,
         },})
         return returnVal;
     },

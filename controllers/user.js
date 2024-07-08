@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 var router = express.Router();
 const userModel = require("../models/mvc_User");
 const userImageModel = require('../models/mvc_UserImage.js')
+const companyModel = require('../models/mvc_company.js')
 var Cryptr = require('cryptr');
 var cryptr = new Cryptr('myTotalySecretKey');
 const helperUtil = require('../util/helper.js');
@@ -39,6 +40,10 @@ async function handleUserCreation(req, res, requestBody, user) {
     if (!isEmailValid && requestBody.type !== 'GOOGLE_SSO') {
         return await sendErrorResponse(res, 400, {}, 'Email Address already exists.');
     }
+    // if (requestBody.companyId) {
+    //   const companyDetail =   await companyModel.getActiveCompanyById(requestBody.companyId);
+
+    // }
 
     if (requestBody.type === 'GOOGLE_SSO') {
         return await handleGoogleSSOUser(req, res, requestBody, user);
@@ -56,7 +61,7 @@ async function handleGoogleSSOUser(req, res, requestBody, user) {
     }
 
     const token = generateToken(result);
-    await deleteExpiredTokens(result.id);
+    await deleteExpiredTokenz(result.id);
     await insertTokenAndRespond(res, result.id, token, user, result);
 }
 
@@ -98,7 +103,7 @@ async function handleExistingEmail(req, res, requestBody, user) {
         if (email.primaryEmail === requestBody.email) {
             if (email.isActive) {
                 const token = generateToken({ email: email });
-                await deleteExpiredTokens(email.id);
+                await deleteExpiredTokenz(email.id);
                 return await insertTokenAndRespond(res, email.id, token, user, email);
             } else {
                 return res.json({ status: false, status: 400, message: 'User is disabled' });
@@ -109,7 +114,8 @@ async function handleExistingEmail(req, res, requestBody, user) {
 
 function createUserInputObject(requestBody, token = null) {
     return {
-        firstName: requestBody.username,
+        firstName: requestBody.type == 'GOOGLE_SSO'? requestBody.username : null,
+        userName: requestBody.type == 'GOOGLE_SSO'? null : requestBody.username,
         password: requestBody.PASSWORD,
         primaryEmail: requestBody.email,
         signupType: requestBody.type,
@@ -118,7 +124,8 @@ function createUserInputObject(requestBody, token = null) {
         companyId: requestBody.companyId,
         verificationCode: token,
         randomKey: requestBody.randomKey,
-        verificationExpires: Date.now() + 7200000
+        verificationExpires: Date.now() + 7200000,
+        isDelete: true,
     };
 }
 
@@ -126,8 +133,9 @@ function generateToken(payload) {
     return jwt.sign(payload, 'RANDOM_TOKEN_SECRET', { expiresIn: '24h' });
 }
 
-async function deleteExpiredTokens(userId) {
-    // Implement token deletion logic
+async function deleteExpiredTokenz(userId) {
+    await deleteExpiredTokens(userId);
+
 }
 
 async function insertTokenAndRespond(res, userId, token, user, email) {
@@ -145,6 +153,7 @@ function createResponseData(email, user, userImages, token) {
     return {
         id: email.id,
         firstName: email.firstName,
+        userName : email.userName,
         lastName: email.lastName,
         primaryEmail: email.primaryEmail,
         secondaryEmail: email.secondaryEmail,
