@@ -79,8 +79,9 @@ app.use("/",CountryANDState);
 app.put("/user/:ID",auth,upload.fields([
     { name: 'profilePhoto', maxCount: 1 },
     { name: 'coverPhoto', maxCount: 1 }
-  ]), function (req, res) {
+  ]), async function (req, res) {
 
+    try {
    
 
     var UserId = req.params.ID;
@@ -112,50 +113,47 @@ app.put("/user/:ID",auth,upload.fields([
         role:req.body.role,
         companyId:req.body.companyId
       };
-    console.log(req.body);
-    var response;
-    
-    userModel.update(UserId, requestBody, async function (err, result) {
-        var httpStatusCode = 0;
-        var responseObj = "";
-        var message = "User updates successfully.";
-        if (err) {
-            message = "User updation Failed.";
-            httpStatusCode = 500;
-            responseObj = err;
-            response = { "status": httpStatusCode, "error": responseObj, "message": message };
-        } else {
-           
-            if (req.files) {
-                // const imageUpload = helperUtil.
-                try {
-                    const imagesUpdation = await helperUtil.uplaodUserImage(UserId, req.files);
-                    if(!imagesUpdation) return await helperUtil.responseSender(res,'error',400,responseObj, 'images updated. but waiting for response please contact BC');
-                    const images = await userImageModel.getAllUserImageByUserId(UserId);
-                    if(!images) return await helperUtil.responseSender(res,'error',400,responseObj, 'images getting failed. but waiting for response please contact BC');
-                    if (images) {
-                        httpStatusCode = 200;
-                        responseObj = result.dataValues;
-                        responseObj.images = images;
-                        response = { "status": httpStatusCode, "data": responseObj, "message": message };
-                    } else {
-                        httpStatusCode = 400;
-                        response = { "status": httpStatusCode, "message": "Image upload failed" };
-                    }
-                    return res.status(httpStatusCode).json(response);
-                } catch (error) {
-                    return res.status(400).json({ error: error.message });
+      var message = "";
+      var httpStatusCode = 500;
+      var responseObj = {};
+      if (!UserId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
+
+
+        const userUpdate = await userModel.update(UserId, requestBody);
+        if(!userUpdate) return await helperUtil.responseSender(res,'error',400,responseObj, 'user updated. but waiting for response please contact BC');
+        
+        if (req.files) {
+            // const imageUpload = helperUtil.
+            try {
+                const imagesUpdation = await helperUtil.uplaodUserImage(UserId, req.files);
+                if(!imagesUpdation) return await helperUtil.responseSender(res,'error',400,responseObj, 'images updated. but waiting for response please contact BC');
+                const images = await userImageModel.getAllUserImageByUserId(UserId);
+                if(!images) return await helperUtil.responseSender(res,'error',400,responseObj, 'images getting failed. but waiting for response please contact BC');
+                if (images) {
+                    httpStatusCode = 200;
+                    responseObj = userUpdate.dataValues;
+                    responseObj.images = images;
+                    response = { "status": httpStatusCode, "data": responseObj, "message": message };
+                } else {
+                    httpStatusCode = 400;
+                    response = { "status": httpStatusCode, "message": "Image upload failed" };
                 }
-            } else {
-                httpStatusCode = 200;
-                responseObj = result.dataValues;
-                response = { "status": httpStatusCode, "data": responseObj, "message": message };
+                return res.status(httpStatusCode).json(response);
+            } catch (error) {
+                return res.status(400).json({ error: error.message });
             }
-            
-            
+        } else {
+            httpStatusCode = 200;
+            responseObj = userUpdate.dataValues;
+            response = { "status": httpStatusCode, "data": responseObj, "message": message };
         }
-        return res.status(httpStatusCode).send(response);
-    });
+    } catch (error) {
+        message = "User Updation Failed.";
+        responseObj = error;
+        return await helperUtil.responseSender(res,'error',httpStatusCode, responseObj, message);
+    }
+    
+    
 });
 
 app.put('/user/card/update/:cardId',auth,upload.fields([

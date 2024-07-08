@@ -17,29 +17,29 @@ let utils = {
 
 
 //  getActiveEmails:function(id,curEmail){
- checkEmailValid:function(curEmail){
+ checkEmailValid:async function(curEmail){
   var isValid = true;
-  return new Promise((resolve, reject)=>{
+  return new Promise( async (resolve, reject)=>{
       if (!curEmail) {
         isValid = false;
         resolve(isValid);
       }else{
         //  userModel.getAllEmailAddress(id,function(error,result){
-          userModel.getActiveEmails(function(error,result){
-            if(error){
-              reject(error);
-            }else{
-              
-                for ( var email of result ) {
-                  if (email.primaryEmail == curEmail) {
-                  isValid = false;
-                    break;
-                  }
-              }
-              resolve(isValid);
-            
-          }
-          });
+        try {
+          
+          const result = await userModel.getActiveEmails();
+          if (result.length == 0) reject(null);
+          for ( var email of result ) {
+            if (email.primaryEmail == curEmail) {
+            isValid = false;
+              break;
+            }
+           }
+          resolve(isValid);
+        } catch (error) {
+          reject(error);
+        }
+         
       }
    
    
@@ -49,27 +49,43 @@ let utils = {
  //  getActiveEmails:function(id,curEmail){
   checkPasswordValid:function(curPass){
     var isValid = true;
-    return new Promise((resolve, reject)=>{
+    return new Promise(async (resolve, reject)=>{
         if (!curPass) {
           isValid = false;
           resolve(isValid);
         }else{
           //  userModel.getAllEmailAddress(id,function(error,result){
-            userModel.getActivePassword(function(error,users){
-              if(error){
-                reject(error);
-              }else{
-                
-                  for ( var user of users ) {
-                    if (user.password == curPass) {
-                    isValid = false;
-                      break;
-                    }
+
+          try {
+            const user =  await userModel.getActivePassword();
+            if (user.length == 0 ) reject(null);
+            for (let index = 0; index < user.length; index++) {
+              if (user[index].password == curPass) {
+                isValid = false;
+                  break;
                 }
-                resolve(isValid);
+
               
             }
-            });
+            resolve(isValid);
+          } catch (error) {
+            reject(error);
+          }
+            // userModel.getActivePassword(function(error,users){
+            //   if(error){
+            //     reject(error);
+            //   }else{
+                
+            //       for ( var user of users ) {
+            //         if (user.password == curPass) {
+            //         isValid = false;
+            //           break;
+            //         }
+            //     }
+            //     resolve(isValid);
+              
+            // }
+            // });
         }
      
      

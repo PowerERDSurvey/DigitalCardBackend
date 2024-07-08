@@ -1,21 +1,25 @@
 const userRepo = require("../config/user");
 
 let userModel = { 
-    create: function(inputParams,cb){
-                userRepo.create(inputParams,cb);
+    create:async function(inputParams){
+               return await  userRepo.create(inputParams);
             },
-            getActiveEmails: function(inputParams,cb){
-                userRepo.getActiveEmails(inputParams,cb);
+            getActiveEmails: async function(inputParams){
+                return await userRepo.getActiveEmails(inputParams);
             },
-            update: function(UserId,inputParams,cb){
-                userRepo.update(UserId,inputParams,cb);
+            update: async function(UserId,inputParams){
+                return await userRepo.update(UserId,inputParams);
             },
-            getActivePassword: function(inputParams,cb){
-                userRepo.getActivePassword(inputParams,cb);
+            getActivePassword: async function(inputParams){
+                return await userRepo.getActivePassword(inputParams);
             },
-            getOneUser: function(inputParams,cb){
-                userRepo.getOneUser(inputParams,cb);
+            getOneUser: async function(inputParams){
+                return await userRepo.getOneUser(inputParams);
             },
+
+
+
+
             getUser: async function(inputParams){
              return  await userRepo.getUser(inputParams);
             },

@@ -5,19 +5,14 @@ var User = require('../models/user')(sequelize, DataTypes);
 
 
 let users = {
-  create: async function (inputParams, cb) {
+  create: async function (inputParams) {
     console.log('inputParams' + inputParams);
 
 
-    User.create(inputParams).then(async (user) => {
-      console.log('user' + user);
-      cb(null, user);
-    }).catch((err) => {
-      cb(err, null);
-    });
+    return await User.create(inputParams);
   },
-  update: async function (UserId, inputParams, cb) {
-    User.update(
+  update: async function (UserId, inputParams) {
+   const updatedUser = await User.update(
       inputParams,
       {
         where: {
@@ -25,18 +20,10 @@ let users = {
         },
         returning: true,
       },
-    ).then(() => {
-      return User.findOne({ where: { id: UserId } }); // Fetch the updated user
-    })
-      .then((updatedUser) => {
-        console.log('Updated user:', updatedUser);
-        cb(null, updatedUser);
-      })
-      .catch((err) => {
-        cb(err, null);
-      });
+    );
+    return await User.findOne({ where: { id: UserId } });
   },
-  getActiveEmails: function (cb) {
+  getActiveEmails: async function () {
     var queryInputs = {
       // attributes: ['email'],
       where: {
@@ -45,14 +32,10 @@ let users = {
     };
 
 
-    User.findAll(queryInputs).then((email_addresses) => {
-      cb(null, email_addresses);
-    }).catch((err) => {
-      cb(err, null);
-    });
+    return await User.findAll(queryInputs);
 
   },
-  getActivePassword: function (cb) {
+  getActivePassword: async function () {
     var queryInputs = {
       attributes: ['password'],
       where: {
@@ -61,22 +44,14 @@ let users = {
     };
 
 
-    User.findAll(queryInputs).then((password) => {
-      cb(null, password);
-    }).catch((err) => {
-      cb(err, null);
-    });
+    return await User.findAll(queryInputs);
 
   },
-  getOneUser: function (userId, cb) {
-    User.findOne({
+  getOneUser: async function (userId) {
+    return await User.findOne({
       attributes: ['verificationCode', 'verificationExpires', 'isActive'],
       where: { id: userId },
       rejectOnEmpty: true,
-    }).then((user) => {
-      cb(null, user);
-    }).catch((err) => {
-      cb(err, null);
     });
   },
   getUsertokenById: async function (userId,verificationCodeParam) {
