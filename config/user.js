@@ -95,6 +95,9 @@ let users = {
   getUserByRole: async function (rolepar) {
     return await User.findAll({where: { role: rolepar, isDelete: false}})
   },
+  getCompanybasedUser: async function (companyIdpar,rolepar) {
+    return await User.findAll({where: { companyId :companyIdpar, role: rolepar, isDelete: false}})
+  },
   deleteUser: async function(UserId){
     const updatedUser = await User.update({isDelete : true },{
         where: {

@@ -357,6 +357,24 @@ router.post("/getUserbyrole", auth, bodyParser , async function(req, res){
         return await helperUtil.responseSender(res,'error',httpStatusCode, responseObj, message);
     }
 })
+router.post("/companybasedUser/:companyId", auth, bodyParser , async function(req, res){
+    const companyId = req.params.companyId;
+    var message = "";
+    var httpStatusCode = 500;
+    var responseObj = {};
+     if (!companyId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
+    try {
+        const userCollection = await userModel.getCompanybasedUser(companyId,req.body.role);
+        if (userCollection.length == 0) return  await helperUtil.responseSender(res,'error',400,responseObj, "no active user in this role");
+       
+        responseObj = {"userCollection" : userCollection};
+        return await helperUtil.responseSender(res,'data',200,responseObj, `user colected successfully`);
+    } catch (error) {
+        message = `user collection failed.`;
+        responseObj = error;
+        return await helperUtil.responseSender(res,'error',httpStatusCode, responseObj, message);
+    }
+})
 
 router.post('/deleteUser/:UserId',auth, bodyParser, async function (req, res) {
     const UserId = req.params.UserId;

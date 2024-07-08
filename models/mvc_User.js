@@ -30,6 +30,9 @@ let userModel = {
             getUserByRole: async function (role) {
                 return await userRepo.getUserByRole(role);
             },
+            getCompanybasedUser: async function (companyId,role) {
+                return await userRepo.getCompanybasedUser(companyId,role);
+            },
 
             deleteUser: async function (userId) {
                 return await userRepo.deleteUser(userId);
