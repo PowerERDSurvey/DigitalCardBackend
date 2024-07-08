@@ -38,7 +38,8 @@ module.exports = (sequelize, DataTypes) => {
     randomKey: DataTypes.STRING,
     isActive: DataTypes.BOOLEAN,
     createdBy: DataTypes.INTEGER,
-    updatedBy: DataTypes.INTEGER
+    updatedBy: DataTypes.INTEGER,
+    isDelete: DataTypes.BOOLEAN,
   }, {
     sequelize,
     modelName: 'company',

@@ -68,7 +68,10 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
-      }
+      }, 
+      isDelete: {
+        type: Sequelize.BOOLEAN
+      },
     });
   },
   async down(queryInterface, Sequelize) {

@@ -26,10 +26,20 @@ module.exports = {
           onDelete: 'CASCADE',
         },
       ),
+      queryInterface.addColumn(
+        'Users', // table name
+        'isDelete', // new field name
+        {
+          
+            type: Sequelize.BOOLEAN
+          
+        },
+      ),
     ])
   },
 
   async down (queryInterface, Sequelize) {
+    queryInterface.removeColumn('Users', 'isDelete'),
     queryInterface.removeColumn('Users', 'companyId'),
     queryInterface.removeColumn('Users', 'role')
   }

@@ -16,6 +16,10 @@ let companyModel = {
         const returnVal = await companyRepo.activateOrDeactivate(companyId, is_active, userId) ;
         return returnVal;
     },
+    deleteCompany: async function(companyId){
+        const returnVal = await companyRepo.deleteCompany(companyId) ;
+        return returnVal;
+    },
 
 }
 

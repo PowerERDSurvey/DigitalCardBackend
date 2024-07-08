@@ -28,7 +28,7 @@ let company = {
     get_All_ActiveCompanyById: async function(){
         const returnVal = await Company.findAll({ where: {
             // id: companyId,
-            isActive:true
+            isDelete:false,
         },})
         return returnVal;
     },
@@ -46,6 +46,15 @@ let company = {
         )
         return returnVal;
     },
+    deleteCompany: async function(companyId){
+        const updatedCompany = await Company.update({isDelete : true },{
+            where: {
+                id: companyId
+            },
+            returning: true,
+        });
+        return updatedCompany;
+    }
 
 }
 module.exports = company;

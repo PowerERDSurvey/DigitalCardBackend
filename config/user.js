@@ -91,7 +91,19 @@ let users = {
   },
   getSuperAdmin: async function (userId) {
     return await User.findOne({where: { id: userId, role : 'SUPER_ADMIN', IsActive: true}})
-  }
+  },
+  getUserByRole: async function (rolepar) {
+    return await User.findAll({where: { role: rolepar, isDelete: false}})
+  },
+  deleteUser: async function(UserId){
+    const updatedUser = await User.update({isDelete : true },{
+        where: {
+            id: UserId
+        },
+        returning: true,
+    });
+    return updatedUser;
+}
 }
 
 module.exports = users;

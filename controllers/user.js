@@ -339,4 +339,42 @@ router.get("/user/:ID", auth, bodyParser, async function (req, res) {
     }
 });
 
+router.post("/getUserbyrole", auth, bodyParser , async function(req, res){
+    // const UserId = req.params.UserId;
+    var message = "";
+    var httpStatusCode = 500;
+    var responseObj = {};
+    // if (!UserId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
+    try {
+        const userCollection = await userModel.getUserByRole(req.body.role);
+        if (userCollection.length == 0) return  await helperUtil.responseSender(res,'error',400,responseObj, "no active user in this role");
+       
+        responseObj = {"userCollection" : userCollection};
+        return await helperUtil.responseSender(res,'data',200,responseObj, `user colected successfully`);
+    } catch (error) {
+        message = `user collection failed.`;
+        responseObj = error;
+        return await helperUtil.responseSender(res,'error',httpStatusCode, responseObj, message);
+    }
+})
+
+router.post('/deleteCompany/:UserId',auth, bodyParser, async function (req, res) {
+    const UserId = req.params.UserId;
+    var message = "";
+    var httpStatusCode = 500;
+    var responseObj = {};
+    if (!UserId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
+    try {
+        const userCollection = await userModel.deleteUser(UserId);
+        if (!userCollection) return  await helperUtil.responseSender(res,'error',400,responseObj, `user deletion failed`);
+       
+        responseObj = {"userCollection" : userCollection};
+        return await helperUtil.responseSender(res,'data',200,responseObj, `user deleted successfully`);
+    } catch (error) {
+        message = `user deletion failed.`;
+        responseObj = error;
+        return await helperUtil.responseSender(res,'error',httpStatusCode, responseObj, message);
+    }
+})
+
 module.exports = router;

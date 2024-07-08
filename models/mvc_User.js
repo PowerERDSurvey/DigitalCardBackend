@@ -26,7 +26,15 @@ let userModel = {
     
             getSuperAdmin: async function (userId) {
                 return await userRepo.getSuperAdmin(userId);
-            }
+            },
+            getUserByRole: async function (role) {
+                return await userRepo.getUserByRole(role);
+            },
+
+            deleteUser: async function (userId) {
+                return await userRepo.deleteUser(userId);
+            },
+
 }
 
 module.exports = userModel;

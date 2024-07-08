@@ -125,6 +125,24 @@ router.post('/ActivateorDeactivate/:SuperAdmin/:companyRandomkey',auth, bodyPars
         return await helperUtil.responseSender(res,'error',httpStatusCode, responseObj, message);
     }
 })
+router.post('/deleteCompany/:companyId',auth, bodyParser, async function (req, res) {
+    const companyId = req.params.companyId;
+    var message = "";
+    var httpStatusCode = 500;
+    var responseObj = {};
+    if (!companyId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
+    try {
+        const companyCollection = await companyModel.deleteCompany(companyId);
+        if (!companyCollection) return  await helperUtil.responseSender(res,'error',400,responseObj, `company deletion failed`);
+       
+        responseObj = {"companyCollection" : companyCollection};
+        return await helperUtil.responseSender(res,'data',200,responseObj, `company deleted successfully`);
+    } catch (error) {
+        message = `company deletion failed.`;
+        responseObj = error;
+        return await helperUtil.responseSender(res,'error',httpStatusCode, responseObj, message);
+    }
+})
 
 
 
