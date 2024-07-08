@@ -125,7 +125,7 @@ function createUserInputObject(requestBody, token = null) {
         verificationCode: token,
         randomKey: requestBody.randomKey,
         verificationExpires: Date.now() + 7200000,
-        isDelete: true,
+        isDelete: false,//todo createdby upxdateby
     };
 }
 

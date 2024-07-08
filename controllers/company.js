@@ -52,7 +52,7 @@ router.post('/createCompany/:SuperAdmin',auth, bodyParser, async function (req, 
             "state":req.body.state,
             "city":req.body.city,
             "zipcode": req.body.zipcode,
-            
+            "isDelete":false,
             "randomKey":req.body.randomKey,
             "isActive":req.body.isActive,
             "createdBy":userId,
