@@ -1,4 +1,4 @@
-const layoutRepo = require("../config/company");
+const layoutRepo = require("../config/layout");
 let layoutModel = {
     createLayout: async function(inputparam){
         const returnVal = await layoutRepo.createLayout(inputparam) ;

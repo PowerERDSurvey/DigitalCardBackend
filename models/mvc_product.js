@@ -12,8 +12,8 @@ let productModel = {
     getAllProduct:async function(){
         return await productRepo.getAllProduct();
     },
-    deleteProduct:async function(productId){
-        return await productRepo.deleteProduct(productId);
+    deleteProduct:async function(userId,productId){
+        return await productRepo.deleteProduct(userId,productId);
     },
  }
 

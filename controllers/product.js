@@ -107,7 +107,7 @@ router.post('/deletePlan/:superAdmin',auth,bodyParser,async function(req,res){
         const getSuperAdmin = await userModel.getSuperAdmin(userId);
         if (!getSuperAdmin) return  await helperUtil.responseSender(res,'error',400,responseObj, 'company only can get by the SuperAdmin');
 
-        const planCollection = await productModel.deleteProduct(req.body.id);
+        const planCollection = await productModel.deleteProduct(userId,req.body.id);
         if (!planCollection) return  await helperUtil.responseSender(res,'error',400,responseObj, 'deleted but facing issue please contact BC');
        
         responseObj = {"planCollection" : planCollection};

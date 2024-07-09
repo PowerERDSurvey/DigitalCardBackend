@@ -17,8 +17,7 @@ let layout = {
     getLayout: async function(layoutId){
         const returnVal = await Layout.findOne({
             where:{
-                id: layoutId,
-                isActive:true
+                id: layoutId
             }
         });
         return returnVal;

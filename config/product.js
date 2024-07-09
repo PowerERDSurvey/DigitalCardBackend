@@ -39,9 +39,9 @@ let product = {
 
         return await productModel.findOne(condition);
     },
-    deleteProduct:async function(productId){
+    deleteProduct:async function(userId, productId){
 
-        return await productModel.update({isDelete:true}
+        return await productModel.update({isDelete:true, updatedBy : userId}
           , { where:{
                 id: productId
             }});

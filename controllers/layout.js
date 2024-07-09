@@ -3,7 +3,7 @@ var router = express.Router();
 const auth = require('../middleware/auth');
 var bodyParser = require('body-parser').json();
 const layoutModel = require("../models/mvc_layout.js");
-// const userModel = require("../models/mvc_User.js");
+const userModel = require("../models/mvc_User.js");
 const helperUtil = require('../util/helper.js');
 
 
@@ -67,13 +67,16 @@ router.post('/createLayout', auth, bodyParser , async function(req, res){
         return await helperUtil.responseSender(res,'error',httpStatusCode, responseObj, message);
     }
 })
-router.put('/updateLayout', auth, bodyParser , async function(req, res){
+router.put('/updateLayout/:superAdmin', auth, bodyParser , async function(req, res){
+    const userId = req.params.superAdmin;
     const layoutId = req.body.id;
     var message = "";
     var httpStatusCode = 500;
     var responseObj = {};
     if (!layoutId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
     try {
+        const getSuperAdmin = await userModel.getSuperAdmin(userId);
+        if (!getSuperAdmin) return  await helperUtil.responseSender(res,'error',400,responseObj, 'company only can get by the SuperAdmin');
         var inputparam = {
             "name": req.body.name,
             "content": req.body.content,
@@ -81,7 +84,7 @@ router.put('/updateLayout', auth, bodyParser , async function(req, res){
             "script": req.body.script
         };
 
-        const layoutCollection = await layoutModel.updateLayout(inputparam);
+        const layoutCollection = await layoutModel.updateLayout(inputparam,layoutId);
         if (!layoutCollection ) return  await helperUtil.responseSender(res,'error',400,responseObj, 'layout created but no data to view');
        
         responseObj = {"layoutCollection" : layoutCollection};
@@ -93,27 +96,27 @@ router.put('/updateLayout', auth, bodyParser , async function(req, res){
     }
 })
 
-router.post('/layout/activateOrDeactivate/:layoutId', auth, bodyParser , async function(req, res){
-    const layoutId = req.params.layoutId;
-    var flag = req.body.isActive == 'true' ? 'Activation' :'deActivation';
-    var message = "";
-    var httpStatusCode = 500;
-    var responseObj = {};
-    if (!layoutId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
-    try {
+// router.post('/layout/activateOrDeactivate/:layoutId', auth, bodyParser , async function(req, res){
+//     const layoutId = req.params.layoutId;
+//     var flag = req.body.isActive == 'true' ? 'Activation' :'deActivation';
+//     var message = "";
+//     var httpStatusCode = 500;
+//     var responseObj = {};
+//     if (!layoutId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
+//     try {
        
 
-        const layoutCollection = await layoutModel.activateOrDeactivate(layoutId, req.body.isActive);
-        if (!layoutCollection ) return  await helperUtil.responseSender(res,'error',400,responseObj, `layout ${flag} failed`);
+//         const layoutCollection = await layoutModel.activateOrDeactivate(layoutId, req.body.isActive);
+//         if (!layoutCollection ) return  await helperUtil.responseSender(res,'error',400,responseObj, `layout ${flag} failed`);
        
-        responseObj = {"layoutCollection" : layoutCollection};
-        return await helperUtil.responseSender(res,'data',200,responseObj, `layout ${flag} successfully`);
-    } catch (error) {
-        message = `layout ${flag} failed`;
-        responseObj = error;
-        return await helperUtil.responseSender(res,'error',httpStatusCode, responseObj, message);
-    }
-})
+//         responseObj = {"layoutCollection" : layoutCollection};
+//         return await helperUtil.responseSender(res,'data',200,responseObj, `layout ${flag} successfully`);
+//     } catch (error) {
+//         message = `layout ${flag} failed`;
+//         responseObj = error;
+//         return await helperUtil.responseSender(res,'error',httpStatusCode, responseObj, message);
+//     }
+// })
 
 
 
