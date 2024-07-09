@@ -38,8 +38,8 @@ let userModel = {
                 return await userRepo.getCompanybasedUser(companyId,role);
             },
 
-            deleteUser: async function (userId) {
-                return await userRepo.deleteUser(userId);
+            deleteUser: async function (adminId,userId) {
+                return await userRepo.deleteUser(adminId,userId);
             },
 
 }

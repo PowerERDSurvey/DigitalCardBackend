@@ -759,7 +759,7 @@ router.post('/deleteUser/:UserId', auth, bodyParser, async function (req, res) {
     var responseObj = {};
     if (!UserId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
     try {
-        const userCollection = await userModel.deleteUser(UserId);
+        const userCollection = await userModel.deleteUser(UserId, req.body.id);
         if (!userCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, `user deletion failed`);
 
         responseObj = { "userCollection": userCollection };
