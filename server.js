@@ -69,6 +69,8 @@ app.use("/",CompanyCreation);
 var layoutCreation = require('./controllers/layout.js');
 app.use("/",layoutCreation);
 
+var ProductCreation = require('./controllers/product.js');
+app.use("/",ProductCreation);
 
 
 var CountryANDState = require('./controllers/countryAndState.js');

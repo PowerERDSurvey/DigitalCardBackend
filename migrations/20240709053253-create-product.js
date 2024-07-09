@@ -2,42 +2,29 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('companies', {
-
+    await queryInterface.createTable('products', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      companyName: {
+      name: {
         type: Sequelize.STRING
       },
-      address: {
+      cardCount: {
+        type: Sequelize.INTEGER
+      },
+      layoutCount: {
+        type: Sequelize.INTEGER
+      },
+      layoutId: {
         type: Sequelize.STRING
       },
-      mobileNumber: {
-        type: Sequelize.STRING
+      isDelete:{
+        type: Sequelize.BOOLEAN
       },
-      country: {
-        type: Sequelize.STRING
-      },
-      state: {
-        type: Sequelize.STRING
-      },
-      city: {
-        type: Sequelize.STRING
-      },
-      zipcode: {
-        type: Sequelize.STRING
-      },
-      emailAddress: {
-        type: Sequelize.STRING
-      },
-      randomKey: {
-        type: Sequelize.STRING
-      },
-      isActive: {
+      isActive:{
         type: Sequelize.BOOLEAN
       },
       createdBy: {
@@ -67,13 +54,10 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
-      }, 
-      isDelete: {
-        type: Sequelize.BOOLEAN
-      },
+      }
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('companies');
+    await queryInterface.dropTable('products');
   }
 };

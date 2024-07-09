@@ -130,17 +130,21 @@ router.post('/ActivateorDeactivate/:SuperAdmin/:companyRandomkey',auth, bodyPars
         return await helperUtil.responseSender(res,'error',httpStatusCode, responseObj, message);
     }
 })
-router.post('/deleteCompany/:companyId',auth, bodyParser, async function (req, res) {
-    const companyId = req.params.companyId;
+router.post('/deleteCompany/:userId',auth, bodyParser, async function (req, res) {
+    const userId = req.params.userId;
     var message = "";
     var httpStatusCode = 500;
     var responseObj = {};
-    if (!companyId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
+    if (!userId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
     try {
-        const companyCollection = await companyModel.deleteCompany(companyId);
+        const getSuperAdmin = await userModel.getSuperAdmin(userId);
+        if (!getSuperAdmin) return  await helperUtil.responseSender(res,'error',400,responseObj, 'company only can create by the SuperAdmin');
+
+
+        const companyCollection = await companyModel.deleteCompany(req.body.companyId);
         if (!companyCollection) return  await helperUtil.responseSender(res,'error',400,responseObj, `company deletion failed`);
 
-        const deleteUser = userModel.getUserByRole(companyId);
+        
 
        
         responseObj = {"companyCollection" : companyCollection};
