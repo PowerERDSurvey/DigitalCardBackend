@@ -4,7 +4,7 @@ const auth = require('../middleware/auth');
 var bodyParser = require('body-parser').json();
 const companyModel = require("../models/mvc_company");
 const userModel = require("../models/mvc_User.js");
-// const cardImageModel = require("../models/mvc_businessCardImage.js");
+// const UserModel = require("../models/mvc_businessCardImage.js");
 // const userImageModel = require("../models/mvc_UserImage.js");
 const helperUtil = require('../util/helper.js');
 // const upload = require('../middleware/upload.js');
@@ -91,6 +91,8 @@ router.put('/updateCompany/:Admin', auth , bodyParser , async function(req,res){
             "state":req.body.state,
             "city":req.body.city,
             "zipcode": req.body.zipcode,
+            "noOfUsers":req.body.noOfUsers,
+            "noOfAdmin":req.body.noOfAdmin,
             "updatedBy":userId
         };
         const companyCollection = await companyModel.updateCompany(inputparam, req.body.companyId);
@@ -136,6 +138,9 @@ router.post('/deleteCompany/:companyId',auth, bodyParser, async function (req, r
     try {
         const companyCollection = await companyModel.deleteCompany(companyId);
         if (!companyCollection) return  await helperUtil.responseSender(res,'error',400,responseObj, `company deletion failed`);
+
+        const deleteUser = userModel.getUserByRole(companyId);
+
        
         responseObj = {"companyCollection" : companyCollection};
         return await helperUtil.responseSender(res,'data',200,responseObj, `company deleted successfully`);

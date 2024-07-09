@@ -28,7 +28,7 @@ let utils = {
         try {
           
           const result = await userModel.getActiveEmails();
-          if (result.length == 0) reject(null);
+          if (result.length == 0) resolve(isValid);;
           for ( var email of result ) {
             if (email.primaryEmail == curEmail) {
             isValid = false;
@@ -58,7 +58,7 @@ let utils = {
 
           try {
             const user =  await userModel.getActivePassword();
-            if (user.length == 0 ) reject(null);
+            if (user.length == 0 ) resolve(isValid);;
             for (let index = 0; index < user.length; index++) {
               if (user[index].password == curPass) {
                 isValid = false;
