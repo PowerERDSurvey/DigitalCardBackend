@@ -40,10 +40,21 @@ async function handleUserCreation(req, res, requestBody, user) {
     if (!isEmailValid && requestBody.type !== 'GOOGLE_SSO') {
         return await sendErrorResponse(res, 400, {}, 'Email Address already exists.');
     }
-    // if (requestBody.companyId) {
-    //   const companyDetail =   await companyModel.getActiveCompanyById(requestBody.companyId);
+    if (requestBody.companyId) {
+      const companyDetail =   await companyModel.getActiveCompanyById(requestBody.companyId);
+      if(!companyDetail)  return await sendErrorResponse(res, 400, {}, 'No company details found.');
+      const companyAdmins = await userModel.getCompanybasedUser(requestBody.companyId,requestBody.role );
+        if (requestBody.role == 'COMPANY_ADMIN') {
 
-    // }
+        if(companyDetail.noOfAdmin <= companyAdmins.length) return await sendErrorResponse(res, 400, {}, `company admin limit reached. your company can create only ${companyDetail.noOfAdmin} Admins`);
+
+      }
+      if (requestBody.role == 'COMPANY_USER') {
+        if(companyDetail.noOfUsers <= companyAdmins.length) return await sendErrorResponse(res, 400, {}, `company User limit reached. your company can create only ${companyDetail.noOfUsers} Users`);
+      }
+
+
+    }
 
     if (requestBody.type === 'GOOGLE_SSO') {
         return await handleGoogleSSOUser(req, res, requestBody, user);

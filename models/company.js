@@ -40,6 +40,8 @@ module.exports = (sequelize, DataTypes) => {
     createdBy: DataTypes.INTEGER,
     updatedBy: DataTypes.INTEGER,
     isDelete: DataTypes.BOOLEAN,
+    noOfUsers: DataTypes.INTEGER,
+    noOfAdmin: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'company',
