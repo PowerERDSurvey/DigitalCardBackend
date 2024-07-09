@@ -93,6 +93,7 @@ router.put('/updateCompany/:Admin', auth , bodyParser , async function(req,res){
             "zipcode": req.body.zipcode,
             "noOfUsers":req.body.noOfUsers,
             "noOfAdmin":req.body.noOfAdmin,
+            "isActive":req.body.isActive,
             "updatedBy":userId
         };
         const companyCollection = await companyModel.updateCompany(inputparam, req.body.companyId);
