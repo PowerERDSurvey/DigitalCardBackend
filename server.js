@@ -72,6 +72,8 @@ app.use("/",layoutCreation);
 var ProductCreation = require('./controllers/product.js');
 app.use("/",ProductCreation);
 
+var SubscriptionCreation = require('./controllers/subscription.js');
+app.use("/",SubscriptionCreation);
 
 var CountryANDState = require('./controllers/countryAndState.js');
 app.use("/",CountryANDState);

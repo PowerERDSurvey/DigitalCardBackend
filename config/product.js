@@ -37,7 +37,7 @@ let product = {
             }
         }
 
-        return await productModel.findOne(condition);
+        return await productModel.findAll(condition);
     },
     deleteProduct:async function(userId, productId){
 

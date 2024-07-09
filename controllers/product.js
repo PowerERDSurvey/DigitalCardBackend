@@ -21,7 +21,7 @@ router.get('/getallPlan/:superAdmin',auth,bodyParser,async function(req,res){
 
         const planCollection = await productModel.getAllProduct();
         if (!planCollection || planCollection.length == 0) return  await helperUtil.responseSender(res,'error',400,responseObj, 'there is no plan In Active state');
-       
+       //todo get all the templates
         responseObj = {"planCollection" : planCollection};
         return await helperUtil.responseSender(res,'data',200,responseObj, 'plan collected successfully');
     } catch (error) {

@@ -31,6 +31,14 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'updatedBy',
         as: 'product',
       });
+      User.hasMany(models.subscription, {
+        foreignKey: 'createdBy',
+        as: 'subscription',
+      });
+      User.hasMany(models.subscription, {
+        foreignKey: 'updatedBy',
+        as: 'subscription',
+      });
       User.hasMany(models.BusinessCard, {
         foreignKey: 'userId',
         as: 'businessCards',
