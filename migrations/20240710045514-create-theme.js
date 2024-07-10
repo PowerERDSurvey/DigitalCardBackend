@@ -10,7 +10,9 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       name: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
       },
       layoutId: {
         type: Sequelize.INTEGER,
@@ -23,7 +25,8 @@ module.exports = {
       },
       cardId: {
         type: Sequelize.INTEGER,
-        allowNull:false,
+        allowNull: false,
+        unique: true,
            references: {
             model: 'BusinessCards',
             key: 'id',

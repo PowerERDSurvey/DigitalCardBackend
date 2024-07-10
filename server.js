@@ -75,6 +75,10 @@ app.use("/",ProductCreation);
 var SubscriptionCreation = require('./controllers/subscription.js');
 app.use("/",SubscriptionCreation);
 
+var ThemeCreation = require('./controllers/theme.js');
+app.use("/",ThemeCreation);
+
+
 var CountryANDState = require('./controllers/countryAndState.js');
 app.use("/",CountryANDState);
 

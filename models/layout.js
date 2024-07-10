@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
     content: DataTypes.STRING,
     isActive: DataTypes.BOOLEAN,
-    script: DataTypes.STRING
+    script: DataTypes.STRING(10000)
   }, {
     sequelize,
     modelName: 'layout',

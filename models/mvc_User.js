@@ -16,6 +16,9 @@ let userModel = {
             getOneUser: async function(inputParams){
                 return await userRepo.getOneUser(inputParams);
             },
+            getALLUserbyQuery: async function(inputParams){
+                return await userRepo.getALLUserbyQuery(inputParams);
+            },
 
 
 

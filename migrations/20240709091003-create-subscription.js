@@ -10,7 +10,9 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       planName: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
       },
       startDate: {
         type: Sequelize.DATE

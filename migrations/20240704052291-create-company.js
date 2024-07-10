@@ -11,7 +11,9 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       companyName: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
       },
       address: {
         type: Sequelize.STRING
@@ -32,7 +34,9 @@ module.exports = {
         type: Sequelize.STRING
       },
       emailAddress: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
       },
       randomKey: {
         type: Sequelize.STRING

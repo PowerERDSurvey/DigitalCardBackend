@@ -54,19 +54,7 @@ let product = {
         return returnVal;
 
 
-    //    var layoutids=  productz.layoutId.split(',').map(Number);
-
-    //      const layouts = await layoutModel.findAll(
-    //         {
-    //             where:{
-    //                 id:layoutids
-    //             }
-    //         }
-    //     )
-    //     var z= productz.dataValues;
-    //     var returnval = {z..., layouts : layouts[0].dataValues}
-    //     // return productz.dataValues.layouts = layouts[0].dataValues;
-    // return returnval;
+    
     },
     getAllProduct:async function(){
         var condition = {
