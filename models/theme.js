@@ -3,27 +3,33 @@ const {
   Model
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class layout extends Model {
+  class theme extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      layout.hasMany(models.theme,{
+      theme.belongsTo(models.layout,{
         foreignKey:'layoutId',
-        as:'theme'
+        as:'layout'
+      });
+      theme.belongsTo(models.BusinessCard,{
+        foreignKey:'cardId',
+        as:'bussinesscard'
       })
     }
   }
-  layout.init({
+  theme.init({
     name: DataTypes.STRING,
-    content: DataTypes.STRING,
-    isActive: DataTypes.BOOLEAN,
-    script: DataTypes.STRING
+    layoutId: DataTypes.INTEGER,
+    cardId: DataTypes.INTEGER,
+    fontFamily: DataTypes.STRING,
+    fontStyle: DataTypes.STRING,
+    backgroundColor: DataTypes.STRING
   }, {
     sequelize,
-    modelName: 'layout',
+    modelName: 'theme',
   });
-  return layout;
+  return theme;
 };

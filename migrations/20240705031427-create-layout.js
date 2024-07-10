@@ -19,7 +19,7 @@ module.exports = {
         type: Sequelize.BOOLEAN
       },
       script: {
-        type: Sequelize.STRING(1000)
+        type: Sequelize.STRING(10000)
       },
       createdAt: {
         allowNull: false,
