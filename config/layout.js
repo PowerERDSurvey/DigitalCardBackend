@@ -24,9 +24,10 @@ let layout = {
 
     },
     getAllLayout: async function(){
-        const returnVal = await Layout.findAll({where:{
-            isActive:true
-        }});
+        // {where:{
+        //     isActive:true
+        // }}
+        const returnVal = await Layout.findAll();
         return returnVal;
 
     },
