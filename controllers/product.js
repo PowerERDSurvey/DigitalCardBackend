@@ -4,8 +4,8 @@ const auth = require('../middleware/auth');
 var bodyParser = require('body-parser').json();
 const productModel = require("../models/mvc_product.js");
 const userModel = require("../models/mvc_User.js");
-// const UserModel = require("../models/mvc_businessCardImage.js");
-// const userImageModel = require("../models/mvc_UserImage.js");
+const SubscriptionModel = require("../models/mvc_subscription.js");
+const userSubscriptionModel = require("../models/mvc_userSubscription.js");
 const helperUtil = require('../util/helper.js');
 
 
@@ -83,12 +83,32 @@ router.put('/updatePlan/:superAdmin',auth,bodyParser,async function(req,res){
             "updatedBy": userId,
             
         }
+        var message = 'plan updated successfully';
+
+        const getSubscription = await SubscriptionModel.getAllSubscriptionByquery({where:{productId:  req.body.id}});
+        if (getSubscription.length > 0) {
+
+            var getSubscriptionIds = getSubscription.map((item)=>{item.id});
+            
+                const getUserSubscription = await userSubscriptionModel.getAllUserSubscriptionByQuery({where:{ subscriptionId: getSubscriptionIds}})
+                
+            if (getUserSubscription.length > 0) {
+                inputparam = {
+                    "name": req.body.name,
+                    "updatedBy": userId,
+                }
+                message = 'Plan already being used. only Plan name updated .'
+            }
+            
+        }
+        
+      
 
         const planCollection = await productModel.updateProduct(inputparam, req.body.id );
         if (!planCollection) return  await helperUtil.responseSender(res,'error',400,responseObj, 'plan updated but no values to show');
        
         responseObj = {"planCollection" : planCollection};
-        return await helperUtil.responseSender(res,'data',200,responseObj, 'plan updated successfully');
+        return await helperUtil.responseSender(res,'data',200,responseObj, message);
     } catch (error) {
         message = "plan updation Failed.";
         responseObj = error;
