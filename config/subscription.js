@@ -39,6 +39,11 @@ let subscription = {
 
         return await subscriptionModel.findOne(condition);
     },
+    getAllSubscriptionByquery:async function(quey){
+       
+
+        return await subscriptionModel.findAll(quey);
+    },
     deleteSubscription:async function(userId, SubscriptionId){
 
         return await subscriptionModel.update({isDelete:true, updatedBy : userId}

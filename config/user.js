@@ -81,6 +81,9 @@ let users = {
         returning: true,
     });
     return updatedUser;
+},
+getALLUserbyQuery: async function(query){
+return await User.findAll(query);
 }
 }
 

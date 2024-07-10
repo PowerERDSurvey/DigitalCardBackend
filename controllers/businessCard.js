@@ -4,9 +4,14 @@ const auth = require('../middleware/auth');
 var bodyParser = require('body-parser').json();
 const cardModel = require("../models/mvc_Businesscard");
 const cardImageModel = require("../models/mvc_businessCardImage.js");
+// const companyModel = require("../models/mvc_company.js");
 const userImageModel = require("../models/mvc_UserImage.js");
 const helperUtil = require('../util/helper.js');
 const upload = require('../middleware/upload.js');
+const userModel = require("../models/mvc_User.js");
+const userSubscriptionModel = require("../models/mvc_userSubscription.js");
+const subscriptionModel = require("../models/mvc_subscription.js");
+const { where } = require("sequelize");
 
 
 router.get('/user/getAllCard/:userId',auth,bodyParser,async function (req, res) {
@@ -63,7 +68,59 @@ router.post('/user/createCard/:userId',auth,bodyParser,async function (req, res)
     var responseObj = {};
     if (!userId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
     try {
-        
+        //---------------------subscription plan---------------
+
+        // get company id for the user  
+        const userDetail =await userModel.getUser(userId);
+        if(!userDetail) return  await helperUtil.responseSender(res,'error',400,responseObj, 'userDetail not found');
+
+        var getCompanyId = userDetail.dataValues.companyId;
+
+        // get all the user by companyid
+        var userquery = {
+            where:{
+                userId : userId
+            }
+        }
+        var userSubscriptionquery = {
+            where:{
+                userId : userId,
+                isActive:true
+            }
+        }
+        if(userDetail.role == 'COMPANY_USER') {
+            userquery.where = {companyId : getCompanyId};
+            userSubscriptionquery.where = {
+                companyId : getCompanyId,
+                isActive:true
+            }
+        }
+        const usersDetail = await userModel.getALLUserbyQuery(userquery);
+        var exsitingCardCount = usersDetail.length;
+
+        //get subscription ids from userSubscription
+        const userSubscription = await userSubscriptionModel.getAllUserSubscriptionByQuery(userSubscriptionquery);
+
+        var userSubscriptionIds = userSubscription.map((item)=>item.subscriptionId);
+
+        console.log('userSubscriptionIds',userSubscriptionIds);
+
+        //get Active subscription from subscription id //forloop
+        const getSubscription =  await subscriptionModel.getAllSubscriptionByquery({where:{isActive:true , id:userSubscriptionIds }});
+
+        var subscriptionCardCount = 0;
+
+        for (let index = 0; index < getSubscription.length; index++) {
+            const getplans = await productModel.getOneProductById(getSubscription[index].productId);
+            subscriptionCardCount += getplans.dataValues.cardCount;
+            // getSubscription[index].dataValues.plan = [getplans];
+        }
+        if(subscriptionCardCount <= exsitingCardCount && exsitingCardCount > 0)  return  await helperUtil.responseSender(res,'error',400,responseObj, `Card creation limit reached. you already have $
+        {subscriptionCardCount} cards please contact Admin`);
+        //count the card creation count and restric the flow
+        // const userDetail = 
+
+
         var inputparam = {
             userId:userId,
             firstName: req.body.firstName,

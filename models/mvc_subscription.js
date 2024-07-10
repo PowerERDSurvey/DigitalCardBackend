@@ -12,6 +12,9 @@ let SubscriptionModel = {
     getAllSubscription:async function(){
         return await SubscriptionRepo.getAllSubscription();
     },
+    getAllSubscriptionByquery:async function(query){
+        return await SubscriptionRepo.getAllSubscriptionByquery(query);
+    },
     deleteSubscription:async function(userId,SubscriptionId){
         return await SubscriptionRepo.deleteSubscription(userId,SubscriptionId);
     },
