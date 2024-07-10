@@ -48,6 +48,10 @@ module.exports = (sequelize, DataTypes) => {
         as: 'company',
         onDelete: 'CASCADE',
       });
+      User.hasMany(models.userSubscription,{
+        foreignKey:'userId',
+        as:'userSubscription'
+      })
     }
   }
   User.init({

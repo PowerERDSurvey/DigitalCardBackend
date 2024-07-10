@@ -21,6 +21,10 @@ module.exports = (sequelize, DataTypes) => {
       subscription.belongsTo(models.product,{
         foreignKey:'productId',
         as:'product'
+      });
+      subscription.hasMany(models.userSubscription,{
+        foreignKey:'subscriptionId',
+        as:'userSubscription'
       })
     }
   }

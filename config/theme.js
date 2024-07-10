@@ -10,7 +10,8 @@ let theme = {
         return returnval;
     },
     updateTheme: async function (inputparam, themeId){
-        return await Theme.update(inputparam,{where:{id:themeId}});
+       await Theme.update(inputparam,{where:{id:themeId}});
+       return await this.getThemeById(themeId);
     },
     getThemeById: async function (themeId){
         return await Theme.findOne({where:{id:themeId}});

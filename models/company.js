@@ -22,6 +22,10 @@ module.exports = (sequelize, DataTypes) => {
       company.belongsTo(models.User,{
         foreignKey:'updatedBy',
         as:'company'
+      });
+      company.hasMany(models.userSubscription,{
+        foreignKey:'companyId',
+        as:'userSubscription'
       })
     }
   }
