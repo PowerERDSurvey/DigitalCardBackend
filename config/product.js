@@ -1,6 +1,7 @@
 const { update, random } = require('lodash');
 const { sequelize, DataTypes } = require('../config/sequelize');
 var productModel = require('../models/product')(sequelize, DataTypes);
+var layoutModel = require('../models/layout')(sequelize, DataTypes);
 let product = {
     createProduct: async function(inputparam){
         const returnVal = await productModel.create(inputparam);
@@ -28,7 +29,44 @@ let product = {
             }
         }
 
-        return await productModel.findOne(condition);
+        
+        const productz = await productModel.findOne(condition);
+
+        var layoutIds = productz.layoutId.split(',').map(Number);
+
+        // Fetch the layouts
+        const layouts = await layoutModel.findAll({
+            where: {
+                id: layoutIds
+            }
+        });
+
+        // Combine product data with layouts data
+        var productData = productz.dataValues;
+        var layoutData = layouts.map(layout => layout.dataValues);
+
+        // Construct the return value
+        var returnVal = {
+            ...productData,
+            layouts: layoutData
+        };
+
+        return returnVal;
+
+
+    //    var layoutids=  productz.layoutId.split(',').map(Number);
+
+    //      const layouts = await layoutModel.findAll(
+    //         {
+    //             where:{
+    //                 id:layoutids
+    //             }
+    //         }
+    //     )
+    //     var z= productz.dataValues;
+    //     var returnval = {z..., layouts : layouts[0].dataValues}
+    //     // return productz.dataValues.layouts = layouts[0].dataValues;
+    // return returnval;
     },
     getAllProduct:async function(){
         var condition = {
