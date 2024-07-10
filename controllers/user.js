@@ -130,7 +130,7 @@ function createUserInputObject(requestBody, token = null) {
         password: requestBody.PASSWORD,
         primaryEmail: requestBody.email,
         signupType: requestBody.type,
-        isActive: true,
+        isActive: requestBody.type == 'GOOGLE_SSO'? true: false,
         role: requestBody.role,
         companyId: requestBody.companyId,
         verificationCode: token,
