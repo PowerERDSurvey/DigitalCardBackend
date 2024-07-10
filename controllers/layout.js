@@ -80,7 +80,7 @@ router.put('/updateLayout/:superAdmin', auth, bodyParser , async function(req, r
         var inputparam = {
             "name": req.body.name,
             "content": req.body.content,
-            "isActive": req.body.isActive,
+            // "isActive": req.body.isActive,
             "script": req.body.script
         };
 
