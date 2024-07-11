@@ -104,6 +104,7 @@ app.put("/user/:ID",auth,upload.fields([
     var UserId = req.params.ID;
     // var requestBody =  req.body;
     var requestBody =  {
+        userName: req.body.userName != 'null'?  req.body.userName :null,
         firstName: req.body.firstName != 'null'?  req.body.firstName :null,
         lastName: req.body.lastName != 'null'? req.body.lastName: null,
         primaryEmail: req.body.primaryEmail != 'null'? req.body.primaryEmail :null,
