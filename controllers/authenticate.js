@@ -101,7 +101,7 @@ module.exports.authenticate = async function (req, res) {
             // }
           }
           else {
-            if (user.verificationCode != 'verified') {
+            if (!user.isEmailVerified) {
               return res.json({ message: "An email send to your account please verify" })
             }
 

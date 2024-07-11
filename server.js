@@ -2,6 +2,7 @@ const express=require("express");
 const cors=require("cors");
 const dotenv = require("dotenv").config();
 const bodyParser = require("body-parser");
+const jwt = require('jsonwebtoken');
 // const config = require('./config/dbConfig');
 var path = require('path');
 global.__basedir = __dirname ;
@@ -131,6 +132,14 @@ app.put("/user/:ID",auth,upload.fields([
         role:req.body.role != 'null'? req.body.role : null,
         companyId:req.body.companyId
       };
+      if (req.body.primaryEmail && req.body.primaryEmail != 'null') {
+        
+          const token = jwt.sign({email:req.body.primaryEmail}, 'RANDOM_TOKEN_SECRET', { expiresIn: '24h' });
+          requestBody.isEmailVerified = false;
+          requestBody.verificationCode = token;
+          requestBody.isActive = false;
+
+      }
       var message = "";
       var httpStatusCode = 500;
       var responseObj = {};
