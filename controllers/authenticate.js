@@ -79,6 +79,8 @@ module.exports.authenticate=async function(req,res){
                       "type": user.signupType,
                       "images":userImages,
                       "randomKey": user.randomKey,
+                      "role":user.role,
+"companyId":user.companyId
                     }
                       return res.json({"status":200,"token" : token,"data":responsedata});
                     }).catch((err)=>{
@@ -101,7 +103,7 @@ module.exports.authenticate=async function(req,res){
                   return res.json({
                     status:false,
                     status:400,
-                    message:"Error in backend while email verify please contact backend developer"
+                    message:"your company is InActive state"
                   })
                 }
               

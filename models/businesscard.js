@@ -14,10 +14,14 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'userId',
         as: 'user'
       });
-      User.hasMany(models.businessCardImage, {
+      BusinessCard.hasMany(models.businessCardImage, {
         foreignKey: 'cardId',
         as: 'images',
       });
+      BusinessCard.hasOne(models.theme,{
+        foreignKey:'cardId',
+        as:'theme'
+      })
     }
   }
   BusinessCard.init({
