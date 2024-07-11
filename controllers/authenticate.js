@@ -103,7 +103,7 @@ module.exports.authenticate=async function(req,res){
                   return res.json({
                     status:false,
                     status:400,
-                    message:"Error in backend while email verify please contact backend developer"
+                    message:"your company is InActive state"
                   })
                 }
               

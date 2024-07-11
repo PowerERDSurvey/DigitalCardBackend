@@ -7,6 +7,7 @@ const userModel = require("../models/mvc_User.js");
 // const UserModel = require("../models/mvc_businessCardImage.js");
 // const userImageModel = require("../models/mvc_UserImage.js");
 const helperUtil = require('../util/helper.js');
+const { where } = require("sequelize");
 // const upload = require('../middleware/upload.js');
 
 
@@ -56,7 +57,7 @@ router.post('/createCompany/:SuperAdmin',auth, bodyParser, async function (req, 
             "noOfUsers":req.body.noOfUsers,
             "noOfAdmin":req.body.noOfAdmin,
             "randomKey":req.body.randomKey,
-            "isActive":req.body.isActive,
+            "isActive":true,
             "createdBy":userId,
             "updatedBy":userId
         };
@@ -75,6 +76,7 @@ router.post('/createCompany/:SuperAdmin',auth, bodyParser, async function (req, 
 
 router.put('/updateCompany/:Admin', auth , bodyParser , async function(req,res){
     const userId = req.params.Admin;
+    var isActiveState = req.body.isActive;
     var message = "";
     var httpStatusCode = 500;
     var responseObj = {};
@@ -98,6 +100,13 @@ router.put('/updateCompany/:Admin', auth , bodyParser , async function(req,res){
         };
         const companyCollection = await companyModel.updateCompany(inputparam, req.body.companyId);
         if (!companyCollection) return  await helperUtil.responseSender(res,'error',400,responseObj, 'company updated but retriving data failed');
+
+        if (!isActiveState) {
+            const getCompanyUsers = await userModel.getALLUserbyQuery({where:{companyId : req.body.companyId}});
+            var userids = getCompanyUsers.map((item)=>item.id);
+
+            const updateUser = await userModel.update(userids,{isActive: false});
+        }//todo //user isactive flase
        
         responseObj = {"companyCollection" : companyCollection};
         return await helperUtil.responseSender(res,'data',200,responseObj, 'company updated successfully');
@@ -118,7 +127,7 @@ router.post('/ActivateorDeactivate/:SuperAdmin/:companyRandomkey',auth, bodyPars
     if (!userId || !companyKey) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
     try {
         const getSuperAdmin = await userModel.getSuperAdmin(userId);
-        if (!getSuperAdmin) return  await helperUtil.responseSender(res,'error',400,responseObj, 'company only can create by the SuperAdmin');
+        if (!getSuperAdmin) return  await helperUtil.responseSender(res,'error',400,responseObj, 'company only can modify by the SuperAdmin');
         const companyCollection = await companyModel.activateOrDeactivate(companyKey,req.body.isActive,userId);
         if (!companyCollection) return  await helperUtil.responseSender(res,'error',400,responseObj, `company ${flag} failed`);
        
@@ -138,14 +147,14 @@ router.post('/deleteCompany/:userId',auth, bodyParser, async function (req, res)
     if (!userId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
     try {
         const getSuperAdmin = await userModel.getSuperAdmin(userId);
-        if (!getSuperAdmin) return  await helperUtil.responseSender(res,'error',400,responseObj, 'company only can create by the SuperAdmin');
+        if (!getSuperAdmin) return  await helperUtil.responseSender(res,'error',400,responseObj, 'company only can delete by the SuperAdmin');
 
 
         const companyCollection = await companyModel.deleteCompany(req.body.companyId);
         if (!companyCollection) return  await helperUtil.responseSender(res,'error',400,responseObj, `company deletion failed`);
 
         
-
+//user detete //todo
        
         responseObj = {"companyCollection" : companyCollection};
         return await helperUtil.responseSender(res,'data',200,responseObj, `company deleted successfully`);
