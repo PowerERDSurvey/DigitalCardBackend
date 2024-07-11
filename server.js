@@ -8,18 +8,18 @@ global.__basedir = __dirname ;
 var multer = require('multer');
 var uploadFile = multer({dest:'./uploads/'});
 const config = require('./config/config.js');
-const helperUtil = require('./util/helper.js')
+// const helperUtil = require('./util/helper.js')
 const port = process.env.PORT || 8080;
 const cardModel = require("./models/mvc_Businesscard");
 
 const cardImageModel = require("./models/mvc_businessCardImage.js");
-const auth = require('./middleware/auth.js');
-const userModel = require("./models/mvc_User");
+// const auth = require('./middleware/auth.js');
+// const userModel = require("./models/mvc_User");
 
 const userImageModel = require("./models/mvc_UserImage.js");
 // const helperUtil = require('./util/helper.js');
 
-const upload = require('./middleware/upload.js');
+// const upload = require('./middleware/upload.js');
 // var bodyParser = require('body-parser').json();
 
 const auth = require('./middleware/auth.js');
