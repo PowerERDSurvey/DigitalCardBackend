@@ -10,6 +10,7 @@ var multer = require('multer');
 var uploadFile = multer({dest:'./uploads/'});
 const config = require('./config/config.js');
 // const helperUtil = require('./util/helper.js')
+const sendVerificationEmail = require('../util/emailSender.js');
 const port = process.env.PORT || 8080;
 const cardModel = require("./models/mvc_Businesscard");
 
@@ -132,9 +133,11 @@ app.put("/user/:ID",auth,upload.fields([
         role:req.body.role != 'null'? req.body.role : null,
         companyId:req.body.companyId
       };
+
+      const token = jwt.sign({email:req.body.primaryEmail}, 'RANDOM_TOKEN_SECRET', { expiresIn: '24h' });
       if (req.body.primaryEmail && req.body.primaryEmail != 'null') {
         
-          const token = jwt.sign({email:req.body.primaryEmail}, 'RANDOM_TOKEN_SECRET', { expiresIn: '24h' });
+          
           requestBody.isEmailVerified = false;
           requestBody.verificationCode = token;
           requestBody.isActive = false;
@@ -148,6 +151,12 @@ app.put("/user/:ID",auth,upload.fields([
 
         const userUpdate = await userModel.update(UserId, requestBody);
         if(!userUpdate) return await helperUtil.responseSender(res,'error',400,responseObj, 'user updated. but waiting for response please contact BC');
+
+        const emailSent = await sendVerificationEmail(UserId, req.body.primaryEmail, token);
+
+            if (!emailSent) {
+                return await helperUtil.responseSender(res,'error',400,responseObj, 'Verification email sending failed.');
+            }
         
         if (req.files) {
             // const imageUpload = helperUtil.
@@ -174,6 +183,7 @@ app.put("/user/:ID",auth,upload.fields([
             responseObj = userUpdate.dataValues;
             response = { "status": httpStatusCode, "data": responseObj, "message": message };
         }
+        
     } catch (error) {
         message = "User Updation Failed.";
         responseObj = error;
