@@ -4,7 +4,6 @@ const { token } = require('morgan');
 
 
 
-
 const mockUser = {
     password:"TestPassword",
     type:"WEB_APPLICATION",

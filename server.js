@@ -22,6 +22,13 @@ const userImageModel = require("./models/mvc_UserImage.js");
 const upload = require('./middleware/upload.js');
 // var bodyParser = require('body-parser').json();
 
+const auth = require('./middleware/auth.js');
+const userModel = require("./models/mvc_User");
+const helperUtil = require('./util/helper.js');
+
+const upload = require('./middleware/upload.js');
+// var bodyParser = require('body-parser').json();
+
 var corsoption ={
     origin : 'http://localhost:3000'
 }
@@ -97,30 +104,30 @@ app.put("/user/:ID",auth,upload.fields([
     var UserId = req.params.ID;
     // var requestBody =  req.body;
     var requestBody =  {
-        firstName: req.body.firstName,
-        lastName: req.body.lastName,
-        primaryEmail: req.body.primaryEmail,
-        secondaryEmail: req.body.secondaryEmail,
-        isActive: req.body.isActive,
-        verificationCode: req.body.verificationCode,
-        isEmailVerified: req.body.isEmailVerified,
-        mobileNumber: req.body.mobileNumber,
-        companyName: req.body.companyName,
-        designation: req.body.designation,
-        whatsapp: req.body.whatsapp,
-        facebook: req.body.facebook,
-        instagram: req.body.instagram,
-        linkedin: req.body.linkedin,
-        website: req.body.website,
-        city: req.body.city,
-        zipCode: req.body.zipCode,
-        country: req.body.country,
-        state: req.body.state,
-        Address: req.body.address,
-        aboutMe: req.body.aboutMe,
-        youtube: req.body.youtube,
-        department: req.body.department,
-        role:req.body.role,
+        firstName: req.body.firstName != 'null'?  req.body.firstName :null,
+        lastName: req.body.lastName != 'null'? req.body.lastName: null,
+        primaryEmail: req.body.primaryEmail != 'null'? req.body.primaryEmail :null,
+        // secondaryEmail: req.body.secondaryEmail != 'null'? req.body.secondaryEmail : null,
+        isActive: req.body.isActive != 'null'? req.body.isActive : null,
+        verificationCode: req.body.verificationCode != 'null'? req.body.verificationCode : null,
+        isEmailVerified: req.body.isEmailVerified != 'null'? req.body.isEmailVerified : null,
+        mobileNumber: req.body.mobileNumber != 'null'? req.body.mobileNumber : null,
+        companyName: req.body.companyName != 'null'? req.body.companyName : null,
+        designation: req.body.designation != 'null'? req.body.designation : null,
+        whatsapp: req.body.whatsapp != 'null'? req.body.whatsapp : null,
+        facebook: req.body.facebook != 'null'? req.body.facebook : null,
+        instagram: req.body.instagram != 'null'? req.body.instagram : null,
+        linkedin: req.body.linkedin != 'null'? req.body.linkedin : null,
+        website: req.body.website != 'null'? req.body.website : null,
+        city: req.body.city != 'null'? req.body.city : null,
+        zipCode: req.body.zipCode != 'null'? req.body.zipCode : null,
+        country: req.body.country != 'null'? req.body.country : null,
+        state: req.body.state != 'null'? req.body.state : null,
+        Address: req.body.address != 'null'? req.body.address : null,
+        aboutMe: req.body.aboutMe != 'null'? req.body.aboutMe : null,
+        youtube: req.body.youtube != 'null'? req.body.youtube : null,
+        department: req.body.department != 'null'? req.body.department : null,
+        role:req.body.role != 'null'? req.body.role : null,
         companyId:req.body.companyId
       };
       var message = "";
@@ -180,7 +187,6 @@ app.put('/user/card/update/:cardId',auth,upload.fields([
             firstName: req.body.firstName,
             lastName: req.body.lastName,
             primaryEmail: req.body.primaryEmail,
-            secondaryEmail: req.body.secondaryEmail,
             isActive: req.body.isActive,
             verificationCode: req.body.verificationCode,
             isEmailVerified: req.body.isEmailVerified,

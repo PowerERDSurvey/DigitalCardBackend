@@ -23,11 +23,11 @@ module.exports = {
         allowNull: true,
         unique: true
       },
-      secondaryEmail: {
-        type: Sequelize.STRING,
-        allowNull: true,
-        unique: false
-      },
+      // secondaryEmail: {
+      //   type: Sequelize.STRING,
+      //   allowNull: true,
+      //   unique: false
+      // },
       isActive: {
         type: Sequelize.BOOLEAN
       },

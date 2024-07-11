@@ -101,7 +101,7 @@ router.put('/updateSubscription/:superAdmin',auth,bodyParser,async function(req,
             "cost":req.body.cost,
             "isActive":req.body.isActive,
             "updatedBy":userId,
-            "productId":req.body.productId
+            // "productId":req.body.productId
         }
 
         const subscriptionCollection = await SubscriptionModel.updateSubscription(inputparam, req.body.id );
