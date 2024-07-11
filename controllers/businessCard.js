@@ -126,7 +126,7 @@ router.post('/user/createCard/:userId',auth,bodyParser,async function (req, res)
             firstName: req.body.firstName,
             lastName: req.body.lastName,
             primaryEmail: req.body.primaryEmail,
-            secondaryEmail: req.body.secondaryEmail,
+            // secondaryEmail: req.body.secondaryEmail,
             isActive: req.body.isActive,
             verificationCode: req.body.verificationCode,
             isEmailVerified: req.body.isEmailVerified,

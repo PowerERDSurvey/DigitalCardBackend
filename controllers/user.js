@@ -167,7 +167,7 @@ function createResponseData(email, user, userImages, token) {
         userName : email.userName,
         lastName: email.lastName,
         primaryEmail: email.primaryEmail,
-        secondaryEmail: email.secondaryEmail,
+        // secondaryEmail: email.secondaryEmail,
         mobileNumber: email.mobileNumber,
         companyName: email.companyName,
         designation: email.designation,
