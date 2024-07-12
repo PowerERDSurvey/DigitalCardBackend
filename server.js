@@ -10,7 +10,7 @@ var multer = require('multer');
 var uploadFile = multer({dest:'./uploads/'});
 const config = require('./config/config.js');
 // const helperUtil = require('./util/helper.js')
-const sendVerificationEmail = require('../util/emailSender.js');
+const sendVerificationEmail = require('./util/emailSender.js');
 const port = process.env.PORT || 8080;
 const cardModel = require("./models/mvc_Businesscard");
 
@@ -143,7 +143,7 @@ app.put("/user/:ID",auth,upload.fields([
           requestBody.isActive = false;
 
       }
-      var message = "";
+      var message = "User updated successfully";
       var httpStatusCode = 500;
       var responseObj = {};
       if (!UserId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
@@ -152,11 +152,13 @@ app.put("/user/:ID",auth,upload.fields([
         const userUpdate = await userModel.update(UserId, requestBody);
         if(!userUpdate) return await helperUtil.responseSender(res,'error',400,responseObj, 'user updated. but waiting for response please contact BC');
 
+        if (req.body.primaryEmail && req.body.primaryEmail != 'null') {
         const emailSent = await sendVerificationEmail(UserId, req.body.primaryEmail, token);
 
             if (!emailSent) {
                 return await helperUtil.responseSender(res,'error',400,responseObj, 'Verification email sending failed.');
             }
+        }
         
         if (req.files) {
             // const imageUpload = helperUtil.

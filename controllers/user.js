@@ -682,7 +682,7 @@ router.get('/user/:id/verify/:token', async function (req, res) {
         var requestBody = {
             isActive: true,
             verificationCode: 'verified',
-
+            isEmailVerified:true
         }
 
         const userUpdate = await userModel.update(userActivateTocken.id, requestBody);
