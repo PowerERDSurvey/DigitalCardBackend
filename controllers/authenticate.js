@@ -28,7 +28,7 @@ module.exports.authenticate = async function (req, res) {
 
   }).then(async (results) => {
     if (results.length > 0) {
-      var checkCasesen = userame == results[0].userName;
+      var checkCasesen = userame.toLowerCase() == results[0].userName.toLowerCase();
       if (checkCasesen) {
         decryptedString = cryptr.decrypt(results[0].password);
 

@@ -18,9 +18,9 @@ module.exports = (sequelize, DataTypes) => {
   }
   layout.init({
     name: DataTypes.STRING,
-    content: DataTypes.STRING,
+    description: DataTypes.STRING,
     isActive: DataTypes.BOOLEAN,
-    script: DataTypes.STRING(10000)
+    layoutComponentName: DataTypes.STRING(10000)
   }, {
     sequelize,
     modelName: 'layout',
