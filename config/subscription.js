@@ -37,7 +37,7 @@ let subscription = {
             }
         }
 
-        return await subscriptionModel.findOne(condition);
+        return await subscriptionModel.findAll(condition);
     },
     getAllSubscriptionByquery:async function(quey){
        
