@@ -141,7 +141,8 @@ async function handleExistingEmail(req, res, requestBody, user) {
 
 function createUserInputObject(requestBody, token = null) {
     return {
-        firstName: requestBody.type == 'GOOGLE_SSO'? requestBody.username : null,
+        firstName: requestBody.type == 'GOOGLE_SSO'? requestBody.username : requestBody.firstName,
+        lastName: requestBody.lastName,
         userName: requestBody.type == 'GOOGLE_SSO'? null : requestBody.username,
         password: requestBody.PASSWORD,
         primaryEmail: requestBody.email,
