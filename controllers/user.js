@@ -23,7 +23,8 @@ const { json } = require("body-parser");
 router.post("/user", async function (req, res) {
     const user = req.user;
     const requestBody = req.body;
-    let encryptedPassword = cryptr.encrypt(requestBody.password ? requestBody.password :helperUtil.generateRandomPassword());
+    var Randpassword = await helperUtil.generateRandomPassword();
+    let encryptedPassword = cryptr.encrypt(requestBody.password ? requestBody.password :Randpassword);
     requestBody.PASSWORD = encryptedPassword;
     console.log(requestBody);
 
@@ -95,7 +96,7 @@ async function handleStandardUser(req, res, requestBody, user, isEmailValid) {
     }
 
     const responseObj = { ID: result.dataValues.id };
-    const emailSent = await sendVerificationEmail(result.dataValues.id, requestBody.email, token , {password:cryptr.decrypt(result.dataValues.password), userName :result.dataValues.userName });
+    const emailSent = await sendVerificationEmail(result.dataValues.id, requestBody.email, token , {password:  cryptr.decrypt(result.dataValues.password), userName :result.dataValues.userName });
 
     if (!emailSent) {
         return await sendErrorResponse(res, 400, responseObj, 'Verification email sending failed.');
