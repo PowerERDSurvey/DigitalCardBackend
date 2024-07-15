@@ -52,6 +52,8 @@ router.post('/createPlan/:superAdmin',auth,bodyParser,async function(req,res){
             "isActive":true
         }
 
+        
+
         const planCollection = await productModel.createProduct(inputparam);
         if (!planCollection) return  await helperUtil.responseSender(res,'error',400,responseObj, 'plan created but no values to show');
        
@@ -84,21 +86,25 @@ router.put('/updatePlan/:superAdmin',auth,bodyParser,async function(req,res){
             
         }
         var message = 'plan updated successfully';
-
-        const getSubscription = await SubscriptionModel.getAllSubscriptionByquery({where:{productId:  req.body.id}});
+        const getSubscription = await SubscriptionModel.getAllSubscriptionByquery({where:{isActive:true,productId:  req.body.id}});
         if (getSubscription.length > 0) {
-
-            var getSubscriptionIds = getSubscription.map((item)=>{item.id});
-            
-                const getUserSubscription = await userSubscriptionModel.getAllUserSubscriptionByQuery({where:{ subscriptionId: getSubscriptionIds}})
-                
-            if (getUserSubscription.length > 0) {
-                inputparam = {
-                    "name": req.body.name,
-                    "updatedBy": userId,
-                }
-                message = 'Plan already being used. only Plan name updated .'
+            inputparam = {
+                "name": req.body.name,
+                "updatedBy": userId,
             }
+            message = 'Plan already being used. only Plan name updated .'
+
+            // var getSubscriptionIds = getSubscription.map((item)=>{item.id});
+            
+            //     const getUserSubscription = await userSubscriptionModel.getAllUserSubscriptionByQuery({where:{ subscriptionId: getSubscriptionIds}})
+                
+            // if (getUserSubscription.length > 0) {
+            //     inputparam = {
+            //         "name": req.body.name,
+            //         "updatedBy": userId,
+            //     }
+            //     message = 'Plan already being used. only Plan name updated .'
+            // }
             
         }
         

@@ -5,9 +5,10 @@ var bodyParser = require('body-parser').json();
 const SubscriptionModel = require("../models/mvc_subscription.js");
 const userModel = require("../models/mvc_User.js");
 const productModel = require("../models/mvc_product.js");
-// const UserModel = require("../models/mvc_businessCardImage.js");
+const UserSubscriptionModel = require("../models/mvc_userSubscription.js");
 // const userImageModel = require("../models/mvc_UserImage.js");
 const helperUtil = require('../util/helper.js');
+const userSubscriptionModel = require("../models/mvc_userSubscription.js");
 
 
 router.get('/getallsubscription/:superAdmin',auth,bodyParser,async function(req,res){
@@ -103,12 +104,24 @@ router.put('/updateSubscription/:superAdmin',auth,bodyParser,async function(req,
             "updatedBy":userId,
             // "productId":req.body.productId
         }
-
+        var message = 'subscription updated successfully';
+        const usersubscriprion = await userSubscriptionModel.getAllUserSubscriptionByQuery({where: { isActive : true , subscriptionId : req.body.id}});
+        if (usersubscriprion.length > 0) {
+            inputparam = {
+            "planName":req.body.planName,
+            "Description":req.body.Description,
+            "updatedBy":userId,
+            }
+            message = `Subscription already in use so `;
+            if(req.body.planName) message+='planName ';
+            if(req.body.Description) message+='Description ';
+            message+='updated successfully '
+        }
         const subscriptionCollection = await SubscriptionModel.updateSubscription(inputparam, req.body.id );
         if (!subscriptionCollection) return  await helperUtil.responseSender(res,'error',400,responseObj, 'subscription updated but no values to show');
        
         responseObj = {"subscriptionCollection" : subscriptionCollection};
-        return await helperUtil.responseSender(res,'data',200,responseObj, 'subscription updated successfully');
+        return await helperUtil.responseSender(res,'data',200,responseObj, message);
     } catch (error) {
         message = "subscription updation Failed.";
         responseObj = error;
