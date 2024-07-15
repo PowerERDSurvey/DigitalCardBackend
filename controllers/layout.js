@@ -51,9 +51,9 @@ router.post('/createLayout', auth, bodyParser , async function(req, res){
     try {
         var inputparam = {
             "name": req.body.name,
-            "content": req.body.content,
+            "description": req.body.description,
             "isActive": req.body.isActive,
-            "script": req.body.script
+            "layoutComponentName": req.body.layoutComponentName
         };
 
         const layoutCollection = await layoutModel.createLayout(inputparam);
@@ -79,9 +79,9 @@ router.put('/updateLayout/:superAdmin', auth, bodyParser , async function(req, r
         if (!getSuperAdmin) return  await helperUtil.responseSender(res,'error',400,responseObj, 'company only can get by the SuperAdmin');
         var inputparam = {
             "name": req.body.name,
-            "content": req.body.content,
+            "description": req.body.description,
             // "isActive": req.body.isActive,
-            // "script": req.body.script
+            // "layoutComponentName": req.body.layoutComponentName
         };
 
         const layoutCollection = await layoutModel.updateLayout(inputparam,layoutId);

@@ -2,24 +2,28 @@ const express=require("express");
 const cors=require("cors");
 const dotenv = require("dotenv").config();
 const bodyParser = require("body-parser");
+const jwt = require('jsonwebtoken');
 // const config = require('./config/dbConfig');
+var Cryptr = require('cryptr');
+var cryptr = new Cryptr('myTotalySecretKey');
 var path = require('path');
 global.__basedir = __dirname ;
 var multer = require('multer');
 var uploadFile = multer({dest:'./uploads/'});
 const config = require('./config/config.js');
-const helperUtil = require('./util/helper.js')
+// const helperUtil = require('./util/helper.js')
+const sendVerificationEmail = require('./util/emailSender.js');
 const port = process.env.PORT || 8080;
 const cardModel = require("./models/mvc_Businesscard");
 
 const cardImageModel = require("./models/mvc_businessCardImage.js");
-const auth = require('./middleware/auth.js');
-const userModel = require("./models/mvc_User");
+// const auth = require('./middleware/auth.js');
+// const userModel = require("./models/mvc_User");
 
 const userImageModel = require("./models/mvc_UserImage.js");
 // const helperUtil = require('./util/helper.js');
 
-const upload = require('./middleware/upload.js');
+// const upload = require('./middleware/upload.js');
 // var bodyParser = require('body-parser').json();
 
 const auth = require('./middleware/auth.js');
@@ -93,6 +97,8 @@ app.use("/",CountryANDState);
 
 // app.use();
 
+
+
 app.put("/user/:ID",auth,upload.fields([
     { name: 'profilePhoto', maxCount: 1 },
     { name: 'coverPhoto', maxCount: 1 }
@@ -104,6 +110,7 @@ app.put("/user/:ID",auth,upload.fields([
     var UserId = req.params.ID;
     // var requestBody =  req.body;
     var requestBody =  {
+        userName: req.body.userName != 'null'?  req.body.userName :null,
         firstName: req.body.firstName != 'null'?  req.body.firstName :null,
         lastName: req.body.lastName != 'null'? req.body.lastName: null,
         primaryEmail: req.body.primaryEmail != 'null'? req.body.primaryEmail :null,
@@ -130,7 +137,18 @@ app.put("/user/:ID",auth,upload.fields([
         role:req.body.role != 'null'? req.body.role : null,
         companyId:req.body.companyId
       };
-      var message = "";
+
+      const token = jwt.sign({email:req.body.primaryEmail}, 'RANDOM_TOKEN_SECRET', { expiresIn: '24h' });
+      if (req.body.primaryEmail && req.body.primaryEmail != 'null') {
+        
+         var pass = await helperUtil.generateRandomPassword();
+         requestBody.password = cryptr.encrypt(pass);
+          requestBody.isEmailVerified = false;
+          requestBody.verificationCode = token;
+          requestBody.isActive = false;
+
+      }
+      var message = "User updated successfully";
       var httpStatusCode = 500;
       var responseObj = {};
       if (!UserId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
@@ -138,6 +156,14 @@ app.put("/user/:ID",auth,upload.fields([
 
         const userUpdate = await userModel.update(UserId, requestBody);
         if(!userUpdate) return await helperUtil.responseSender(res,'error',400,responseObj, 'user updated. but waiting for response please contact BC');
+
+        if (req.body.primaryEmail && req.body.primaryEmail != 'null') {
+        const emailSent = await sendVerificationEmail(UserId, req.body.primaryEmail, token,{password:cryptr.decrypt(userUpdate.dataValues.password), userName :userUpdate.dataValues.userName });
+
+            if (!emailSent) {
+                return await helperUtil.responseSender(res,'error',400,responseObj, 'Verification email sending failed.');
+            }
+        }
         
         if (req.files) {
             // const imageUpload = helperUtil.
@@ -164,6 +190,7 @@ app.put("/user/:ID",auth,upload.fields([
             responseObj = userUpdate.dataValues;
             response = { "status": httpStatusCode, "data": responseObj, "message": message };
         }
+        
     } catch (error) {
         message = "User Updation Failed.";
         responseObj = error;

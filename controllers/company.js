@@ -101,12 +101,12 @@ router.put('/updateCompany/:Admin', auth , bodyParser , async function(req,res){
         const companyCollection = await companyModel.updateCompany(inputparam, req.body.companyId);
         if (!companyCollection) return  await helperUtil.responseSender(res,'error',400,responseObj, 'company updated but retriving data failed');
 
-        if (!isActiveState) {
-            const getCompanyUsers = await userModel.getALLUserbyQuery({where:{companyId : req.body.companyId}});
-            var userids = getCompanyUsers.map((item)=>item.id);
+        // if (!isActiveState) {
+        //     const getCompanyUsers = await userModel.getALLUserbyQuery({where:{companyId : req.body.companyId}});
+        //     var userids = getCompanyUsers.map((item)=>item.id);
 
-            const updateUser = await userModel.update(userids,{isActive: false});
-        }//todo //user isactive flase
+        //     const updateUser = await userModel.update(userids,{isActive: false});
+        // }//todo //user isactive flase
        
         responseObj = {"companyCollection" : companyCollection};
         return await helperUtil.responseSender(res,'data',200,responseObj, 'company updated successfully');

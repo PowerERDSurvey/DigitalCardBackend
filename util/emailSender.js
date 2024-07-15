@@ -12,13 +12,13 @@ const transporter = nodemailer.createTransport({
 
 
 
-const sendVerificationEmail = async (userId,email, token) => {
+const sendVerificationEmail = async (userId,email, token , collection) => {
   var url =  `${process.env.BaseURL}/user/${userId}/verify/${token}`;
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
-    subject: 'Account Verification',
-    text: `Please verify your account by clicking the link: ${url}`,
+    subject: 'DigitalCard Account Verification',
+    text: `Please verify your account by clicking the link: ${url}\n\n USERNAME : ${collection.userName}\n PASSWORD: ${collection.password}`,
   };
   try {
     return await transporter.sendMail(mailOptions);

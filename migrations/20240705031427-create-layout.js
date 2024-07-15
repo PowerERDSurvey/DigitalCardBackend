@@ -14,13 +14,13 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
-      content: {
+      description: {
         type: Sequelize.STRING
       },
       isActive: {
         type: Sequelize.BOOLEAN
       },
-      script: {
+      layoutComponentName: {
         type: Sequelize.STRING(10000)
       },
       createdAt: {

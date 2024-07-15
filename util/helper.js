@@ -148,7 +148,24 @@ let utils = {
       response = { "status": httpStatusCode, "error": responseObj, "message": message };
     }
     return await res.status(httpStatusCode).send(response);
-   }
+   },
+
+   generateRandomPassword: async function() {
+    const length = 8;
+    const specialChars = '!@#$%&*_|;:,.?';
+    // const specialChars = '!@#$%^&*()_+[]{}|;:,.<>?';
+
+    const getRandomSpecialChar = () => specialChars[Math.floor(Math.random() * specialChars.length)];
+    const getRandomChar = () => String.fromCharCode(Math.floor(Math.random() * 94) + 33);
+
+    // Generate a random password ensuring at least one special character
+    let password = Array.from({ length: length - 1 }, getRandomChar).join('') + getRandomSpecialChar();
+
+    // Shuffle the password to ensure randomness
+    password = password.split('').sort(() => 0.5 - Math.random()).join('');
+
+    return password;
+}
 }
  
 
