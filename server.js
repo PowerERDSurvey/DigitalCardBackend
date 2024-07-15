@@ -4,6 +4,8 @@ const dotenv = require("dotenv").config();
 const bodyParser = require("body-parser");
 const jwt = require('jsonwebtoken');
 // const config = require('./config/dbConfig');
+var Cryptr = require('cryptr');
+var cryptr = new Cryptr('myTotalySecretKey');
 var path = require('path');
 global.__basedir = __dirname ;
 var multer = require('multer');
@@ -95,6 +97,8 @@ app.use("/",CountryANDState);
 
 // app.use();
 
+
+
 app.put("/user/:ID",auth,upload.fields([
     { name: 'profilePhoto', maxCount: 1 },
     { name: 'coverPhoto', maxCount: 1 }
@@ -137,7 +141,8 @@ app.put("/user/:ID",auth,upload.fields([
       const token = jwt.sign({email:req.body.primaryEmail}, 'RANDOM_TOKEN_SECRET', { expiresIn: '24h' });
       if (req.body.primaryEmail && req.body.primaryEmail != 'null') {
         
-          
+         var pass = await helperUtil.generateRandomPassword();
+         requestBody.password = cryptr.encrypt(pass);
           requestBody.isEmailVerified = false;
           requestBody.verificationCode = token;
           requestBody.isActive = false;
@@ -153,7 +158,7 @@ app.put("/user/:ID",auth,upload.fields([
         if(!userUpdate) return await helperUtil.responseSender(res,'error',400,responseObj, 'user updated. but waiting for response please contact BC');
 
         if (req.body.primaryEmail && req.body.primaryEmail != 'null') {
-        const emailSent = await sendVerificationEmail(UserId, req.body.primaryEmail, token);
+        const emailSent = await sendVerificationEmail(UserId, req.body.primaryEmail, token,{password:cryptr.decrypt(userUpdate.dataValues.password), userName :userUpdate.dataValues.userName });
 
             if (!emailSent) {
                 return await helperUtil.responseSender(res,'error',400,responseObj, 'Verification email sending failed.');

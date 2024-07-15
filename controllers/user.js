@@ -23,7 +23,7 @@ const { json } = require("body-parser");
 router.post("/user", async function (req, res) {
     const user = req.user;
     const requestBody = req.body;
-    let encryptedPassword = cryptr.encrypt(requestBody.password);
+    let encryptedPassword = cryptr.encrypt(requestBody.password ? requestBody.password :helperUtil.generateRandomPassword());
     requestBody.PASSWORD = encryptedPassword;
     console.log(requestBody);
 
@@ -95,7 +95,7 @@ async function handleStandardUser(req, res, requestBody, user, isEmailValid) {
     }
 
     const responseObj = { ID: result.dataValues.id };
-    const emailSent = await sendVerificationEmail(result.dataValues.id, requestBody.email, token);
+    const emailSent = await sendVerificationEmail(result.dataValues.id, requestBody.email, token , {password:cryptr.decrypt(result.dataValues.password), userName :result.dataValues.userName });
 
     if (!emailSent) {
         return await sendErrorResponse(res, 400, responseObj, 'Verification email sending failed.');
@@ -122,6 +122,22 @@ async function handleExistingEmail(req, res, requestBody, user) {
         }
     }
 }
+// function generateRandomPassword() {
+//     const length = 8;
+//     const specialChars = '!@#$%&*_|;:,.?';
+//     // const specialChars = '!@#$%^&*()_+[]{}|;:,.<>?';
+
+//     const getRandomSpecialChar = () => specialChars[Math.floor(Math.random() * specialChars.length)];
+//     const getRandomChar = () => String.fromCharCode(Math.floor(Math.random() * 94) + 33);
+
+//     // Generate a random password ensuring at least one special character
+//     let password = Array.from({ length: length - 1 }, getRandomChar).join('') + getRandomSpecialChar();
+
+//     // Shuffle the password to ensure randomness
+//     password = password.split('').sort(() => 0.5 - Math.random()).join('');
+
+//     return password;
+// }
 
 function createUserInputObject(requestBody, token = null) {
     return {
