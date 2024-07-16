@@ -92,7 +92,8 @@ router.put('/updatePlan/:superAdmin',auth,bodyParser,async function(req,res){
                 "name": req.body.name,
                 "updatedBy": userId,
             }
-            message = 'Plan already being used. only Plan name updated .'
+            message = 'Plan already being used.'
+            if(req.body.name) message+='only Plan name updated .';
 
             // var getSubscriptionIds = getSubscription.map((item)=>{item.id});
             

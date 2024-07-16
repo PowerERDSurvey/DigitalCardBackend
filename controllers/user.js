@@ -144,7 +144,7 @@ function createUserInputObject(requestBody, token = null) {
     return {
         firstName: requestBody.type == 'GOOGLE_SSO'? requestBody.username : requestBody.firstName,
         lastName: requestBody.lastName,
-        userName: requestBody.type == 'GOOGLE_SSO'? null : requestBody.username.toLowercase(),
+        userName: requestBody.type == 'GOOGLE_SSO'? null : requestBody.username.toLowerCase(),
         password: requestBody.PASSWORD,
         primaryEmail: requestBody.email,
         signupType: requestBody.type,
