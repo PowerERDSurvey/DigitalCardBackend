@@ -136,7 +136,18 @@ app.put("/user/:ID",auth,upload.fields([
         department: req.body.department != 'null'? req.body.department : null,
         role:req.body.role != 'null'? req.body.role : null,
         companyId:req.body.companyId
-      };
+        };
+        
+        if (req.body.password) {
+            const getUser = await userModel.getALLUserbyQuery({ where: { id: UserId } });
+            if (getUser.length == 0) return  await helperUtil.responseSender(res, 'error', 400, {}, 'dont have user to update the password');
+
+            if (cryptr.decrypt(getUser[0].dataValues.password) != req.body.oldPassword) return await helperUtil.responseSender(res, 'error', 400, {}, 'Old password does not match');
+
+            requestBody = {
+                password: cryptr.encrypt(req.body.password)
+            }
+        }
 
       const token = jwt.sign({email:req.body.primaryEmail}, 'RANDOM_TOKEN_SECRET', { expiresIn: '24h' });
       if (req.body.primaryEmail && req.body.primaryEmail != 'null') {
