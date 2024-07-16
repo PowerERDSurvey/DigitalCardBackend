@@ -141,11 +141,11 @@ app.put("/user/:ID",auth,upload.fields([
         if (req.body.password) {
             const getUser = await userModel.getALLUserbyQuery({ where: { id: UserId } });
             if (getUser.length == 0) return  await helperUtil.responseSender(res, 'error', 400, {}, 'dont have user to update the password');
-
-            if (cryptr.decrypt(getUser[0].dataValues.password) != req.body.oldPassword) return await helperUtil.responseSender(res, 'error', 400, {}, 'Old password does not match');
-
+            if (req.body.component == 'ChangePassword')  if (cryptr.decrypt(getUser[0].dataValues.password) != req.body.oldPassword) return await helperUtil.responseSender(res, 'error', 400, {}, 'Old password does not match');
+            if (getUser[0].dataValues.passwordVerificationCode == 'verified') return await helperUtil.responseSender(res, 'error', 400, {}, 'link invalid/ Aldeary changed the password');
             requestBody = {
-                password: cryptr.encrypt(req.body.password)
+                password: cryptr.encrypt(req.body.password),
+                passwordVerificationCode: 'verified'
             }
         }
 
@@ -169,7 +169,7 @@ app.put("/user/:ID",auth,upload.fields([
         if(!userUpdate) return await helperUtil.responseSender(res,'error',400,responseObj, 'user updated. but waiting for response please contact BC');
 
         if (req.body.primaryEmail && req.body.primaryEmail != 'null') {
-        const emailSent = await sendVerificationEmail(UserId, req.body.primaryEmail, token,{password:cryptr.decrypt(userUpdate.dataValues.password), userName :userUpdate.dataValues.userName });
+        const emailSent = await sendVerificationEmail.sendVerificationEmail(UserId, req.body.primaryEmail, token,{password:cryptr.decrypt(userUpdate.dataValues.password), userName :userUpdate.dataValues.userName });
 
             if (!emailSent) {
                 return await helperUtil.responseSender(res,'error',400,responseObj, 'Verification email sending failed.');
@@ -205,7 +205,7 @@ app.put("/user/:ID",auth,upload.fields([
     } catch (error) {
         message = "User Updation Failed.";
         responseObj = error;
-        return await helperUtil.responseSender(res,'error',httpStatusCode, responseObj, message);
+        return await helperUtil.responseSender(res,'error',500, responseObj, message);
     }
     
     

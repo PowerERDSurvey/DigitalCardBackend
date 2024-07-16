@@ -24,7 +24,7 @@ router.post("/user", async function (req, res) {
     const user = req.user;
     const requestBody = req.body;
     var Randpassword = await helperUtil.generateRandomPassword();
-    let encryptedPassword = cryptr.encrypt(requestBody.password ? requestBody.password :Randpassword);
+    let encryptedPassword = cryptr.encrypt(requestBody.password ? requestBody.password : Randpassword);
     requestBody.PASSWORD = encryptedPassword;
     console.log(requestBody);
 
@@ -42,22 +42,30 @@ async function handleUserCreation(req, res, requestBody, user) {
         return await sendErrorResponse(res, 400, {}, 'Email Address already exists.');
     }
     if (requestBody.companyId) {
-      const companyDetail =   await companyModel.getActiveCompanyById(requestBody.companyId);
-      if(!companyDetail)  return await sendErrorResponse(res, 400, {}, 'No company details found.');
-      const companyAdmins = await userModel.getCompanybasedUser(requestBody.companyId,requestBody.role );
+        const companyDetail = await companyModel.getActiveCompanyById(requestBody.companyId);
+        if (!companyDetail) return await sendErrorResponse(res, 400, {}, 'No company details found.');
+        const companyAdmins = await userModel.getCompanybasedUser(requestBody.companyId, requestBody.role);
         if (requestBody.role == 'COMPANY_ADMIN') {
 
-        if(companyDetail.noOfAdmin <= companyAdmins.length) return await sendErrorResponse(res, 400, {}, `company admin limit reached. your company can create only ${companyDetail.noOfAdmin} Admins`);
+            if (companyDetail.noOfAdmin <= companyAdmins.length) return await sendErrorResponse(res, 400, {}, `company admin limit reached. your company can create only ${companyDetail.noOfAdmin} Admins`);
 
-      }
-      if (requestBody.role == 'COMPANY_USER') {
-        if(companyDetail.noOfUsers <= companyAdmins.length) return await sendErrorResponse(res, 400, {}, `company User limit reached. your company can create only ${companyDetail.noOfUsers} Users`);
-      }
+        }
+        if (requestBody.role == 'COMPANY_USER') {
+            if (companyDetail.noOfUsers <= companyAdmins.length) return await sendErrorResponse(res, 400, {}, `company User limit reached. your company can create only ${companyDetail.noOfUsers} Users`);
+        }
 
 
     }
 
     if (requestBody.type === 'GOOGLE_SSO') {
+        if (!isEmailValid) {
+            const email = await userModel.getALLUserbyQuery({ where: { primaryEmail: requestBody.email } });
+            const token = generateToken({ email: email[0].primaryEmail });
+            await insertToUsertToken(email[0].id, token);
+            const userImages = await userImageModel.getAllUserImageByUserId(email[0].id);
+            const responseData = createResponseData(email[0], email[0], userImages, token);
+            return res.json({ status: 200, token: token, data: responseData });
+        }
         return await handleGoogleSSOUser(req, res, requestBody, user);
     } else {
         return await handleStandardUser(req, res, requestBody, user, isEmailValid);
@@ -72,7 +80,7 @@ async function handleGoogleSSOUser(req, res, requestBody, user) {
         return await sendErrorResponse(res, 400, {}, 'User is disabled');
     }
 
-    const token = generateToken(result);
+    const token = generateToken({ email: result.email });
     await deleteExpiredTokenz(result.id);
     await insertTokenAndRespond(res, result.id, token, user, result);
 }
@@ -96,7 +104,7 @@ async function handleStandardUser(req, res, requestBody, user, isEmailValid) {
     }
 
     const responseObj = { ID: result.dataValues.id };
-    const emailSent = await sendVerificationEmail(result.dataValues.id, requestBody.email, token , {password:  cryptr.decrypt(result.dataValues.password), userName :result.dataValues.userName });
+    const emailSent = await sendVerificationEmail.sendVerificationEmail(result.dataValues.id, requestBody.email, token, { password: cryptr.decrypt(result.dataValues.password), userName: result.dataValues.userName });
 
     if (!emailSent) {
         return await sendErrorResponse(res, 400, responseObj, 'Verification email sending failed.');
@@ -142,17 +150,17 @@ async function handleExistingEmail(req, res, requestBody, user) {
 
 function createUserInputObject(requestBody, token = null) {
     return {
-        firstName: requestBody.type == 'GOOGLE_SSO'? requestBody.username : requestBody.firstName,
+        firstName: requestBody.type == 'GOOGLE_SSO' ? requestBody.username : requestBody.firstName,
         lastName: requestBody.lastName,
-        userName: requestBody.type == 'GOOGLE_SSO'? null : requestBody.username.toLowerCase(),
+        userName: requestBody.type == 'GOOGLE_SSO' ? null : requestBody.username.toLowerCase(),
         password: requestBody.PASSWORD,
         primaryEmail: requestBody.email,
         signupType: requestBody.type,
-        isActive: requestBody.type == 'GOOGLE_SSO'? true: false,
+        isActive: requestBody.type == 'GOOGLE_SSO' ? true : false,
         role: requestBody.role,
         companyId: requestBody.companyId,
         verificationCode: token,
-        randomKey: requestBody.randomKey,
+        randomKey: requestBody.randomKey,//todo
         verificationExpires: Date.now() + 7200000,
         isDelete: false,//todo createdby upxdateby
     };
@@ -182,7 +190,7 @@ function createResponseData(email, user, userImages, token) {
     return {
         id: email.id,
         firstName: email.firstName,
-        userName : email.userName,
+        userName: email.userName,
         lastName: email.lastName,
         primaryEmail: email.primaryEmail,
         // secondaryEmail: email.secondaryEmail,
@@ -700,7 +708,7 @@ router.get('/user/:id/verify/:token', async function (req, res) {
         var requestBody = {
             isActive: true,
             verificationCode: 'verified',
-            isEmailVerified:true
+            isEmailVerified: true
         }
 
         const userUpdate = await userModel.update(userActivateTocken.id, requestBody);
@@ -769,6 +777,44 @@ router.post("/companybasedUser/:companyId", auth, bodyParser, async function (re
         return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
     }
 })
+
+router.post('/resetpassword', bodyParser, async function (req, res) {
+
+    const emailId = req.body.emailId;
+    var message = "";
+    var httpStatusCode = 500;
+    try {
+        if (!emailId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'EmailId  missing');
+        const userCollection = await userModel.getALLUserbyQuery({ where: { isActive: true, isDelete: false, isEmailVerified: true, primaryEmail: emailId, } });
+        if (userCollection == 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'user not found/not in active stage');
+
+        if (userCollection[0].dataValues.signupType == 'GOOGLE_SSO') return res.redirect('/login');
+        // if (userCollection[0].dataValues.passwordVerificationCode == 'verified') return await helperUtil.responseSender(res, 'error', 400, responseObj, 'Already changed the password');
+
+        const tokenz = generateToken({ email: emailId });
+
+        var reqbody = {
+            // password: await helperUtil.generateRandomPassword()
+            passwordVerificationCode: tokenz
+        }
+        const userupdate = await userModel.update(userCollection[0].dataValues.id, reqbody);
+        if (!userupdate) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'password updated. Error on collecting data');
+        const token = await getLatestUserToken(userCollection[0].dataValues.id);
+
+        const emailsend = await sendVerificationEmail.sendForgetPassEmail(userCollection[0].dataValues.id, emailId, token.token);
+
+        if (!emailsend) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'Email send failed');
+
+        return await helperUtil.responseSender(res, 'data', 200, responseObj, `Verification email sent to ${emailId}`);
+
+
+    } catch (error) {
+        message = `Reset password failed.`;
+        responseObj = error;
+        return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
+    }
+})
+
 
 router.post('/deleteUser/:UserId', auth, bodyParser, async function (req, res) {
     const UserId = req.params.UserId;
