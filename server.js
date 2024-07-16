@@ -142,7 +142,7 @@ app.put("/user/:ID",auth,upload.fields([
             const getUser = await userModel.getALLUserbyQuery({ where: { id: UserId } });
             if (getUser.length == 0) return  await helperUtil.responseSender(res, 'error', 400, {}, 'dont have user to update the password');
             if (req.body.component == 'ChangePassword')  if (cryptr.decrypt(getUser[0].dataValues.password) != req.body.oldPassword) return await helperUtil.responseSender(res, 'error', 400, {}, 'Old password does not match');
-            if (getUser[0].dataValues.passwordVerificationCode == 'verified') return await helperUtil.responseSender(res, 'error', 400, {}, 'link invalid/ Aldeary changed the password');
+            if (req.body.component == 'forgotPassword' && getUser[0].dataValues.passwordVerificationCode == 'verified') return await helperUtil.responseSender(res, 'error', 400, {}, 'link invalid/ Aldeary changed the password');
             requestBody = {
                 password: cryptr.encrypt(req.body.password),
                 passwordVerificationCode: 'verified'
