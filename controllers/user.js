@@ -789,7 +789,7 @@ router.post('/resetpassword', bodyParser, async function (req, res) {
         if (userCollection == 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'user not found/not in active stage');
 
         if (userCollection[0].dataValues.signupType == 'GOOGLE_SSO') return res.redirect('/login');
-        // if (userCollection[0].dataValues.passwordVerificationCode == 'verified') return await helperUtil.responseSender(res, 'error', 400, responseObj, 'Already changed the password');
+        // if (userCollection[0].dataValues.passwordVerificationCode != 'verified') return await helperUtil.responseSender(res, 'error', 400, responseObj, 'Already Link send your email');
 
         const tokenz = generateToken({ email: emailId });
 
