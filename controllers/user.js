@@ -29,13 +29,13 @@ router.post("/user", async function (req, res) {
     console.log(requestBody);
 
     try {
-        await handleUserCreation(req, res, requestBody, user);
+        await handleUserCreation(req, res, requestBody);
     } catch (error) {
         return await sendErrorResponse(res, 500, error, 'User creation failed.');
     }
 });
 
-async function handleUserCreation(req, res, requestBody, user) {
+async function handleUserCreation(req, res, requestBody) {
     const isEmailValid = await helperUtil.checkEmailValid(requestBody.email);
 
     if (!isEmailValid && requestBody.type !== 'GOOGLE_SSO') {
@@ -66,13 +66,13 @@ async function handleUserCreation(req, res, requestBody, user) {
             const responseData = createResponseData(email[0], email[0], userImages, token);
             return res.json({ status: 200, token: token, data: responseData });
         }
-        return await handleGoogleSSOUser(req, res, requestBody, user);
+        return await handleGoogleSSOUser(req, res, requestBody);
     } else {
-        return await handleStandardUser(req, res, requestBody, user, isEmailValid);
+        return await handleStandardUser(req, res, requestBody, isEmailValid);
     }
 }
 
-async function handleGoogleSSOUser(req, res, requestBody, user) {
+async function handleGoogleSSOUser(req, res, requestBody) {
     const inputObj = createUserInputObject(requestBody);
 
     const result = await userModel.create(inputObj);
@@ -82,12 +82,12 @@ async function handleGoogleSSOUser(req, res, requestBody, user) {
 
     const token = generateToken({ email: result.email });
     await deleteExpiredTokenz(result.id);
-    await insertTokenAndRespond(res, result.id, token, user, result);
+    await insertTokenAndRespond(res, result.id, token, result);
 }
 
-async function handleStandardUser(req, res, requestBody, user, isEmailValid) {
+async function handleStandardUser(req, res, requestBody, isEmailValid) {
     if (!isEmailValid) {
-        return await handleExistingEmail(req, res, requestBody, user);
+        return await handleExistingEmail(req, res, requestBody);
     }
 
     const isPasswordValid = await helperUtil.checkPasswordValid(requestBody.PASSWORD);
@@ -113,7 +113,7 @@ async function handleStandardUser(req, res, requestBody, user, isEmailValid) {
     return await sendSuccessResponse(res, responseObj, 'User created successfully');
 }
 
-async function handleExistingEmail(req, res, requestBody, user) {
+async function handleExistingEmail(req, res, requestBody) {
     const result = await userModel.getActiveEmails();
     if (result.length === 0) {
         return await sendErrorResponse(res, 400, {}, 'No active emails found.');
@@ -124,7 +124,7 @@ async function handleExistingEmail(req, res, requestBody, user) {
             if (email.isActive) {
                 const token = generateToken({ email: email });
                 await deleteExpiredTokenz(email.id);
-                return await insertTokenAndRespond(res, email.id, token, user, email);
+                return await insertTokenAndRespond(res, email.id, token, email);
             } else {
                 return res.json({ status: false, status: 400, message: 'User is disabled' });
             }
@@ -175,18 +175,18 @@ async function deleteExpiredTokenz(userId) {
 
 }
 
-async function insertTokenAndRespond(res, userId, token, user, email) {
+async function insertTokenAndRespond(res, userId, token, email) {
     try {
         await insertToUsertToken(userId, token);
         const userImages = await userImageModel.getAllUserImageByUserId(userId);
-        const responseData = createResponseData(email, user, userImages, token);
+        const responseData = createResponseData(email, userImages, token);
         return res.json({ status: 200, token: token, data: responseData });
     } catch (err) {
         console.log('Insert error user token', err);
     }
 }
 
-function createResponseData(email, user, userImages, token) {
+function createResponseData(email, userImages, token) {
     return {
         id: email.id,
         firstName: email.firstName,
@@ -211,9 +211,9 @@ function createResponseData(email, user, userImages, token) {
         Address: email.Address,
         type: email.signupType,
         images: userImages,
-        randomKey: user.randomKey,
-        role: user.role,
-        companyId: user.companyId,
+        randomKey: email.randomKey,
+        role: email.role,
+        companyId: email.companyId,
         authenticated: true,
     };
 }
