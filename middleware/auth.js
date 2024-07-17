@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const getLatestUserToken = require("../config/usertoken.js").getLatestUserToken;
+const userModel = require("../models/mvc_User.js");
 
 module.exports = (req, res, next) => {
   try {
@@ -38,7 +39,14 @@ module.exports = (req, res, next) => {
       } 
       else {
         try {
-          let latestToken = await getLatestUserToken(decoded.user ? decoded.user.id : decoded.email.id);
+          var userId;
+          if(!decoded.user){
+            const userDetail = await userModel.getALLUserbyQuery({where: {primaryEmail: decoded.email}})
+            userId = userDetail[0].dataValues.id;
+          } else {
+            userId = decoded.user.id;
+          }
+          let latestToken = await getLatestUserToken(userId);
           if (latestToken.dataValues.token === token) {
             req.user = decoded.user ? decoded.user : decoded.email;
             //console.log('isAuthenticated', `Logged in user data fetched from token.`, decoded);

@@ -157,6 +157,7 @@ app.put("/user/:ID",auth,upload.fields([
           requestBody.isEmailVerified = false;
           requestBody.verificationCode = token;
           requestBody.isActive = false;
+          requestBody.userName = req.body.userName;
 
       }
       var message = "User updated successfully";

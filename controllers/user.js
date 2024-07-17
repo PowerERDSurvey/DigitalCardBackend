@@ -63,7 +63,7 @@ async function handleUserCreation(req, res, requestBody) {
             const token = generateToken({ email: email[0].primaryEmail });
             await insertToUsertToken(email[0].id, token);
             const userImages = await userImageModel.getAllUserImageByUserId(email[0].id);
-            const responseData = createResponseData(email[0], email[0], userImages, token);
+            const responseData = createResponseData(email[0], userImages, token);
             return res.json({ status: 200, token: token, data: responseData });
         }
         return await handleGoogleSSOUser(req, res, requestBody);
@@ -152,7 +152,8 @@ function createUserInputObject(requestBody, token = null) {
     return {
         firstName: requestBody.type == 'GOOGLE_SSO' ? requestBody.username : requestBody.firstName,
         lastName: requestBody.lastName,
-        userName: requestBody.type == 'GOOGLE_SSO' ? null : requestBody.username.toLowerCase(),
+        // userName: requestBody.type == 'GOOGLE_SSO' ? null : requestBody.username.toLowerCase(),
+        userName: requestBody.type == 'GOOGLE_SSO' ? null : requestBody.username.toLowerCase().replace(/ /g, "_"),
         password: requestBody.PASSWORD,
         primaryEmail: requestBody.email,
         signupType: requestBody.type,
