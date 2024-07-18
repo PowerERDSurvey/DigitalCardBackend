@@ -18,7 +18,7 @@ router.get('/getallsubscription/:superAdmin', auth, bodyParser, async function (
     var responseObj = {};
     if (!userId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
     try {
-        const subscriptionCollection = [];
+        var subscriptionCollection = [];
         const getSuperAdmin = await userModel.getSuperAdmin(userId);
         if (!getSuperAdmin) subscriptionCollection = await SubscriptionModel.getAllSubscriptionByquery({ where: { isActive: true } })
         // if (!getSuperAdmin) return  await helperUtil.responseSender(res,'error',400,responseObj, 'company only can get by the SuperAdmin');
