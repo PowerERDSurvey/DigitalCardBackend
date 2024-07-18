@@ -13,13 +13,27 @@ const transporter = nodemailer.createTransport({
 
 
 const sendVerificationEmail = {
+  sendInitialVerificationEmail: async (userId, email, token, collection) => {
+    var url = `${process.env.BaseURL}/resetpassword/${userId}/verify/${token}/${collection.password}`;
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'DigitalCard Account Initial Verification',
+      text: `Please verify your account by clicking the link: ${url}\n\n  One time password: ${collection.password}`,
+    };
+    try {
+      return await transporter.sendMail(mailOptions);
+    } catch (error) {
+      console.log('Error sendVerificationEmail - ', error);
+    }
+  },
   sendVerificationEmail: async (userId, email, token, collection) => {
     var url = `${process.env.BaseURL}/user/${userId}/verify/${token}`;
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
       subject: 'DigitalCard Account Verification',
-      text: `Please verify your account by clicking the link: ${url}\n\n USERNAME : ${collection.userName}\n PASSWORD: ${collection.password}`,
+      text: `Please verify your account by clicking the link: ${url}\n\n USERNAME : ${collection.userName}\n `,
     };
     try {
       return await transporter.sendMail(mailOptions);

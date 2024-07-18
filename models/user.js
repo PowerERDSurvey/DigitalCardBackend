@@ -62,7 +62,7 @@ module.exports = (sequelize, DataTypes) => {
     isActive: DataTypes.BOOLEAN,
     verificationCode: DataTypes.STRING,
     passwordVerificationCode: DataTypes.STRING,
-
+    randomInitialPassword: DataTypes.STRING,
     isEmailVerified: DataTypes.BOOLEAN,
     isDelete: DataTypes.BOOLEAN,
     mobileNumber: DataTypes.STRING,

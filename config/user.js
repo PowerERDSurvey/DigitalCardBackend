@@ -12,7 +12,7 @@ let users = {
     return await User.create(inputParams);
   },
   update: async function (UserId, inputParams) {
-   const updatedUser = await User.update(
+    const updatedUser = await User.update(
       inputParams,
       {
         where: {
@@ -54,37 +54,37 @@ let users = {
       rejectOnEmpty: true,
     });
   },
-  getUsertokenById: async function (userId,verificationCodeParam) {
+  getUsertokenById: async function (userId, verificationCodeParam) {
     return await User.findOne({
-      where: { id: userId,verificationCode : verificationCodeParam },
-      attributes: ['id','verificationCode', 'verificationExpires', 'isActive'],
+      where: { id: userId, verificationCode: verificationCodeParam },
+      // attributes: ['id', 'verificationCode', 'userName', 'primaryEmail', 'randomInitialPassword', 'verificationExpires', 'isActive'],
       // rejectOnEmpty: true,
     })
   },
   getUser: async function (userId) {
-    return await User.findOne({where: { id: userId}})
+    return await User.findOne({ where: { id: userId } })
   },
   getSuperAdmin: async function (userId) {
-    return await User.findOne({where: { id: userId, role : 'SUPER_ADMIN', IsActive: true}})
+    return await User.findOne({ where: { id: userId, role: 'SUPER_ADMIN', IsActive: true } })
   },
   getUserByRole: async function (rolepar) {
-    return await User.findAll({where: { role: rolepar, isDelete: false}})
+    return await User.findAll({ where: { role: rolepar, isDelete: false } })
   },
-  getCompanybasedUser: async function (companyIdpar,rolepar) {
-    return await User.findAll({where: { companyId :companyIdpar, role: rolepar, isDelete: false}})
+  getCompanybasedUser: async function (companyIdpar, rolepar) {
+    return await User.findAll({ where: { companyId: companyIdpar, role: rolepar, isDelete: false } })
   },
-  deleteUser: async function(adminId,UserId){
-    const updatedUser = await User.update({isDelete : true, updatedBy: adminId },{
-        where: {
-            id: UserId
-        },
-        returning: true,
+  deleteUser: async function (adminId, UserId) {
+    const updatedUser = await User.update({ isDelete: true, updatedBy: adminId }, {
+      where: {
+        id: UserId
+      },
+      returning: true,
     });
     return updatedUser;
-},
-getALLUserbyQuery: async function(query){
-return await User.findAll(query);
-}
+  },
+  getALLUserbyQuery: async function (query) {
+    return await User.findAll(query);
+  }
 }
 
 module.exports = users;

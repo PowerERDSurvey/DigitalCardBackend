@@ -104,7 +104,7 @@ async function handleStandardUser(req, res, requestBody, isEmailValid) {
     }
 
     const responseObj = { ID: result.dataValues.id };
-    const emailSent = await sendVerificationEmail.sendVerificationEmail(result.dataValues.id, requestBody.email, token, { password: cryptr.decrypt(result.dataValues.password), userName: result.dataValues.userName });
+    const emailSent = await sendVerificationEmail.sendInitialVerificationEmail(result.dataValues.id, requestBody.email, token, { password: cryptr.decrypt(requestBody.PASSWORD), userName: result.dataValues.userName });
 
     if (!emailSent) {
         return await sendErrorResponse(res, 400, responseObj, 'Verification email sending failed.');
@@ -154,7 +154,8 @@ function createUserInputObject(requestBody, token = null) {
         lastName: requestBody.lastName,
         // userName: requestBody.type == 'GOOGLE_SSO' ? null : requestBody.username.toLowerCase(),
         userName: requestBody.type == 'GOOGLE_SSO' ? null : requestBody.username.toLowerCase().replace(/ /g, "_"),
-        password: requestBody.PASSWORD,
+        randomInitialPassword: requestBody.PASSWORD,
+        password: 'WAITING FOR PASSWORD RESET',
         primaryEmail: requestBody.email,
         signupType: requestBody.type,
         isActive: requestBody.type == 'GOOGLE_SSO' ? true : false,
@@ -783,6 +784,7 @@ router.post('/resetpassword', bodyParser, async function (req, res) {
 
     const emailId = req.body.emailId;
     var message = "";
+    var responseObj = {};
     var httpStatusCode = 500;
     try {
         if (!emailId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'EmailId  missing');
@@ -813,6 +815,83 @@ router.post('/resetpassword', bodyParser, async function (req, res) {
         message = `Reset password failed.`;
         responseObj = error;
         return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
+    }
+})
+// router.put('/initialPasswordResetuser/:UserId/:InitialPassword/:Token', async function (req, res) {
+
+//     const UserId = req.params.UserId;
+//     const InitialPassword = req.params.InitialPassword;
+//     const verificationCode = req.params.Token;
+//     var message = "";
+//     var responseObj = {};
+//     var httpStatusCode = 400;
+//     try {
+//         if (!UserId || !InitialPassword) return await helperUtil.responseSender(res, 'error', 500, responseObj, 'req params  missing');
+//         const userCollection = await userModel.getUsertokenById(UserId, verificationCode);
+
+//         if (!userCollection) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'link expired');
+
+//         // if (userCollection.dataValues.verificationCode == 'verified') return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'link expired');
+
+//         const newToken = generateToken({ email: userCollection.primaryEmail });
+//         const emailsent = await sendVerificationEmail.sendVerificationEmail(UserId, userCollection.primaryEmail, newToken, { password: cryptr.decrypt(InitialPassword), userName: null })
+
+
+//         var inputParams = {
+//             password: req.body.password
+//         }
+//         const updateUser = await userModel.update(UserId, inputParams);
+
+//         if (!updateUser) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'Password reset but no data to retrive');
+
+
+//         return await helperUtil.responseSender(res, 'data', 200, responseObj, `Password reset. Verification email sent to ${userCollection.primaryEmail}`);
+
+//     } catch (error) {
+//         message = `Reset password failed.`;
+//         responseObj = error;
+//         return await helperUtil.responseSender(res, 'error', 500, responseObj, message);
+//     }
+// })
+
+router.put('/initialPasswordResetuser/:UserId/tocken/:Token', async function (req, res) {
+
+    const UserId = req.params.UserId;
+    // const InitialPassword = req.params.InitialPassword;
+    const verificationCode = req.params.Token;
+    var message = "";
+    var responseObj = {};
+    var httpStatusCode = 400;
+    try {
+        if (!UserId) return await helperUtil.responseSender(res, 'error', 500, responseObj, 'req params  missing');
+        const userCollection = await userModel.getUsertokenById(UserId, verificationCode);
+
+        if (!userCollection) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'link expired');
+        var decrptPass = cryptr.decrypt(userCollection.randomInitialPassword);
+        if (decrptPass != req.body.oldPassword) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, `old password doesn't match`);
+
+        // if (userCollection.dataValues.verificationCode == 'verified') return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'link expired');
+        const newToken = generateToken({ email: userCollection.primaryEmail });
+
+        const emailsent = await sendVerificationEmail.sendVerificationEmail(UserId, userCollection.primaryEmail, newToken, { password: req.body.password, userName: userCollection.userName })
+
+
+        var inputParams = {
+            password: cryptr.encrypt(req.body.password),
+            verificationCode: newToken
+        }
+        const updateUser = await userModel.update(UserId, inputParams);
+
+        if (!updateUser) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'Password reset but no data to retrive');
+
+
+        if (!emailsent) return await helperUtil.responseSender(res, 'data', 200, responseObj, `Email sent failed`);
+        return await helperUtil.responseSender(res, 'data', 200, responseObj, `Password reset. Verification email sent to ${userCollection.primaryEmail}`);
+
+    } catch (error) {
+        message = `Reset password failed.`;
+        responseObj = error;
+        return await helperUtil.responseSender(res, 'error', 500, responseObj, message);
     }
 })
 

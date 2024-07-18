@@ -274,6 +274,10 @@ app.put('/user/card/update/:cardId',auth,upload.fields([
     }
 });
 
+
+
+
+
 var authenticateController=require('./controllers/authenticate');
 
 app.post('/api/authenticate',authenticateController.authenticate);

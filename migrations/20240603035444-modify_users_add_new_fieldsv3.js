@@ -20,6 +20,14 @@ module.exports = {
           allowNull: true,
         },
       ),
+      queryInterface.addColumn(
+        'Users', // table name
+        'randomInitialPassword', // new field name
+        {
+          type: Sequelize.STRING(1000),
+          allowNull: true,
+        },
+      ),
     ]);
   },
 
