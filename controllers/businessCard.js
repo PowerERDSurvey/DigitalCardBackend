@@ -12,6 +12,7 @@ const userModel = require("../models/mvc_User.js");
 const userSubscriptionModel = require("../models/mvc_userSubscription.js");
 const subscriptionModel = require("../models/mvc_subscription.js");
 const { where } = require("sequelize");
+const productModel = require("../models/mvc_product.js");
 
 
 router.get('/user/getAllCard/:userId', auth, bodyParser, async function (req, res) {
@@ -23,9 +24,14 @@ router.get('/user/getAllCard/:userId', auth, bodyParser, async function (req, re
     try {
         const cardCollection = await cardModel.getALLCardbyUserId(userId);
         if (cardCollection.length == 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'there is no cards in active state for this User');
-        const images = await cardImageModel.getAllCardImageByCardId(cardCollection[0]?.id); //todo
 
-        cardCollection[0].dataValues.images = images;
+        for (let index = 0; index < cardCollection.length; index++) {
+            // const element = array[index];
+
+            const images = await cardImageModel.getAllCardImageByCardId(cardCollection[index]?.id); //todo
+
+            cardCollection[index].dataValues.images = images;
+        }
         responseObj = { "cardCollection": cardCollection };
         return await helperUtil.responseSender(res, 'data', 200, responseObj, 'Card collected successfully');
     } catch (error) {
@@ -107,48 +113,55 @@ router.post('/user/createCard/:userId', auth, bodyParser, async function (req, r
         console.log('userSubscriptionIds', userSubscriptionIds);
 
         //get Active subscription from subscription id //forloop
-        const getSubscription = await subscriptionModel.getAllSubscriptionByquery({ where: { isActive: true, id: userSubscriptionIds } });
+        var getSubscription = [];
+        for (let index = 0; index < userSubscriptionIds.length; index++) {
+            // const element = array[index];
+
+            var subs = await subscriptionModel.getAllSubscriptionByquery({ where: { isActive: true, id: userSubscriptionIds[index] } });
+            getSubscription.push(subs[0]);
+
+        }
 
         var subscriptionCardCount = 0;
 
         for (let index = 0; index < getSubscription.length; index++) {
-            const getplans = await productModel.getOneProductById(getSubscription[index].productId);
-            subscriptionCardCount += getplans.dataValues.cardCount;
+            var sub = getSubscription[index];
+            const getplans = await productModel.getOneProductById(sub.dataValues.productId);
+            subscriptionCardCount += getplans.cardCount;
             // getSubscription[index].dataValues.plan = [getplans];
         }
-        if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount > 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have $
-        {subscriptionCardCount} cards please contact Admin`);
+        if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount > 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have ${subscriptionCardCount} cards please contact Admin`);
         //count the card creation count and restric the flow
         // const userDetail = 
 
 
         var inputparam = {
-            userId: userId,
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            primaryEmail: req.body.primaryEmail,
-            // secondaryEmail: req.body.secondaryEmail,
-            isActive: req.body.isActive,
-            verificationCode: req.body.verificationCode,
-            isEmailVerified: req.body.isEmailVerified,
-            mobileNumber: req.body.mobileNumber,
-            companyName: req.body.companyName,
-            designation: req.body.designation,
-            whatsapp: req.body.whatsapp,
-            facebook: req.body.facebook,
-            instagram: req.body.instagram,
-            linkedin: req.body.linkedin,
-            website: req.body.website,
-            city: req.body.city,
-            zipCode: req.body.zipCode,
-            country: req.body.country,
-            state: req.body.state,
-            Address: req.body.address,
-            aboutMe: req.body.aboutMe,
-            youtube: req.body.youtube,
-            department: req.body.department,
-            vCardDetails: req.body.vCardDetails,
-            randomKey: req.body.randomKey,
+            userId: userId ? userId : null,
+            firstName: req.body.firstName ? req.body.firstName : null,
+            lastName: req.body.lastName ? req.body.lastName : null,
+            primaryEmail: req.body.primaryEmail ? req.body.primaryEmail : null,
+            primaryEmail: req.body.primaryEmail ? req.body.primaryEmail : null,
+            isActive: req.body.isActive ? req.body.isActive : null,
+            verificationCode: req.body.verificationCode ? req.body.verificationCode : null,
+            isEmailVerified: req.body.isEmailVerified ? req.body.isEmailVerified : null,
+            mobileNumber: req.body.mobileNumber ? req.body.mobileNumber : null,
+            companyName: req.body.companyName ? req.body.companyName : null,
+            designation: req.body.designation ? req.body.designation : null,
+            whatsapp: req.body.whatsapp ? req.body.whatsapp : null,
+            facebook: req.body.facebook ? req.body.facebook : null,
+            instagram: req.body.instagram ? req.body.instagram : null,
+            linkedin: req.body.linkedin ? req.body.linkedin : null,
+            website: req.body.website ? req.body.website : null,
+            city: req.body.city ? req.body.city : null,
+            zipCode: req.body.zipCode ? req.body.zipCode : null,
+            country: req.body.country ? req.body.country : null,
+            state: req.body.state ? req.body.state : null,
+            Address: req.body.address ? req.body.address : null,
+            aboutMe: req.body.aboutMe ? req.body.aboutMe : null,
+            youtube: req.body.youtube ? req.body.youtube : null,
+            department: req.body.department ? req.body.department : null,
+            vCardDetails: req.body.vCardDetails ? req.body.vCardDetails : null,
+            randomKey: req.body.randomKey ? req.body.randomKey : null,
         };
 
         const cardCollection = await cardModel.createcreateCard(inputparam);

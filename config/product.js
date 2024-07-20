@@ -3,11 +3,11 @@ const { sequelize, DataTypes } = require('../config/sequelize');
 var productModel = require('../models/product')(sequelize, DataTypes);
 var layoutModel = require('../models/layout')(sequelize, DataTypes);
 let product = {
-    createProduct: async function(inputparam){
+    createProduct: async function (inputparam) {
         const returnVal = await productModel.create(inputparam);
         return returnVal;
     },
-    updateProduct: async function(inputparam, productId){
+    updateProduct: async function (inputparam, productId) {
         // var query = {
         //     inputparam,
         //     where:{
@@ -16,20 +16,22 @@ let product = {
         // }
 
         const update = await productModel.update(inputparam,
-            {where:{
-                id:productId
-            }});
+            {
+                where: {
+                    id: productId
+                }
+            });
         return await this.getOneProductById(productId);
     },
-    getOneProductById:async function(productId){
+    getOneProductById: async function (productId) {
         var condition = {
-            where:{
-                id:productId,
+            where: {
+                id: productId,
                 isDelete: false
             }
         }
 
-        
+
         const productz = await productModel.findOne(condition);
 
         var layoutIds = productz.layoutId.split(',').map(Number);
@@ -54,23 +56,25 @@ let product = {
         return returnVal;
 
 
-    
+
     },
-    getAllProduct:async function(){
+    getAllProduct: async function () {
         var condition = {
-            where:{
+            where: {
                 isDelete: false
             }
         }
 
         return await productModel.findAll(condition);
     },
-    deleteProduct:async function(userId, productId){
+    deleteProduct: async function (userId, productId) {
 
-        return await productModel.update({isDelete:true, updatedBy : userId}
-          , { where:{
-                id: productId
-            }});
+        return await productModel.update({ isDelete: true, updatedBy: userId }
+            , {
+                where: {
+                    id: productId
+                }
+            });
     },
 }
 
