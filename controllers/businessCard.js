@@ -211,5 +211,26 @@ router.get('/user/card/activate/:cardId', auth, bodyParser, async function (req,
         return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
     }
 });
+router.get('/deleteCard/:cardId', auth, bodyParser, async function (req, res) {
+    const cardId = req.params.cardId;
+    var message = "";
+    var httpStatusCode = 500;
+    var responseObj = {};
+    if (!cardId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
+    try {
+        var inputparam = {
+            isActive: false,
+        }
+        const cardCollection = await cardModel.updateCard(inputparam, cardId);
+        if (!cardCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'card updated. but waiting for response please contact BC');
+        responseObj = { "cardCollection": cardCollection };
+        return await helperUtil.responseSender(res, 'data', 200, responseObj, 'card deleted successfully');
+
+    } catch (error) {
+        message = "card deletion Failed.";
+        responseObj = error;
+        return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
+    }
+});
 
 module.exports = router;
