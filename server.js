@@ -241,7 +241,7 @@ app.put('/user/card/update/:cardId',auth,upload.fields([
             zipCode: req.body.zipCode != 'null'? req.body.zipCode : null,
             country: req.body.country != 'null'? req.body.country : null,
             state: req.body.state != 'null'? req.body.state : null,
-            Address: req.body.address != 'null'? req.body.Address : null,
+            Address: req.body.address != 'null'? req.body.address : null,
             aboutMe: req.body.aboutMe != 'null'? req.body.aboutMe : null,
             youtube: req.body.youtube != 'null'? req.body.youtube : null,
             department: req.body.department != 'null'? req.body.department : null,
