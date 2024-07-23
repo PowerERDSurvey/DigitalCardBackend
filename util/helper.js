@@ -152,17 +152,23 @@ let utils = {
 
   generateRandomPassword: async function () {
     const length = 8;
-    const specialChars = '@#';
-    // const specialChars = '!@#$%^&*()_+[]{}|;:,.<>?';
+    const specialChars = '@*';
 
     const getRandomSpecialChar = () => specialChars[Math.floor(Math.random() * specialChars.length)];
     const getRandomChar = () => String.fromCharCode(Math.floor(Math.random() * 94) + 33);
 
-    // Generate a random password ensuring at least one special character
-    let password = Array.from({ length: length - 1 }, getRandomChar).join('') + getRandomSpecialChar();
+    // Generate random characters ensuring no special characters at the front and back
+    let password = '';
+    while (password.length < length - 1) {
+      const char = getRandomChar();
+      if (!specialChars.includes(char) || password.length > 0) {
+        password += char;
+      }
+    }
 
-    // Shuffle the password to ensure randomness
-    password = password.split('').sort(() => 0.5 - Math.random()).join('');
+    // Add one special character in the middle of the password
+    const middleIndex = Math.floor(Math.random() * (password.length - 2)) + 1;
+    password = password.slice(0, middleIndex) + getRandomSpecialChar() + password.slice(middleIndex);
 
     return password;
   }

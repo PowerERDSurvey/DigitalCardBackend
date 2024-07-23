@@ -33,6 +33,25 @@ router.get('/getAllCompanies/:superAdmin', auth, bodyParser, async function (req
         return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
     }
 })
+router.get('/getCompanies/:companyId', auth, bodyParser, async function (req, res) {
+    const companyId = req.params.companyId;
+    var message = "";
+    var httpStatusCode = 500;
+    var responseObj = {};
+    if (!companyId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
+    try {
+
+        const companyCollection = await companyModel.getActiveCompanyById(companyId);
+        if (companyCollection.length == 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'there is no company In Active state');
+
+        responseObj = { "companyCollection": companyCollection };
+        return await helperUtil.responseSender(res, 'data', 200, responseObj, 'company collected successfully');
+    } catch (error) {
+        message = "company retrieved Failed.";
+        responseObj = error;
+        return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
+    }
+})
 
 
 router.post('/createCompany/:SuperAdmin', auth, bodyParser, async function (req, res) {
