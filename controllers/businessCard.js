@@ -95,6 +95,7 @@ router.post('/user/createCard/:userId', auth, bodyParser, async function (req, r
             }
         }
         var company_Detail;
+        const userIds = [];
         if (userDetail.role == 'COMPANY_USER') {
 
             userSubscriptionquery.where = {
@@ -102,9 +103,9 @@ router.post('/user/createCard/:userId', auth, bodyParser, async function (req, r
                 isActive: true
             }
             company_Detail = await companyModel.getActiveCompanyById(getCompanyId);
-
+            var userquery = { where: { companyId: getCompanyId } }; const company_usersDetail = await userModel.getALLUserbyQuery(userquery);
+            userIds.push(...company_usersDetail.map((item) => item.id));
         }
-
 
         const cardDetails = userDetail.role == 'COMPANY_USER' ? await cardModel.getALLCardbyUserId(userIds) : await cardModel.getALLCardbyUserId(userId);
         var exsitingCardCount = cardDetails.length;
@@ -134,12 +135,14 @@ router.post('/user/createCard/:userId', auth, bodyParser, async function (req, r
             subscriptionCardCount += getplans.cardCount;
             // getSubscription[index].dataValues.plan = [getplans];
         }
-        if (subscriptionCardCount != 0) subscriptionCardCount++
+        
 
         if (userDetail.role == 'COMPANY_USER') {
+            if (subscriptionCardCount != 0) subscriptionCardCount += company_Detail.noOfUsers
             if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount >= company_Detail.noOfUsers) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have ${subscriptionCardCount} cards please contact Admin`);
 
         } else {
+            if (subscriptionCardCount != 0) subscriptionCardCount++
             if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount > 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have ${subscriptionCardCount} cards please contact Admin`);
 
         }
