@@ -130,6 +130,7 @@ router.post('/user/createCard/:userId', auth, bodyParser, async function (req, r
             subscriptionCardCount += getplans.cardCount;
             // getSubscription[index].dataValues.plan = [getplans];
         }
+        if(subscriptionCardCount != 0) subscriptionCardCount++
         if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount > 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have ${subscriptionCardCount} cards please contact Admin`);
         //count the card creation count and restric the flow
         // const userDetail = 

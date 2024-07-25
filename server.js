@@ -126,7 +126,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (request, 
                 }
 
 
-                const user_sub_collection = userSubscriptionModel.createuserSubscription(user_sub_inputParam);
+                const user_sub_collection = await userSubscriptionModel.createuserSubscription(user_sub_inputParam);
             }
             break;
         // ... handle other event types
@@ -239,11 +239,11 @@ app.put("/user/:ID",auth,upload.fields([
             }
         }
 
+        var pass = await helperUtil.generateRandomPassword();
       const token = jwt.sign({email:req.body.primaryEmail}, 'RANDOM_TOKEN_SECRET', { expiresIn: '24h' });
       if (req.body.primaryEmail && req.body.primaryEmail != 'null') {
-        
-         var pass = await helperUtil.generateRandomPassword();
-         requestBody.password = cryptr.encrypt(pass);
+         requestBody.password = null;
+         requestBody.randomInitialPassword = cryptr.encrypt(pass),
           requestBody.isEmailVerified = false;
           requestBody.verificationCode = token;
           requestBody.isActive = false;
@@ -260,7 +260,9 @@ app.put("/user/:ID",auth,upload.fields([
         if(!userUpdate) return await helperUtil.responseSender(res,'error',400,responseObj, 'user updated. but waiting for response please contact BC');
 
         if (req.body.primaryEmail && req.body.primaryEmail != 'null') {
-        const emailSent = await sendVerificationEmail.sendVerificationEmail(UserId, req.body.primaryEmail, token,{password:cryptr.decrypt(userUpdate.dataValues.password), userName :userUpdate.dataValues.userName });
+        // const emailSent = await sendVerificationEmail.sendVerificationEmail(UserId, req.body.primaryEmail, token,{password:cryptr.decrypt(userUpdate.dataValues.password), userName :userUpdate.dataValues.userName });
+        const emailSent = await sendVerificationEmail.sendInitialVerificationEmail(UserId, req.body.primaryEmail, token, { password: cryptr.decrypt(userUpdate.dataValues.randomInitialPassword), userName: userUpdate.dataValues.userName });
+
 
             if (!emailSent) {
                 return await helperUtil.responseSender(res,'error',400,responseObj, 'Verification email sending failed.');

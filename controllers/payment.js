@@ -81,6 +81,7 @@ router.post('/payment/checkOut:userId', auth, bodyParser, async function (req, r
         console.log(session.url);
         // if (session.payment_status )
         var inputParams = {
+            productName: req.body.planName,
             checkoutId: session.id,
             subId: req.body.id,
             status: session.status,
