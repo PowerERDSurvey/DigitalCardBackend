@@ -33,25 +33,73 @@ const helperUtil = require('./util/helper.js');
 const upload = require('./middleware/upload.js');
 // var bodyParser = require('body-parser').json();
 
-var corsoption ={
-    origin : 'http://localhost:3000'
-}
+const allowedOrigins = ['http://localhost:3000', 'https://checkout.stripe.com'];
+
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Allow requests with no origin like mobile apps or curl requests
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    }
+};
 const app=express();
 
 
 // app.use(express.static(path.join(__dirname, 'uploads')));
 // app.use(express.static(__dirname + "/public"));
-console.log(__dirname,'DIR')
-// app.use(function(req, res, next) {
-//     if (req.get('x-amz-sns-message-type')) {
-//         req.headers['content-type'] = 'application/json';
-//     }
-//     next();
-// });
+console.log(__dirname, 'DIR')
 
-//midleware
 
-app.use(cors(corsoption));
+
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+app.post('/webhook', express.raw({ type: 'application/json' }), async (request, response) => {
+    const endpointSecret = "whsec_2e90767501784982e709d966a4edd71344707f3fcab22ebba31e5ef6dacf1514";
+    const sig = request.headers['stripe-signature'];
+
+    let event;
+
+    try {
+        event = stripe.webhooks.constructEvent(request.body, sig, endpointSecret);
+    } catch (err) {
+        response.status(400).send(`Webhook Error: ${err.message}`);
+        return;
+    }
+
+    // Handle the event
+    switch (event.type) {
+        case 'payment_intent.succeeded':
+            const session = event.data.object;
+            console.log('event------', session);
+            
+
+            const sessions = await stripe.checkout.sessions.list({
+                payment_intent: session.id
+            });
+
+            if (sessions.data.length > 0) {
+                // Retrieve the Checkout Session
+                const session = sessions.data[0];
+                console.log('event------2', session);
+                // Retrieve the line items
+                const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
+
+                return lineItems.data;
+            }
+            break;
+        // ... handle other event types
+        default:
+            console.log(`Unhandled event type ${event.type}`);
+    }
+
+    // Return a 200 response to acknowledge receipt of the event
+    response.send();
+});
+
+app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true }));
 app.use(bodyParser.json({ limit: '50mb' }));
 
@@ -72,6 +120,9 @@ app.use("/",User);
 
 var CardCreation = require('./controllers/businessCard.js');
 app.use("/",CardCreation);
+
+var Payment = require('./controllers/payment.js');
+app.use("/", Payment);
 
 var CompanyCreation = require('./controllers/company.js');
 app.use("/",CompanyCreation);

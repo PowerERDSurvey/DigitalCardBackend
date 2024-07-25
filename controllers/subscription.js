@@ -62,6 +62,7 @@ router.post('/createSubscription/:superAdmin', auth, bodyParser, async function 
             "planName": req.body.planName,
             "startDate": req.body.startDate,
             "endDate": req.body.endDate,
+            "currency": req.body.currency,
             "Description": req.body.Description,
             "cost": req.body.cost,
             "isActive": true,

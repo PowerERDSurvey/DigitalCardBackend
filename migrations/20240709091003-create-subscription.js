@@ -23,6 +23,9 @@ module.exports = {
       Description: {
         type: Sequelize.STRING
       },
+      currency: {
+        type: Sequelize.STRING
+      },
       cost: {
         type: Sequelize.INTEGER
       },
@@ -31,33 +34,33 @@ module.exports = {
       },
       createdBy: {
         type: Sequelize.INTEGER,
-        allowNull:false,
-           references: {
-            model: 'Users',
-            key: 'id',
-          },
-          onUpdate: 'CASCADE',
-          onDelete: 'CASCADE',
-        
+        allowNull: false,
+        references: {
+          model: 'Users',
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
+
       },
       updatedBy: {
         type: Sequelize.INTEGER,
-        allowNull:false,
+        allowNull: false,
         references: {
-         model: 'Users',
-         key: 'id',
-       },
-       onUpdate: 'CASCADE',
+          model: 'Users',
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
       },
       productId: {
         type: Sequelize.INTEGER,
-        allowNull:false,
-           references: {
-            model: 'products',
-            key: 'id',
-          },
-          onUpdate: 'CASCADE',
-          onDelete: 'CASCADE',
+        allowNull: false,
+        references: {
+          model: 'products',
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
       },
       isDelete: {
         type: Sequelize.BOOLEAN
