@@ -5,7 +5,7 @@ let paymentConfig = {
         return await Payment.findAll();
     },
     get_payment_by_userId: async function (id) {
-        return await Payment.findOne({ where: { userId: id } });
+        return await Payment.findAll({ where: { userId: id } });
     },
     createpayment: async function (inputParam) {
         return await Payment.create(inputParam);

@@ -10,7 +10,7 @@ const helperUtil = require('../util/helper.js');
 const paymentModel = require("../models/mvc_payment.js");
 
 
-router.get('/getallpayments', auth, bodyParser, async function (req, res) {
+router.get('/getallpayments/:userId', auth, bodyParser, async function (req, res) {
     const userId = req.params.userId;
     var httpStatusCode = 500;
     var responseObj = {};
@@ -32,7 +32,7 @@ router.get('/getallpayments', auth, bodyParser, async function (req, res) {
 })
 
 
-router.get('/getallpayments/:userId', auth, bodyParser, async function (req, res) {
+router.get('/getallpayments', auth, bodyParser, async function (req, res) {
     var httpStatusCode = 500;
     var responseObj = {};
     try {
