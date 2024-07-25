@@ -84,10 +84,49 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (request, 
                 // Retrieve the Checkout Session
                 const session = sessions.data[0];
                 console.log('event------2', session);
+
+                
                 // Retrieve the line items
                 const lineItems = await stripe.checkout.sessions.listLineItems(session.id);
 
-                return lineItems.data;
+                // return lineItems.data;
+
+                var inputParam ={
+                    productName: lineItems.data[0].description,
+                    paymentStatus: session.payment_status,
+                    status: session.status
+
+               }
+
+                const paymetscollection =await paymentModel.updatepayment(inputParam, session.id);
+
+
+                const userCollection = await userModel.getUser(paymetscollection.userId);
+
+                var user_sub_inputParam = {
+                    subscriptionName: lineItems.data[0].description,
+                    startDate: now(),
+                    // endDate: DataTypes.DATE,
+                    userId: userCollection.id,
+                    subscriptionId: paymetscollection.subId,
+                    isActive: true,
+                    // companyId: userCollection.companyId
+                }
+
+                if (userCollection?.companyId) {
+                    user_sub_inputParam = {
+                        subscriptionName: lineItems.data[0].description,
+                        startDate: now(),
+                        // endDate: DataTypes.DATE,
+                        // userId: userCollection.id,
+                        subscriptionId: paymetscollection.subId,
+                        isActive: true,
+                        companyId: userCollection.companyId
+                    }
+                }
+
+
+                const user_sub_collection = userSubscriptionModel.createuserSubscription(user_sub_inputParam);
             }
             break;
         // ... handle other event types
@@ -330,6 +369,9 @@ app.put('/user/card/update/:cardId',auth,upload.fields([
 
 
 var authenticateController=require('./controllers/authenticate');
+const paymentModel = require("./models/mvc_payment.js");
+const userSubscriptionModel = require("./models/mvc_userSubscription.js");
+const { now } = require("moment");
 
 app.post('/api/authenticate',authenticateController.authenticate);
 
