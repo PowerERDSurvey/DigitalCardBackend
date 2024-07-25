@@ -4,7 +4,7 @@ const auth = require('../middleware/auth');
 var bodyParser = require('body-parser').json();
 const cardModel = require("../models/mvc_Businesscard");
 const cardImageModel = require("../models/mvc_businessCardImage.js");
-// const companyModel = require("../models/mvc_company.js");
+const companyModel = require("../models/mvc_company.js");
 const userImageModel = require("../models/mvc_UserImage.js");
 const helperUtil = require('../util/helper.js');
 const upload = require('../middleware/upload.js');
@@ -94,15 +94,19 @@ router.post('/user/createCard/:userId', auth, bodyParser, async function (req, r
                 isActive: true
             }
         }
+        var company_Detail;
         if (userDetail.role == 'COMPANY_USER') {
-            // userquery.where = { companyId: getCompanyId };
+
             userSubscriptionquery.where = {
                 companyId: getCompanyId,
                 isActive: true
             }
+            company_Detail = await companyModel.getActiveCompanyById(getCompanyId);
+
         }
-        // const usersDetail = await userModel.getALLUserbyQuery(userquery);
-        const cardDetails = await cardModel.getALLCardbyUserId(userId);
+
+
+        const cardDetails = userDetail.role == 'COMPANY_USER' ? await cardModel.getALLCardbyUserId(userIds) : await cardModel.getALLCardbyUserId(userId);
         var exsitingCardCount = cardDetails.length;
 
         //get subscription ids from userSubscription
@@ -130,8 +134,15 @@ router.post('/user/createCard/:userId', auth, bodyParser, async function (req, r
             subscriptionCardCount += getplans.cardCount;
             // getSubscription[index].dataValues.plan = [getplans];
         }
-        if(subscriptionCardCount != 0) subscriptionCardCount++
-        if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount > 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have ${subscriptionCardCount} cards please contact Admin`);
+        if (subscriptionCardCount != 0) subscriptionCardCount++
+
+        if (userDetail.role == 'COMPANY_USER') {
+            if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount >= company_Detail.noOfUsers) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have ${subscriptionCardCount} cards please contact Admin`);
+
+        } else {
+            if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount > 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have ${subscriptionCardCount} cards please contact Admin`);
+
+        }
         //count the card creation count and restric the flow
         // const userDetail = 
 
