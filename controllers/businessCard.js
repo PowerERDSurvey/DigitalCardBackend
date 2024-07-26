@@ -4,7 +4,6 @@ const auth = require('../middleware/auth');
 var bodyParser = require('body-parser').json();
 const cardModel = require("../models/mvc_Businesscard");
 const cardImageModel = require("../models/mvc_businessCardImage.js");
-const companyModel = require("../models/mvc_company.js");
 const userImageModel = require("../models/mvc_UserImage.js");
 const helperUtil = require('../util/helper.js');
 const upload = require('../middleware/upload.js');
@@ -67,141 +66,7 @@ router.get('/user/getOneCard/:userrandomkey/:cardrandomkey', bodyParser, async f
 });
 
 
-router.post('/user/createCard/:userId', auth, bodyParser, async function (req, res) {
-    const userId = req.params.userId;
-    var message = "";
-    var httpStatusCode = 500;
-    var responseObj = {};
-    if (!userId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
-    try {
-        //---------------------subscription plan---------------
 
-        // get company id for the user  
-        const userDetail = await userModel.getUser(userId);
-        if (!userDetail) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'userDetail not found');
-
-        var getCompanyId = userDetail.dataValues.companyId;
-
-        // get all the user by companyid
-        // var userquery = {
-        //     where: {
-        //         id: userId
-        //     }
-        // }
-        var userSubscriptionquery = {
-            where: {
-                userId: userId,
-                isActive: true
-            }
-        }
-        var company_Detail;
-        const userIds = [];
-        if (userDetail.role == 'COMPANY_USER') {
-
-            userSubscriptionquery.where = {
-                companyId: getCompanyId,
-                isActive: true
-            }
-            company_Detail = await companyModel.getActiveCompanyById(getCompanyId);
-            var userquery = { where: { companyId: getCompanyId } }; const company_usersDetail = await userModel.getALLUserbyQuery(userquery);
-            userIds.push(...company_usersDetail.map((item) => item.id));
-        }
-
-        const cardDetails = userDetail.role == 'COMPANY_USER' ? await cardModel.getALLCardbyUserId(userIds) : await cardModel.getALLCardbyUserId(userId);
-        var exsitingCardCount = cardDetails.length;
-
-        //get subscription ids from userSubscription
-        const userSubscription = await userSubscriptionModel.getAllUserSubscriptionByQuery(userSubscriptionquery);
-
-        var userSubscriptionIds = userSubscription.map((item) => item.subscriptionId);
-
-        console.log('userSubscriptionIds', userSubscriptionIds);
-
-        //get Active subscription from subscription id //forloop
-        var getSubscription = [];
-        for (let index = 0; index < userSubscriptionIds.length; index++) {
-            // const element = array[index];
-
-            var subs = await subscriptionModel.getAllSubscriptionByquery({ where: { isActive: true, id: userSubscriptionIds[index] } });
-            getSubscription.push(subs[0]);
-
-        }
-
-        var subscriptionCardCount = 0;
-
-        for (let index = 0; index < getSubscription.length; index++) {
-            var sub = getSubscription[index];
-            const getplans = await productModel.getOneProductById(sub.dataValues.productId);
-            subscriptionCardCount += getplans.cardCount;
-            // getSubscription[index].dataValues.plan = [getplans];
-        }
-        
-
-        if (userDetail.role == 'COMPANY_USER') {
-            if (subscriptionCardCount != 0) subscriptionCardCount += company_Detail.noOfUsers
-            if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount >= company_Detail.noOfUsers) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have ${subscriptionCardCount} cards please contact Admin`);
-
-        } else {
-            if (subscriptionCardCount != 0) subscriptionCardCount++
-            if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount > 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have ${subscriptionCardCount} cards please contact Admin`);
-
-        }
-        //count the card creation count and restric the flow
-        // const userDetail = 
-
-
-        var inputparam = {
-            userId: userId ? userId : null,
-            firstName: req.body.firstName ? req.body.firstName : null,
-            lastName: req.body.lastName ? req.body.lastName : null,
-            primaryEmail: req.body.secondaryEmail ? req.body.secondaryEmail : null,
-            // primaryEmail: req.body.primaryEmail ? req.body.primaryEmail : null,
-            isActive: req.body.isActive ? req.body.isActive : null,
-            verificationCode: req.body.verificationCode ? req.body.verificationCode : null,
-            isEmailVerified: req.body.isEmailVerified ? req.body.isEmailVerified : null,
-            mobileNumber: req.body.mobileNumber ? req.body.mobileNumber : null,
-            companyName: req.body.companyName ? req.body.companyName : null,
-            designation: req.body.designation ? req.body.designation : null,
-            whatsapp: req.body.whatsapp ? req.body.whatsapp : null,
-            facebook: req.body.facebook ? req.body.facebook : null,
-            instagram: req.body.instagram ? req.body.instagram : null,
-            linkedin: req.body.linkedin ? req.body.linkedin : null,
-            website: req.body.website ? req.body.website : null,
-            city: req.body.city ? req.body.city : null,
-            zipCode: req.body.zipCode ? req.body.zipCode : null,
-            country: req.body.country ? req.body.country : null,
-            state: req.body.state ? req.body.state : null,
-            Address: req.body.address ? req.body.address : null,
-            aboutMe: req.body.aboutMe ? req.body.aboutMe : null,
-            youtube: req.body.youtube ? req.body.youtube : null,
-            department: req.body.department ? req.body.department : null,
-            vCardDetails: req.body.vCardDetails ? req.body.vCardDetails : null,
-            randomKey: req.body.randomKey ? req.body.randomKey : null,
-        };
-
-        const cardCollection = await cardModel.createcreateCard(inputparam);
-        if (!cardCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'there is no error on database but not created please contact BC service');
-        responseObj = { "cardCollection": cardCollection };
-        const images = [];
-        const getUserImage = await userImageModel.getAllUserImageByUserId(userId);
-        if (getUserImage.length > 0) {
-            for (let index = 0; index < getUserImage.length; index++) {
-                getUserImage[index].path = getUserImage[index].filepath;
-                const Images = await cardImageModel.createByCardId(getUserImage[index], getUserImage[index].type, cardCollection.id);
-                images.push(Images);
-
-            }
-
-        };
-        responseObj.cardCollection.dataValues.images = images;
-        return await helperUtil.responseSender(res, 'data', 200, responseObj, 'Card Created successfully');
-    }
-    catch (error) {
-        message = "card creation Failed.";
-        responseObj = error;
-        return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
-    }
-});
 
 
 

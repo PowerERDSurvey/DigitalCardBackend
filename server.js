@@ -11,20 +11,18 @@ global.__basedir = __dirname ;
 var multer = require('multer');
 var uploadFile = multer({dest:'./uploads/'});
 const config = require('./config/config.js');
-// const helperUtil = require('./util/helper.js')
 const sendVerificationEmail = require('./util/emailSender.js');
 const port = process.env.PORT || 8080;
 const cardModel = require("./models/mvc_Businesscard");
+const companyModel = require("./models/mvc_company.js");
 
 const cardImageModel = require("./models/mvc_businessCardImage.js");
-// const auth = require('./middleware/auth.js');
-// const userModel = require("./models/mvc_User");
+const userSubscriptionModel = require("./models/mvc_userSubscription.js");
+const subscriptionModel = require("./models/mvc_subscription.js");
+
+const productModel = require("./models/mvc_product.js");
 
 const userImageModel = require("./models/mvc_UserImage.js");
-// const helperUtil = require('./util/helper.js');
-
-// const upload = require('./middleware/upload.js');
-// var bodyParser = require('body-parser').json();
 
 const auth = require('./middleware/auth.js');
 const userModel = require("./models/mvc_User");
@@ -304,6 +302,168 @@ app.put("/user/:ID",auth,upload.fields([
     
 });
 
+
+async function cardImageUpload(req, cardId,res) {
+    const images = [];
+    if (req.files.profilePhoto) {
+        const profileImage = await cardImageModel.createByCardId(req.files.profilePhoto[0], "profilePhoto", cardId);
+        images.push(profileImage);
+    }
+    if (req.files.coverPhoto) {
+        const coverPhoto = req.files.coverPhoto[0];
+        const coverImage = await cardImageModel.createByCardId(coverPhoto, "coverPhoto", cardId);
+        images.push(coverImage);
+    }
+
+    // const cardcollection = await cardModel.getACard(cardId);
+    // if (!cardcollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'The cards not in active state');
+
+    return images;
+}
+
+app.post('/user/createCard/:userId', auth, upload.fields([
+    { name: 'profilePhoto', maxCount: 1 },
+    { name: 'coverPhoto', maxCount: 1 }
+]), async function (req, res) {
+    const userId = req.params.userId;
+    var message = "";
+    var httpStatusCode = 500;
+    var responseObj = {};
+    if (!userId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
+    try {
+        //---------------------subscription plan---------------
+
+        // get company id for the user  
+        const userDetail = await userModel.getUser(userId);
+        if (!userDetail) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'userDetail not found');
+
+        var getCompanyId = userDetail.dataValues.companyId;
+
+        // get all the user by companyid
+        // var userquery = {
+        //     where: {
+        //         id: userId
+        //     }
+        // }
+        var userSubscriptionquery = {
+            where: {
+                userId: userId,
+                isActive: true
+            }
+        }
+        var company_Detail;
+        const userIds = [];
+        if (userDetail.role == 'COMPANY_USER') {
+
+            userSubscriptionquery.where = {
+                companyId: getCompanyId,
+                isActive: true
+            }
+            company_Detail = await companyModel.getActiveCompanyById(getCompanyId);
+            var userquery = { where: { companyId: getCompanyId } }; const company_usersDetail = await userModel.getALLUserbyQuery(userquery);
+            userIds.push(...company_usersDetail.map((item) => item.id));
+        }
+
+        const cardDetails = userDetail.role == 'COMPANY_USER' ? await cardModel.getALLCardbyUserId(userIds) : await cardModel.getALLCardbyUserId(userId);
+        var exsitingCardCount = cardDetails.length;
+
+        //get subscription ids from userSubscription
+        const userSubscription = await userSubscriptionModel.getAllUserSubscriptionByQuery(userSubscriptionquery);
+
+        var userSubscriptionIds = userSubscription.map((item) => item.subscriptionId);
+
+        console.log('userSubscriptionIds', userSubscriptionIds);
+
+        //get Active subscription from subscription id //forloop
+        var getSubscription = [];
+        for (let index = 0; index < userSubscriptionIds.length; index++) {
+            // const element = array[index];
+
+            var subs = await subscriptionModel.getAllSubscriptionByquery({ where: { isActive: true, id: userSubscriptionIds[index] } });
+            getSubscription.push(subs[0]);
+
+        }
+
+        var subscriptionCardCount = 0;
+
+        for (let index = 0; index < getSubscription.length; index++) {
+            var sub = getSubscription[index];
+            const getplans = await productModel.getOneProductById(sub.dataValues.productId);
+            subscriptionCardCount += getplans.cardCount;
+            // getSubscription[index].dataValues.plan = [getplans];
+        }
+
+
+        if (userDetail.role == 'COMPANY_USER') {
+            if (subscriptionCardCount != 0) subscriptionCardCount += company_Detail.noOfUsers
+            if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount >= company_Detail.noOfUsers) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have ${subscriptionCardCount} cards please contact Admin`);
+
+        } else {
+            if (subscriptionCardCount != 0) subscriptionCardCount++
+            if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount > 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have ${subscriptionCardCount} cards please contact Admin`);
+
+        }
+        //count the card creation count and restric the flow
+        // const userDetail = 
+
+
+        var inputparam = {
+            userId: userId ? userId : null,
+            firstName: req.body.firstName ? req.body.firstName : null,
+            lastName: req.body.lastName ? req.body.lastName : null,
+            primaryEmail: req.body.secondaryEmail ? req.body.secondaryEmail : null,
+            // primaryEmail: req.body.primaryEmail ? req.body.primaryEmail : null,
+            isActive: true,
+            verificationCode: req.body.verificationCode ? req.body.verificationCode : null,
+            isEmailVerified: req.body.isEmailVerified ? req.body.isEmailVerified : null,
+            mobileNumber: req.body.mobileNumber ? req.body.mobileNumber : null,
+            companyName: req.body.companyName ? req.body.companyName : null,
+            designation: req.body.designation ? req.body.designation : null,
+            whatsapp: req.body.whatsapp ? req.body.whatsapp : null,
+            facebook: req.body.facebook ? req.body.facebook : null,
+            instagram: req.body.instagram ? req.body.instagram : null,
+            linkedin: req.body.linkedin ? req.body.linkedin : null,
+            website: req.body.website ? req.body.website : null,
+            city: req.body.city ? req.body.city : null,
+            zipCode: req.body.zipCode ? req.body.zipCode : null,
+            country: req.body.country ? req.body.country : null,
+            state: req.body.state ? req.body.state : null,
+            Address: req.body.address ? req.body.address : null,
+            aboutMe: req.body.aboutMe ? req.body.aboutMe : null,
+            youtube: req.body.youtube ? req.body.youtube : null,
+            department: req.body.department ? req.body.department : null,
+            vCardDetails: req.body.vCardDetails ? req.body.vCardDetails : null,
+            randomKey: req.body.randomKey ? req.body.randomKey : null,
+        };
+
+        const cardCollection = await cardModel.createcreateCard(inputparam);
+        if (!cardCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'there is no error on database but not created please contact BC service');
+        responseObj = { "cardCollection": cardCollection };
+        // const images = [];
+        // const getUserImage = await userImageModel.getAllUserImageByUserId(userId);
+        // if (getUserImage.length > 0) {
+        //     for (let index = 0; index < getUserImage.length; index++) {
+        //         getUserImage[index].path = getUserImage[index].filepath;
+        //         const Images = await cardImageModel.createByCardId(getUserImage[index], getUserImage[index].type, cardCollection.id);
+        //         images.push(Images);
+
+        //     }
+
+        // };
+        const images = await cardImageUpload(req, cardCollection.id,res);
+        responseObj.cardCollection.dataValues.images = images;
+        return await helperUtil.responseSender(res, 'data', 200, responseObj, 'Card Created successfully');
+    }
+    catch (error) {
+        message = "card creation Failed.";
+        responseObj = error;
+        return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
+    }
+});
+
+
+
+
 app.put('/user/card/update/:cardId',auth,upload.fields([
     { name: 'profilePhoto', maxCount: 1 },
     { name: 'coverPhoto', maxCount: 1 }
@@ -343,19 +503,7 @@ app.put('/user/card/update/:cardId',auth,upload.fields([
         if (!cardupdation)  return await helperUtil.responseSender(res,'error',400,responseObj, 'card updated. but waiting for response please contact BC');
         
         // if(!req.files.profilePhoto || req.files.coverPhoto) return await helperUtil.responseSender(res,'error',400,responseObj, 'File missing' );
-        const images = [];
-        if(req.files.profilePhoto ) {
-            const profileImage =await cardImageModel.createByCardId(req.files.profilePhoto[0],"profilePhoto",cardId);
-            images.push(profileImage);
-        }
-        if (req.files.coverPhoto) {
-            const coverPhoto = req.files.coverPhoto[0];
-            const coverImage =await cardImageModel.createByCardId(coverPhoto,"coverPhoto",cardId);
-           images.push(coverImage);
-        }
-
-        const cardcollection = await cardModel.getACard(cardId);
-        if (!cardcollection)  return await helperUtil.responseSender(res,'error',400,responseObj, 'The cards not in active state');
+        const images = await cardImageUpload(req, cardId,res);
         cardcollection.dataValues.images = images;
         responseObj = {"cardCollection" : cardcollection};
         return await helperUtil.responseSender(res,'data',200,responseObj, 'Card Updated successfully');
@@ -372,7 +520,6 @@ app.put('/user/card/update/:cardId',auth,upload.fields([
 
 var authenticateController=require('./controllers/authenticate');
 const paymentModel = require("./models/mvc_payment.js");
-const userSubscriptionModel = require("./models/mvc_userSubscription.js");
 const { now } = require("moment");
 
 app.post('/api/authenticate',authenticateController.authenticate);
