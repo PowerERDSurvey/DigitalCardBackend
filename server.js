@@ -408,32 +408,32 @@ app.post('/user/createCard/:userId', auth, upload.fields([
 
 
         var inputparam = {
-            userId: userId ? userId : null,
-            firstName: req.body.firstName ? req.body.firstName : null,
-            lastName: req.body.lastName ? req.body.lastName : null,
-            primaryEmail: req.body.secondaryEmail ? req.body.secondaryEmail : null,
-            // primaryEmail: req.body.primaryEmail ? req.body.primaryEmail : null,
+            userId: userId != 'null' ? userId : null,
+            firstName: req.body.firstName != 'null' ? req.body.firstName : null,
+            lastName: req.body.lastName != 'null' ? req.body.lastName : null,
+            primaryEmail: req.body.secondaryEmail != 'null' ? req.body.secondaryEmail : null,
+            // primaryEmail: req.body.primaryEmail != 'null' ? req.body.primaryEmail : null,
             isActive: true,
-            verificationCode: req.body.verificationCode ? req.body.verificationCode : null,
-            isEmailVerified: req.body.isEmailVerified ? req.body.isEmailVerified : null,
-            mobileNumber: req.body.mobileNumber ? req.body.mobileNumber : null,
-            companyName: req.body.companyName ? req.body.companyName : null,
-            designation: req.body.designation ? req.body.designation : null,
-            whatsapp: req.body.whatsapp ? req.body.whatsapp : null,
-            facebook: req.body.facebook ? req.body.facebook : null,
-            instagram: req.body.instagram ? req.body.instagram : null,
-            linkedin: req.body.linkedin ? req.body.linkedin : null,
-            website: req.body.website ? req.body.website : null,
-            city: req.body.city ? req.body.city : null,
-            zipCode: req.body.zipCode ? req.body.zipCode : null,
-            country: req.body.country ? req.body.country : null,
-            state: req.body.state ? req.body.state : null,
-            Address: req.body.address ? req.body.address : null,
-            aboutMe: req.body.aboutMe ? req.body.aboutMe : null,
-            youtube: req.body.youtube ? req.body.youtube : null,
-            department: req.body.department ? req.body.department : null,
-            vCardDetails: req.body.vCardDetails ? req.body.vCardDetails : null,
-            randomKey: req.body.randomKey ? req.body.randomKey : null,
+            verificationCode: req.body.verificationCode != 'null' ? req.body.verificationCode : null,
+            isEmailVerified: req.body.isEmailVerified != 'null' ? req.body.isEmailVerified : null,
+            mobileNumber: req.body.mobileNumber != 'null' ? req.body.mobileNumber : null,
+            companyName: req.body.companyName != 'null' ? req.body.companyName : null,
+            designation: req.body.designation != 'null' ? req.body.designation : null,
+            whatsapp: req.body.whatsapp != 'null' ? req.body.whatsapp : null,
+            facebook: req.body.facebook != 'null' ? req.body.facebook : null,
+            instagram: req.body.instagram != 'null' ? req.body.instagram : null,
+            linkedin: req.body.linkedin != 'null' ? req.body.linkedin : null,
+            website: req.body.website != 'null' ? req.body.website : null,
+            city: req.body.city != 'null' ? req.body.city : null,
+            zipCode: req.body.zipCode != 'null' ? req.body.zipCode : null,
+            country: req.body.country != 'null' ? req.body.country : null,
+            state: req.body.state != 'null' ? req.body.state : null,
+            Address: req.body.address != 'null' ? req.body.address : null,
+            aboutMe: req.body.aboutMe != 'null' ? req.body.aboutMe : null,
+            youtube: req.body.youtube != 'null' ? req.body.youtube : null,
+            department: req.body.department != 'null' ? req.body.department : null,
+            vCardDetails: req.body.vCardDetails != 'null' ? req.body.vCardDetails : null,
+            randomKey: req.body.randomKey != 'null' ? req.body.randomKey : null,
         };
 
         const cardCollection = await cardModel.createcreateCard(inputparam);
@@ -504,6 +504,8 @@ app.put('/user/card/update/:cardId',auth,upload.fields([
         
         // if(!req.files.profilePhoto || req.files.coverPhoto) return await helperUtil.responseSender(res,'error',400,responseObj, 'File missing' );
         const images = await cardImageUpload(req, cardId,res);
+        const cardcollection = await cardModel.getACard(cardId);
+    if (!cardcollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'The cards not in active state');
         cardcollection.dataValues.images = images;
         responseObj = {"cardCollection" : cardcollection};
         return await helperUtil.responseSender(res,'data',200,responseObj, 'Card Updated successfully');
