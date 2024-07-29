@@ -73,14 +73,15 @@ async function handleUserCreation(req, res, requestBody) {
 }
 
 async function handleGoogleSSOUser(req, res, requestBody) {
-    const inputObj = createUserInputObject(requestBody);
+
+    // if (!result.isActive) {
+    //     return await sendErrorResponse(res, 400, {}, 'User is disabled');
+    // }
+
+    const token = generateToken({ email: requestBody.email });
+    const inputObj = createUserInputObject(requestBody, token);
 
     const result = await userModel.create(inputObj);
-    if (!result.isActive) {
-        return await sendErrorResponse(res, 400, {}, 'User is disabled');
-    }
-
-    const token = generateToken({ email: result.email });
     await deleteExpiredTokenz(result.id);
     await insertTokenAndRespond(res, result.id, token, result);
 }
@@ -397,7 +398,9 @@ router.put('/initialPasswordResetuser/:UserId/tocken/:Token', async function (re
 
 
         if (!emailsent) return await helperUtil.responseSender(res, 'data', 200, responseObj, `Email sent failed`);
-        return await helperUtil.responseSender(res, 'data', 200, responseObj, `Password reset. Verification email sent to ${userCollection.primaryEmail}`);
+
+        responseObj = { 'url': emailsent }
+        return await helperUtil.responseSender(res, 'data', 200, responseObj, `Password reset successfully`);
 
     } catch (error) {
         message = `Reset password failed.`;
