@@ -28,6 +28,34 @@ module.exports = {
           allowNull: true,
         },
       ),
+      queryInterface.addColumn(
+        'Users', // table name
+        'createdBy', // new field name
+        {
+          type: Sequelize.INTEGER,
+          allowNull: true,
+          references: {
+            model: 'Users',
+            key: 'id',
+          },
+          onUpdate: 'CASCADE',
+          onDelete: 'CASCADE',
+        },
+      ),
+      queryInterface.addColumn(
+        'Users', // table name
+        'updatedBy', // new field name
+        {
+          type: Sequelize.INTEGER,
+          allowNull: true,
+          references: {
+            model: 'Users',
+            key: 'id',
+          },
+          onUpdate: 'CASCADE',
+          onDelete: 'CASCADE',
+        },
+      ),
     ]);
   },
 

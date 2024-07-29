@@ -253,6 +253,7 @@ app.put("/user/:ID",auth,upload.fields([
       var responseObj = {};
       if (!UserId) return  await helperUtil.responseSender(res,'error',httpStatusCode,responseObj, 'requested params missing');
 
+        requestBody.updatedBy = req.body.updatedBy;
 
         const userUpdate = await userModel.update(UserId, requestBody);
         if(!userUpdate) return await helperUtil.responseSender(res,'error',400,responseObj, 'user updated. but waiting for response please contact BC');

@@ -151,6 +151,7 @@ function createUserInputObject(requestBody, token = null) {
         randomKey: requestBody.randomKey,//todo
         verificationExpires: Date.now() + 7200000,
         isDelete: false,//todo createdby upxdateby
+        createdBy: requestBody.createdBy,
     };
 }
 
@@ -222,7 +223,8 @@ router.get('/user/:id/verify/:token', async function (req, res) {
         var requestBody = {
             isActive: true,
             verificationCode: 'verified',
-            isEmailVerified: true
+            isEmailVerified: true,
+            updatedBy: req.params.id
         }
 
         const userUpdate = await userModel.update(userActivateTocken.id, requestBody);
@@ -273,6 +275,26 @@ router.post("/getUserbyrole", auth, bodyParser, async function (req, res) {
         return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
     }
 })
+router.post("/getuserbasedcompanyuser/:UserId", auth, bodyParser, async function (req, res) {
+    const UserId = req.params.UserId;
+    const companyId = req.body.companyId;
+    const role = req.body.role;
+    var message = "";
+    var httpStatusCode = 500;
+    var responseObj = {};
+    if (!UserId && !role && !companyId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
+    try {
+        const userCollection = await userModel.getALLUserbyQuery({ where: { createdBy: UserId, companyId: companyId, role: role, isDelete: false } });
+        if (userCollection.length == 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, "no active user in this role");
+
+        responseObj = { "userCollection": userCollection };
+        return await helperUtil.responseSender(res, 'data', 200, responseObj, `user colected successfully`);
+    } catch (error) {
+        message = `user collection failed.`;
+        responseObj = error;
+        return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
+    }
+})
 router.post("/companybasedUser/:companyId", auth, bodyParser, async function (req, res) {
     const companyId = req.params.companyId;
     var message = "";
@@ -310,7 +332,8 @@ router.post('/resetpassword', bodyParser, async function (req, res) {
 
         var reqbody = {
             // password: await helperUtil.generateRandomPassword()
-            passwordVerificationCode: tokenz
+            passwordVerificationCode: tokenz,
+            updatedBy: userCollection[0].dataValues.id
         }
         const userupdate = await userModel.update(userCollection[0].dataValues.id, reqbody);
         if (!userupdate) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'password updated. Error on collecting data');

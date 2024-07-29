@@ -56,6 +56,14 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'userId',
         as: 'payment'
       });
+      User.belongsTo(User, {
+        as: 'Creator',
+        foreignKey: 'createdBy',
+      });
+      User.belongsTo(User, {
+        as: 'Updater',
+        foreignKey: 'updatedBy',
+      });
     }
   }
   User.init({
@@ -92,6 +100,8 @@ module.exports = (sequelize, DataTypes) => {
     randomKey: DataTypes.STRING,
     role: DataTypes.STRING,
     companyId: DataTypes.INTEGER,
+    createdBy: DataTypes.INTEGER,
+    updatedBy: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'User',
