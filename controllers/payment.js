@@ -8,6 +8,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const helperUtil = require('../util/helper.js');
 const paymentModel = require("../models/mvc_payment.js");
+const userModel = require("../models/mvc_User.js");
 
 
 router.get('/getallpayments/:userId', auth, bodyParser, async function (req, res) {
@@ -61,9 +62,13 @@ router.post('/payment/checkOut:userId', auth, bodyParser, async function (req, r
         console.log('req data', req);
 
 
+        const userData = await userModel.getUser(userId);
+
+
         const session = await stripe.checkout.sessions.create({
             success_url: `${process.env.BaseURL}/userSubscriptions`,
             cancel_url: `${process.env.BaseURL}/subscriptions`,
+            customer_email: userData.primaryEmail,
             line_items: [
                 {
                     price_data: {
