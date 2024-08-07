@@ -44,10 +44,25 @@ module.exports = {
           allowNull: true,
         },
       ),
+      queryInterface.addColumn(
+        'Users', // table name
+        'assignedBy', // new field name
+        {
+          type: Sequelize.INTEGER,
+          allowNull: true,
+          references: {
+            model: 'Users',
+            key: 'id',
+          },
+          onUpdate: 'CASCADE',
+          onDelete: 'CASCADE',
+        },
+      ),
     ])
   },
 
   async down(queryInterface, Sequelize) {
+    queryInterface.removeColumn('Users', 'assignedBy');
     queryInterface.removeColumn('Users', 'usercreatedCount');
     queryInterface.removeColumn('Users', 'userAllocatedCount');
     queryInterface.removeColumn('Users', 'createdcardcount');
