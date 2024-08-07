@@ -13,7 +13,7 @@ var uploadFile = multer({dest:'./uploads/'});
 const config = require('./config/config.js');
 const sendVerificationEmail = require('./util/emailSender.js');
 const port = process.env.PORT || 8080;
-const cardModel = require("./models/mvc_Businesscard");
+const cardModel = require("./models/mvc_BusinessCard.js");
 const companyModel = require("./models/mvc_company.js");
 
 const cardImageModel = require("./models/mvc_businessCardImage.js");
@@ -30,8 +30,16 @@ const helperUtil = require('./util/helper.js');
 
 const upload = require('./middleware/upload.js');
 // var bodyParser = require('body-parser').json();
+const app = express();
 
-const allowedOrigins = ['http://localhost:3000', 'https://checkout.stripe.com'];
+const allowedOrigins = [ 'https://checkout.stripe.com'];
+app.use((req, res, next) => {
+    const fullUrl = `${req.protocol}://${req.hostname}:3000`
+    console.log('Hostname:', fullUrl);
+    process.env.BaseURL = fullUrl;
+    allowedOrigins.push(fullUrl);
+    next();
+});
 
 const corsOptions = {
     origin: function (origin, callback) {
@@ -44,7 +52,7 @@ const corsOptions = {
         return callback(null, true);
     }
 };
-const app=express();
+
 
 
 // app.use(express.static(path.join(__dirname, 'uploads')));
