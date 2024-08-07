@@ -1,15 +1,20 @@
 {
-
- 
   "development": {
-    "database": "DigitalCard",
-    "username": "DigiUser",
-    "password": "Babish@1998",
-    "host": "db",
-    "dialect": "mysql",
-    "migrationStorage": "sequelize",
-    "seederStorage": "sequelize"
+        "database": "DigitalCard",
+        "db_host" : "localhost",
+        "db_port" : "3306",
+        "db_username" : "DigiUser",
+        "db_password" : "Babish@1998",
+        "db_schema" : "DigitalCard",
+        "username": "DigiUser",
+        "password": "Babish@1998",
+        "host": "localhost",
+        "dialect": "mysql",
+        "migrationStorage": "sequelize",
+        "seederStorage": "sequelize"
   },
+ 
+ 
 
   "test": {
     "database": "DigitalCardTest",
