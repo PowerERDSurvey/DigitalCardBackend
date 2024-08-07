@@ -32,6 +32,8 @@ const upload = require('./middleware/upload.js');
 // var bodyParser = require('body-parser').json();
 const app = express();
 
+
+
 const allowedOrigins = [ 'https://checkout.stripe.com'];
 app.use((req, res, next) => {
     const fullUrl = `${req.protocol}://${req.hostname}:3000`
@@ -63,8 +65,11 @@ console.log(__dirname, 'DIR')
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 app.post('/webhook', express.raw({ type: 'application/json' }), async (request, response) => {
-    const endpointSecret = "whsec_2e90767501784982e709d966a4edd71344707f3fcab22ebba31e5ef6dacf1514";
+    var endpointSecret;
+    process.env.BaseURL == 'http://localhost:3000' ? endpointSecret = "whsec_2e90767501784982e709d966a4edd71344707f3fcab22ebba31e5ef6dacf1514" : endpointSecret = "we_1Pl1pPBrB64sXHWF6kW6WfkM";
+
     const sig = request.headers['stripe-signature'];
+    var responseObj = {};
 
     let event;
 
@@ -133,6 +138,12 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (request, 
 
 
                 const user_sub_collection = await userSubscriptionModel.createuserSubscription(user_sub_inputParam);
+                const sub_collection = await subscriptionModel.getAllSubscriptionByquery({ where: { id: paymetscollection.subId } });
+                const getplans = await productModel.getOneProductById(sub_collection[0].productId);
+                const user_update = await userModel.update({
+                    cardAllocationCount: userDetail.cardAllocationCount + getplans.cardCount
+                });
+                if (!user_update) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'updation faild');
             }
             break;
         // ... handle other event types
@@ -342,78 +353,95 @@ app.post('/user/createCard/:userId', auth, upload.fields([
     try {
         //---------------------subscription plan---------------
 
+
+
+        const existing_card_cout = await cardModel.getALLCardbyUserId(userId);
+
         // get company id for the user  
         const userDetail = await userModel.getUser(userId);
         if (!userDetail) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'userDetail not found');
 
-        var getCompanyId = userDetail.dataValues.companyId;
+        if (existing_card_cout.length > 0) {
+            var limit_message = userDetail.role == 'INDIVIDUAL_USER' ?`Limit reached. please purchase for more card` : `Limit reached. Your account didn't allocated other than free card. please contact your hiraricy`;
 
-        // get all the user by companyid
-        // var userquery = {
-        //     where: {
-        //         id: userId
-        //     }
-        // }
-        var userSubscriptionquery = {
-            where: {
-                userId: userId,
-                isActive: true
-            }
+            if (userDetail.cardAllocationCount == 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, limit_message);
+
+
+            if (userDetail.createdcardcount >= userDetail.cardAllocationCount) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Limit reached. Already you have ${userDetail.createdcardcount} out of ${userDetail.cardAllocationCount}`);
+
+
+
+            // var getCompanyId = userDetail.dataValues.companyId;
+
+            // // get all the user by companyid
+            // // var userquery = {
+            // //     where: {
+            // //         id: userId
+            // //     }
+            // // }
+            // var userSubscriptionquery = {
+            //     where: {
+            //         userId: userId,
+            //         isActive: true
+            //     }
+            // }
+            // var company_Detail;
+            // const userIds = [];
+            // if (userDetail.role == 'COMPANY_USER') {
+
+            //     userSubscriptionquery.where = {
+            //         companyId: getCompanyId,
+            //         isActive: true
+            //     }
+            //     company_Detail = await companyModel.getActiveCompanyById(getCompanyId);
+            //     var userquery = { where: { companyId: getCompanyId } }; const company_usersDetail = await userModel.getALLUserbyQuery(userquery);
+            //     userIds.push(...company_usersDetail.map((item) => item.id));
+            // }
+
+            // const cardDetails = userDetail.role == 'COMPANY_USER' ? await cardModel.getALLCardbyUserId(userIds) : await cardModel.getALLCardbyUserId(userId);
+            // var exsitingCardCount = cardDetails.length;
+
+            // //get subscription ids from userSubscription
+            // const userSubscription = await userSubscriptionModel.getAllUserSubscriptionByQuery(userSubscriptionquery);
+
+            // var userSubscriptionIds = userSubscription.map((item) => item.subscriptionId);
+
+            // console.log('userSubscriptionIds', userSubscriptionIds);
+
+            // //get Active subscription from subscription id //forloop
+            // var getSubscription = [];
+            // for (let index = 0; index < userSubscriptionIds.length; index++) {
+            //     // const element = array[index];
+
+            //     var subs = await subscriptionModel.getAllSubscriptionByquery({ where: { isActive: true, id: userSubscriptionIds[index] } });
+            //     getSubscription.push(subs[0]);
+
+            // }
+
+            // var subscriptionCardCount = 0;
+
+            // for (let index = 0; index < getSubscription.length; index++) {
+            //     var sub = getSubscription[index];
+            //     const getplans = await productModel.getOneProductById(sub.dataValues.productId);
+            //     subscriptionCardCount += getplans.cardCount;
+            //     // getSubscription[index].dataValues.plan = [getplans];
+            // }
+
+
+            // if (userDetail.role == 'COMPANY_USER') {
+            //     if (subscriptionCardCount != 0) subscriptionCardCount += company_Detail.noOfUsers
+            //     if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount >= company_Detail.noOfUsers) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have ${subscriptionCardCount} cards please contact Admin`);
+
+            // } else {
+            //     if (subscriptionCardCount != 0) subscriptionCardCount++
+            //     if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount > 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have ${subscriptionCardCount} cards please contact Admin`);
+
+            // }
+            // //count the card creation count and restric the flow
+            //     // const userDetail = 
+
         }
-        var company_Detail;
-        const userIds = [];
-        if (userDetail.role == 'COMPANY_USER') {
-
-            userSubscriptionquery.where = {
-                companyId: getCompanyId,
-                isActive: true
-            }
-            company_Detail = await companyModel.getActiveCompanyById(getCompanyId);
-            var userquery = { where: { companyId: getCompanyId } }; const company_usersDetail = await userModel.getALLUserbyQuery(userquery);
-            userIds.push(...company_usersDetail.map((item) => item.id));
-        }
-
-        const cardDetails = userDetail.role == 'COMPANY_USER' ? await cardModel.getALLCardbyUserId(userIds) : await cardModel.getALLCardbyUserId(userId);
-        var exsitingCardCount = cardDetails.length;
-
-        //get subscription ids from userSubscription
-        const userSubscription = await userSubscriptionModel.getAllUserSubscriptionByQuery(userSubscriptionquery);
-
-        var userSubscriptionIds = userSubscription.map((item) => item.subscriptionId);
-
-        console.log('userSubscriptionIds', userSubscriptionIds);
-
-        //get Active subscription from subscription id //forloop
-        var getSubscription = [];
-        for (let index = 0; index < userSubscriptionIds.length; index++) {
-            // const element = array[index];
-
-            var subs = await subscriptionModel.getAllSubscriptionByquery({ where: { isActive: true, id: userSubscriptionIds[index] } });
-            getSubscription.push(subs[0]);
-
-        }
-
-        var subscriptionCardCount = 0;
-
-        for (let index = 0; index < getSubscription.length; index++) {
-            var sub = getSubscription[index];
-            const getplans = await productModel.getOneProductById(sub.dataValues.productId);
-            subscriptionCardCount += getplans.cardCount;
-            // getSubscription[index].dataValues.plan = [getplans];
-        }
-
-
-        if (userDetail.role == 'COMPANY_USER') {
-            if (subscriptionCardCount != 0) subscriptionCardCount += company_Detail.noOfUsers
-            if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount >= company_Detail.noOfUsers) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have ${subscriptionCardCount} cards please contact Admin`);
-
-        } else {
-            if (subscriptionCardCount != 0) subscriptionCardCount++
-            if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount > 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have ${subscriptionCardCount} cards please contact Admin`);
-
-        }
-        //count the card creation count and restric the flow
-        // const userDetail = 
+        
 
 
         var inputparam = {
@@ -459,7 +487,12 @@ app.post('/user/createCard/:userId', auth, upload.fields([
         //     }
 
         // };
-        const images = await cardImageUpload(req, cardCollection.id,res);
+        const images = await cardImageUpload(req, cardCollection.id, res);
+        const user_update = await userModel.update({
+            createdcardcount: userDetail.createdcardcount + 1,
+            cardAllocationCount: userDetail.cardAllocationCount-1
+        });
+        if (!user_update) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'updation faild');
         responseObj.cardCollection.dataValues.images = images;
         return await helperUtil.responseSender(res, 'data', 200, responseObj, 'Card Created successfully');
     }

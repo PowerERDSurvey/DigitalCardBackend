@@ -64,6 +64,10 @@ module.exports = (sequelize, DataTypes) => {
         as: 'Updater',
         foreignKey: 'updatedBy',
       });
+      User.belongsTo(User, {
+        as: 'assigner',
+        foreignKey: 'assignedBy',
+      });
     }
   }
   User.init({
@@ -102,6 +106,12 @@ module.exports = (sequelize, DataTypes) => {
     companyId: DataTypes.INTEGER,
     createdBy: DataTypes.INTEGER,
     updatedBy: DataTypes.INTEGER,
+    usercreatedCount: DataTypes.INTEGER,
+    userAllocatedCount: DataTypes.INTEGER,
+    createdcardcount: DataTypes.INTEGER,
+    cardAllocationCount: DataTypes.INTEGER,
+    assignedBy: DataTypes.INTEGER,
+
   }, {
     sequelize,
     modelName: 'User',

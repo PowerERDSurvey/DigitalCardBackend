@@ -18,9 +18,9 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'cardId',
         as: 'images',
       });
-      BusinessCard.hasOne(models.theme,{
-        foreignKey:'cardId',
-        as:'theme'
+      BusinessCard.hasOne(models.theme, {
+        foreignKey: 'cardId',
+        as: 'theme'
       })
     }
   }
@@ -50,7 +50,8 @@ module.exports = (sequelize, DataTypes) => {
     youtube: DataTypes.STRING,
     department: DataTypes.STRING,
     vCardDetails: DataTypes.STRING,
-    randomKey:DataTypes.STRING
+    randomKey: DataTypes.STRING,
+    isDelete: DataTypes.BOOLEAN,
   }, {
     sequelize,
     modelName: 'BusinessCard',

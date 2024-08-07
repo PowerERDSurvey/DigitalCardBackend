@@ -248,7 +248,7 @@ router.get("/user/:ID", auth, bodyParser, async function (req, res) {
     try {
         const UserCollection = await userModel.getUser(UserId);
         if (UserCollection == null) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'No user exist');
-        responseObj = { "cardCollection": cardCollection };
+        responseObj = { "UserCollection": UserCollection };
         return await helperUtil.responseSender(res, 'data', 200, responseObj, 'user retrived successfully');
     } catch (error) {
         message = "user retrieved Failed.";

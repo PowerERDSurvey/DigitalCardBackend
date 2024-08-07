@@ -37,6 +37,9 @@ module.exports = {
       isActive: {
         type: Sequelize.BOOLEAN
       },
+      isDelete: {
+        type: Sequelize.BOOLEAN
+      },
       verificationCode: {
         type: Sequelize.STRING
       },
@@ -102,7 +105,7 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       },
-      randomKey:{
+      randomKey: {
         type: Sequelize.STRING,
         allowNull: true
       }
