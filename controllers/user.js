@@ -86,22 +86,36 @@ async function handleGoogleSSOUser(req, res, requestBody) {
     await insertTokenAndRespond(res, result.id, token, result);
 }
 
-async function cardAllocation(requestBody) {
-    if (requestBody.role == 'COMPANY_SUPER_ADMIN') {
+async function cardAllocation(requestBody, req, res) {
+    if (requestBody.role == 'COMPANY_SUPER_ADMIN' || requestBody.role == 'INDIVIDUAL_USER') {
         requestBody.userAllocatedCount = requestBody.userAllocatedCount - 1;
         requestBody.usercreatedCount = requestBody.usercreatedCount + 1;
+        return;
     } else {
         if (!requestBody.assignedBy) return;
         const superior_datum = await userModel.getUser(requestBody.assignedBy);
 
-        // if (superior_datum.userAllocatedCount == 0)//todo//initially it will zero
+        if (superior_datum.userAllocatedCount > requestBody.userAllocatedCount) return await sendErrorResponse(res, 400, {}, `you can give maximum user as ${superior_datum.userAllocatedCount}`); //todo//initially it will zero
+        if (superior_datum.cardAllocationCount > requestBody.cardAllocationCount) return await sendErrorResponse(res, 400, {}, `you can give maximum user as ${superior_datum.cardAllocationCount}`); //todo//initially it will zero
         var count_to_be_reduce = 0;
         requestBody.userAllocatedCount != 0 ? count_to_be_reduce = requestBody.userAllocatedCount + 1 : count_to_be_reduce = 1;
-        var superior_datum_param = {
-            userAllocatedCount: superior_datum.userAllocatedCount - count_to_be_reduce,
-            usercreatedCount: superior_datum.usercreatedCount + count_to_be_reduce
+        var superior_datum_param = {};
+        if (requestBody.userAllocatedCount != 0) {
+            superior_datum_param = {
+                ...superior_datum_param,
+                userAllocatedCount: superior_datum.userAllocatedCount - count_to_be_reduce,
+                usercreatedCount: superior_datum.usercreatedCount + count_to_be_reduce
+            }
+        }
+        if (requestBody.cardAllocationCount != 0) {
+            superior_datum_param = {
+                ...superior_datum_param,
+                // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
+                cardAllocationCount: superior_datum.userAllocatedCount - requestBody.cardAllocationCount
+            }
         }
         const update_superior = await userModel.update(superior_datum.id, superior_datum_param);
+        return;
     }
 
 
@@ -120,7 +134,7 @@ async function handleStandardUser(req, res, requestBody, isEmailValid) {
 
     const token = generateToken({ email: requestBody.email });
     const inputObj = createUserInputObject(requestBody, token);
-    await cardAllocation(requestBody);
+    await cardAllocation(requestBody, req, res);
     const result = await userModel.create(inputObj);
 
     if (!result) {
@@ -180,6 +194,7 @@ function createUserInputObject(requestBody, token = null) {
         createdcardcount: requestBody.createdcardcount,
         cardAllocationCount: requestBody.cardAllocationCount,
         assignedBy: requestBody.assignedBy,
+        isUserCardAllocated: requestBody.isUserCardAllocated,
     };
 }
 
@@ -235,6 +250,7 @@ function createResponseData(email, userImages, token) {
         randomKey: email.randomKey,
         role: email.role,
         companyId: email.companyId,
+        isUserCardAllocated: email.isUserCardAllocated,
         authenticated: true,
     };
 }

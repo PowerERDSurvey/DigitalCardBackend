@@ -205,7 +205,61 @@ app.use("/",CountryANDState);
 // app.use();
 
 
+async function cardAllocation(requestBody, UserId, req, res) {
+    if (requestBody.role == 'COMPANY_SUPER_ADMIN' || requestBody.role == 'INDIVIDUAL_USER') {
+        requestBody.userAllocatedCount = requestBody.userAllocatedCount - 1;
+        requestBody.usercreatedCount = requestBody.usercreatedCount + 1;
+        return;
+    } else {
+        if (!requestBody.assignedBy) return;
+        const old_data = await userModel.getUser(UserId);
 
+        const superior_datum = await userModel.getUser(requestBody.assignedBy);
+        if (superior_datum.userAllocatedCount > requestBody.userAllocatedCount) return await helperUtil.responseSender(res, 'error', 400, {}, `you can give maximum user as ${superior_datum.userAllocatedCount}`); //todo//initially it will zero
+        if (superior_datum.cardAllocationCount > requestBody.cardAllocationCount) return await helperUtil.responseSender(res, 'error', 400, {}, `you can give maximum user as ${superior_datum.cardAllocationCount}`); //todo//initially it will zero
+
+        // var count_to_be_reduce = 0;
+        // requestBody.userAllocatedCount != 0 ? count_to_be_reduce = requestBody.userAllocatedCount + 1 : count_to_be_reduce = 1;
+        var superior_datum_param = {};
+        if (requestBody.userAllocatedCount != 0) {
+            if (requestBody.userAllocatedCount > old_data.userAllocatedCount) {
+                superior_datum_param = {
+                    ...superior_datum_param,
+                    userAllocatedCount: superior_datum.userAllocatedCount - (requestBody.userAllocatedCount - old_data.userAllocatedCount),
+                    usercreatedCount: superior_datum.usercreatedCount + (requestBody.userAllocatedCount - old_data.userAllocatedCount)
+                }
+            } 
+            if (requestBody.userAllocatedCount < old_data.userAllocatedCount) {
+                // cardcount
+                const exist_user = await userModel.getALLUserbyQuery({ where: { isDelete: false, assignedBy: UserId } });
+
+                if (exist_user.length > requestBody.userAllocatedCount) return await helperUtil.responseSender(res, 'error', 400, {}, `Already the account have ${exist_user.length} user. please delete and try to update`);
+
+                superior_datum_param = {
+                    ...superior_datum_param,
+                    userAllocatedCount: superior_datum.userAllocatedCount + (old_data.userAllocatedCount - requestBody.userAllocatedCount),
+                    usercreatedCount: superior_datum.usercreatedCount - (old_data.userAllocatedCount - requestBody.userAllocatedCount)
+                }
+            } 
+        }
+        if (requestBody.cardAllocationCount != 0) {
+            if (requestBody.cardAllocationCount > old_data.cardAllocationCount) { 
+                superior_datum_param = {
+                    ...superior_datum_param,
+                    // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
+                    cardAllocationCount: superior_datum.cardAllocationCount - (requestBody.cardAllocationCount - old_data.cardAllocationCount)
+                }
+            }
+
+            
+        }
+        const update_superior = await userModel.update(superior_datum.id, superior_datum_param);
+        return;
+    }
+
+
+
+}
 app.put("/user/:ID",auth,upload.fields([
     { name: 'profilePhoto', maxCount: 1 },
     { name: 'coverPhoto', maxCount: 1 }
@@ -241,8 +295,13 @@ app.put("/user/:ID",auth,upload.fields([
         aboutMe: req.body.aboutMe != 'null' && req.body.aboutMe != 'undefined'? req.body.aboutMe : null,
         youtube: req.body.youtube != 'null' && req.body.youtube != 'undefined'? req.body.youtube : null,
         department: req.body.department != 'null' && req.body.department != 'undefined'? req.body.department : null,
-        role:req.body.role != 'null' && req.body.role != 'undefined'? req.body.role : null,
-        companyId:req.body.companyId
+        role: req.body.role != 'null' && req.body.role != 'undefined' ? req.body.role : null,
+        usercreatedCount: req.body.usercreatedCount != 'null' && req.body.usercreatedCount != 'undifined' ? req.body.usercreatedCount : 0 ,
+        userAllocatedCount: req.body.userAllocatedCount != 'null' && req.body.userAllocatedCount != 'undifined' ? req.body.userAllocatedCount : 0 ,
+        createdcardcount: req.body.createdcardcount != 'null' && req.body.createdcardcount != 'undifined' ? req.body.createdcardcount : 0 ,
+        cardAllocationCount: req.body.cardAllocationCount != 'null' && req.body.cardAllocationCount != 'undifined' ? req.body.cardAllocationCount : 0 ,
+        companyId: req.body.companyId,
+        assignedBy: requestBody.assignedBy,
         };
         
         if (req.body.password) {
@@ -266,7 +325,15 @@ app.put("/user/:ID",auth,upload.fields([
           requestBody.isActive = false;
           requestBody.userName = req.body.userName;
 
-      }
+        }
+        
+        if ((req.body.usercreatedCount != 'null' && req.body.usercreatedCount != 'undifined') ||
+            (req.body.userAllocatedCount != 'null' && req.body.userAllocatedCount != 'undifined') ||
+            (req.body.createdcardcount != 'null' && req.body.createdcardcount != 'undifined') ||
+            (req.body.cardAllocationCount != 'null' && req.body.cardAllocationCount != 'undifined')) {
+
+            await cardAllocation(requestBody, UserId, req, res);
+        }
       var message = "User updated successfully";
       var httpStatusCode = 500;
       var responseObj = {};
