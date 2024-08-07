@@ -86,6 +86,28 @@ async function handleGoogleSSOUser(req, res, requestBody) {
     await insertTokenAndRespond(res, result.id, token, result);
 }
 
+async function cardAllocation(requestBody) {
+    if (requestBody.role == 'COMPANY_SUPER_ADMIN') {
+        requestBody.userAllocatedCount = requestBody.userAllocatedCount - 1;
+        requestBody.usercreatedCount = requestBody.usercreatedCount + 1;
+    } else {
+        if (!requestBody.assignedBy) return;
+        const superior_datum = await userModel.getUser(requestBody.assignedBy);
+
+        // if (superior_datum.userAllocatedCount == 0)//todo//initially it will zero
+        var count_to_be_reduce = 0;
+        requestBody.userAllocatedCount != 0 ? count_to_be_reduce = requestBody.userAllocatedCount + 1 : count_to_be_reduce = 1;
+        var superior_datum_param = {
+            userAllocatedCount: superior_datum.userAllocatedCount - count_to_be_reduce,
+            usercreatedCount: superior_datum.usercreatedCount + count_to_be_reduce
+        }
+        const update_superior = await userModel.update(superior_datum.id, superior_datum_param);
+    }
+
+
+
+}
+
 async function handleStandardUser(req, res, requestBody, isEmailValid) {
     if (!isEmailValid) {
         return await handleExistingEmail(req, res, requestBody);
@@ -98,6 +120,7 @@ async function handleStandardUser(req, res, requestBody, isEmailValid) {
 
     const token = generateToken({ email: requestBody.email });
     const inputObj = createUserInputObject(requestBody, token);
+    await cardAllocation(requestBody);
     const result = await userModel.create(inputObj);
 
     if (!result) {
@@ -152,6 +175,11 @@ function createUserInputObject(requestBody, token = null) {
         verificationExpires: Date.now() + 7200000,
         isDelete: false,//todo createdby upxdateby
         createdBy: requestBody.createdBy,
+        usercreatedCount: requestBody.usercreatedCount,
+        userAllocatedCount: requestBody.userAllocatedCount,
+        createdcardcount: requestBody.createdcardcount,
+        cardAllocationCount: requestBody.cardAllocationCount,
+        assignedBy: requestBody.assignedBy,
     };
 }
 
@@ -182,6 +210,10 @@ function createResponseData(email, userImages, token) {
         userName: email.userName,
         lastName: email.lastName,
         primaryEmail: email.primaryEmail,
+        usercreatedCount: email.usercreatedCount,
+        userAllocatedCount: email.userAllocatedCount,
+        createdcardcount: email.createdcardcount,
+        cardAllocationCount: email.cardAllocationCount,
         // secondaryEmail: email.secondaryEmail,
         mobileNumber: email.mobileNumber,
         companyName: email.companyName,

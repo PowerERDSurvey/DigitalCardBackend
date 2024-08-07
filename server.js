@@ -140,7 +140,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (request, 
                 const user_sub_collection = await userSubscriptionModel.createuserSubscription(user_sub_inputParam);
                 const sub_collection = await subscriptionModel.getAllSubscriptionByquery({ where: { id: paymetscollection.subId } });
                 const getplans = await productModel.getOneProductById(sub_collection[0].productId);
-                const user_update = await userModel.update({
+                const user_update = await userModel.update(userCollection.id,{
                     cardAllocationCount: userDetail.cardAllocationCount + getplans.cardCount
                 });
                 if (!user_update) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'updation faild');
