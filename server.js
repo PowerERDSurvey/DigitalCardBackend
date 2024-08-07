@@ -206,7 +206,7 @@ app.use("/",CountryANDState);
 
 
 async function cardAllocation(requestBody, UserId, req, res) {
-    if (requestBody.role == 'COMPANY_SUPER_ADMIN' || requestBody.role == 'INDIVIDUAL_USER') {
+    if (requestBody.role == 'COMPANY_ADMIN' || requestBody.role == 'INDIVIDUAL_USER') {
         requestBody.userAllocatedCount = requestBody.userAllocatedCount - 1;
         requestBody.usercreatedCount = requestBody.usercreatedCount + 1;
         return;
@@ -215,8 +215,8 @@ async function cardAllocation(requestBody, UserId, req, res) {
         const old_data = await userModel.getUser(UserId);
 
         const superior_datum = await userModel.getUser(requestBody.assignedBy);
-        if (superior_datum.userAllocatedCount > requestBody.userAllocatedCount) return await helperUtil.responseSender(res, 'error', 400, {}, `you can give maximum user as ${superior_datum.userAllocatedCount}`); //todo//initially it will zero
-        if (superior_datum.cardAllocationCount > requestBody.cardAllocationCount) return await helperUtil.responseSender(res, 'error', 400, {}, `you can give maximum user as ${superior_datum.cardAllocationCount}`); //todo//initially it will zero
+        // if (superior_datum.userAllocatedCount > requestBody.userAllocatedCount) return await helperUtil.responseSender(res, 'error', 400, {}, `you can give maximum user as ${superior_datum.userAllocatedCount}`); //todo//initially it will zero
+        // if (superior_datum.cardAllocationCount > requestBody.cardAllocationCount) return await helperUtil.responseSender(res, 'error', 400, {}, `you can give maximum user as ${superior_datum.cardAllocationCount}`); //todo//initially it will zero
 
         // var count_to_be_reduce = 0;
         // requestBody.userAllocatedCount != 0 ? count_to_be_reduce = requestBody.userAllocatedCount + 1 : count_to_be_reduce = 1;
