@@ -58,10 +58,19 @@ module.exports = {
           onDelete: 'CASCADE',
         },
       ),
+      queryInterface.addColumn(
+        'Users', // table name
+        'isUserCardAllocated', // new field name
+        {
+          type: Sequelize.BOOLEAN,
+          allowNull: true,
+        },
+      ),
     ])
   },
 
   async down(queryInterface, Sequelize) {
+    queryInterface.removeColumn('Users', 'isUserCardAllocated');
     queryInterface.removeColumn('Users', 'assignedBy');
     queryInterface.removeColumn('Users', 'usercreatedCount');
     queryInterface.removeColumn('Users', 'userAllocatedCount');

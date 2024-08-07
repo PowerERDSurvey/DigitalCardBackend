@@ -111,6 +111,7 @@ module.exports = (sequelize, DataTypes) => {
     createdcardcount: DataTypes.INTEGER,
     cardAllocationCount: DataTypes.INTEGER,
     assignedBy: DataTypes.INTEGER,
+    isUserCardAllocated: DataTypes.BOOLEAN,
 
   }, {
     sequelize,
