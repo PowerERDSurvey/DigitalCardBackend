@@ -47,7 +47,7 @@ async function handleUserCreation(req, res, requestBody) {
         const companyAdmins = await userModel.getCompanybasedUser(requestBody.companyId, requestBody.role);
         if (requestBody.role == 'COMPANY_ADMIN') {
 
-            if (companyDetail.noOfAdmin <= companyAdmins.length) return await sendErrorResponse(res, 400, {}, `company admin limit reached. your company can create only ${companyDetail.noOfAdmin} Admins`);
+            // if (companyDetail.noOfAdmin <= companyAdmins.length) return await sendErrorResponse(res, 400, {}, `company admin limit reached. your company can create only ${companyDetail.noOfAdmin} Admins`);
 
         }
         if (requestBody.role == 'COMPANY_USER') {
@@ -87,7 +87,7 @@ async function handleGoogleSSOUser(req, res, requestBody) {
 }
 
 async function cardAllocation(requestBody, req, res) {
-    if (requestBody.role == 'COMPANY_SUPER_ADMIN' || requestBody.role == 'INDIVIDUAL_USER') {
+    if (requestBody.role == 'COMPANY_ADMIN' || requestBody.role == 'INDIVIDUAL_USER') {
         requestBody.userAllocatedCount = requestBody.userAllocatedCount - 1;
         requestBody.usercreatedCount = requestBody.usercreatedCount + 1;
         return;
@@ -95,19 +95,19 @@ async function cardAllocation(requestBody, req, res) {
         if (!requestBody.assignedBy) return;
         const superior_datum = await userModel.getUser(requestBody.assignedBy);
 
-        if (superior_datum.userAllocatedCount > requestBody.userAllocatedCount) return await sendErrorResponse(res, 400, {}, `you can give maximum user as ${superior_datum.userAllocatedCount}`); //todo//initially it will zero
-        if (superior_datum.cardAllocationCount > requestBody.cardAllocationCount) return await sendErrorResponse(res, 400, {}, `you can give maximum user as ${superior_datum.cardAllocationCount}`); //todo//initially it will zero
+        // if (superior_datum.userAllocatedCount < requestBody.userAllocatedCount) return await sendErrorResponse(res, 400, {}, `you can give maximum user as ${superior_datum.userAllocatedCount}`); //todo//initially it will zero
+        // if (superior_datum.cardAllocationCount < requestBody.cardAllocationCount) return await sendErrorResponse(res, 400, {}, `you can give maximum user as ${superior_datum.cardAllocationCount}`); //todo//initially it will zero
         var count_to_be_reduce = 0;
         requestBody.userAllocatedCount != 0 ? count_to_be_reduce = requestBody.userAllocatedCount + 1 : count_to_be_reduce = 1;
         var superior_datum_param = {};
-        if (requestBody.userAllocatedCount != 0) {
+        if (requestBody.userAllocatedCount != 0 || requestBody.userAllocatedCount != "undefined" || requestBody.userAllocatedCount != undefined) {
             superior_datum_param = {
                 ...superior_datum_param,
                 userAllocatedCount: superior_datum.userAllocatedCount - count_to_be_reduce,
                 usercreatedCount: superior_datum.usercreatedCount + count_to_be_reduce
             }
         }
-        if (requestBody.cardAllocationCount != 0) {
+        if (requestBody.cardAllocationCount != 0 || requestBody.cardAllocationCount != "undefined" || requestBody.cardAllocationCount != undefined) {
             superior_datum_param = {
                 ...superior_datum_param,
                 // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
@@ -134,7 +134,7 @@ async function handleStandardUser(req, res, requestBody, isEmailValid) {
 
     const token = generateToken({ email: requestBody.email });
     const inputObj = createUserInputObject(requestBody, token);
-    await cardAllocation(requestBody, req, res);
+    await cardAllocation(inputObj, req, res);
     const result = await userModel.create(inputObj);
 
     if (!result) {

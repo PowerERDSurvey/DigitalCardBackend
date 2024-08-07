@@ -13,7 +13,7 @@ module.exports = {
       companyName: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
+        // unique: true,
       },
       address: {
         type: Sequelize.STRING
