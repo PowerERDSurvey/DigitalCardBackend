@@ -87,7 +87,7 @@ async function handleGoogleSSOUser(req, res, requestBody) {
 }
 
 async function cardAllocation(requestBody, req, res) {
-    if(requestBody.role == "SUPER_ADMIN") return;
+    if (requestBody.role == "SUPER_ADMIN") return;
     if (requestBody.role == 'COMPANY_ADMIN' || requestBody.role == 'INDIVIDUAL_USER') {
         requestBody.userAllocatedCount = requestBody.userAllocatedCount - 1;
         requestBody.usercreatedCount = requestBody.usercreatedCount + 1;
@@ -101,7 +101,7 @@ async function cardAllocation(requestBody, req, res) {
         var count_to_be_reduce = 0;
         requestBody.userAllocatedCount != 0 ? count_to_be_reduce = requestBody.userAllocatedCount + 1 : count_to_be_reduce = 1;
         var superior_datum_param = {};
-        if (requestBody.userAllocatedCount != 0 ) {
+        if (requestBody.userAllocatedCount != 0) {
             superior_datum_param = {
                 ...superior_datum_param,
                 userAllocatedCount: superior_datum.userAllocatedCount - count_to_be_reduce,
@@ -114,7 +114,7 @@ async function cardAllocation(requestBody, req, res) {
                 usercreatedCount: superior_datum.usercreatedCount + 1
             }
         }
-        if (requestBody.cardAllocationCount != 0 ) {
+        if (requestBody.cardAllocationCount != 0) {
             superior_datum_param = {
                 ...superior_datum_param,
                 // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
@@ -122,6 +122,14 @@ async function cardAllocation(requestBody, req, res) {
             }
         }
         const update_superior = await userModel.update(superior_datum.id, superior_datum_param);
+        if (requestBody.role == 'COMPANY_USER') {
+            const super_superior_datum = await userModel.getUser(superior_datum.assignedBy);
+            var update_sup_superior_param = {
+                userAllocatedCount: super_superior_datum.userAllocatedCount - 1,
+                usercreatedCount: super_superior_datum.usercreatedCount + 1
+            }
+            const update_sup_superior = await userModel.update(super_superior_datum.id, update_sup_superior_param);
+        }
         return;
     }
 
@@ -196,10 +204,10 @@ function createUserInputObject(requestBody, token = null) {
         verificationExpires: Date.now() + 7200000,
         isDelete: false,//todo createdby upxdateby
         createdBy: requestBody.createdBy,
-        usercreatedCount: requestBody.usercreatedCount == null || requestBody.usercreatedCount == "undefined" || requestBody.usercreatedCount == undefined ? 0 : requestBody.usercreatedCount ,
-        userAllocatedCount: requestBody.userAllocatedCount == null || requestBody.userAllocatedCount == "undefined" || requestBody.userAllocatedCount == undefined ? 0 : requestBody.userAllocatedCount ,
-        createdcardcount: requestBody.createdcardcount == null || requestBody.createdcardcount == "undefined" || requestBody.createdcardcount == undefined ? 0 : requestBody.createdcardcount ,
-        cardAllocationCount: requestBody.cardAllocationCount == null || requestBody.cardAllocationCount == "undefined" || requestBody.cardAllocationCount == undefined ? 0 : requestBody.cardAllocationCount ,
+        usercreatedCount: requestBody.usercreatedCount == null || requestBody.usercreatedCount == "undefined" || requestBody.usercreatedCount == undefined ? 0 : requestBody.usercreatedCount,
+        userAllocatedCount: requestBody.userAllocatedCount == null || requestBody.userAllocatedCount == "undefined" || requestBody.userAllocatedCount == undefined ? 0 : requestBody.userAllocatedCount,
+        createdcardcount: requestBody.createdcardcount == null || requestBody.createdcardcount == "undefined" || requestBody.createdcardcount == undefined ? 0 : requestBody.createdcardcount,
+        cardAllocationCount: requestBody.cardAllocationCount == null || requestBody.cardAllocationCount == "undefined" || requestBody.cardAllocationCount == undefined ? 0 : requestBody.cardAllocationCount,
         assignedBy: requestBody.assignedBy,
         isUserCardAllocated: requestBody.isUserCardAllocated,
     };
@@ -498,38 +506,50 @@ router.post('/deleteUser/:UserId', auth, bodyParser, async function (req, res) {
         const get_user = await userModel.getUser(req.body.id);
         if (!get_user) return await helperUtil.responseSender(res, 'error', 400, responseObj, `user deletion failed`);
 
-        const userCollection = await userModel.deleteUser(UserId, req.body.id);
-        if (!userCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, `user deletion failed`);
 
 
 
-        const exist_user = await userModel.getALLUserbyQuery({ where: { isDelete: false, assignedBy: UserId } });
 
-        if (exist_user.length > get_user.userAllocatedCount) return await helperUtil.responseSender(res, 'error', 400, {}, `Already the account have ${exist_user.length} user. please delete and try to update`);
+        const exist_user = await userModel.getALLUserbyQuery({ where: { isDelete: false, assignedBy: req.body.id } });
 
-        const update_user = await userModel.update(req.body.id, {
-            usercreatedCount: get_user.usercreatedCount - 1,
-            userAllocatedCount: get_user.userAllocatedCount + 1
-        })
-        if (get_user.role != 'COMPANY_ADMIN' || get_user.role != 'INDIVIDIAL_USER') {
+        if (exist_user.length > 0) return await helperUtil.responseSender(res, 'error', 400, {}, `Already the account have ${exist_user.length} user. please delete and try to update`);
+
+
+        if (get_user.role != 'COMPANY_ADMIN' && get_user.role != 'INDIVIDIAL_USER') {
+            if (get_user.usercreatedCount > 0) {
+                const update_current_user = await userModel.update(req.body.id, {
+                    usercreatedCount: get_user.usercreatedCount - 1,
+                    userAllocatedCount: get_user.userAllocatedCount + 1
+                })
+            }
 
             const superior_datum = await userModel.getUser(get_user.assignedBy);
 
             if (!superior_datum) return await helperUtil.responseSender(res, 'error', 400, responseObj, `dont get supirior_datum`);
-            const update_user = await userModel.update(req.body.id, {
-                usercreatedCount: superior_datum.usercreatedCount - 1,
-                userAllocatedCount: superior_datum.userAllocatedCount + 1
-            })
+
             if (superior_datum.role != 'SUPER_ADMIN') {
+                if (superior_datum.usercreatedCount > 0) {
+                    const update_user = await userModel.update(superior_datum.id, {
+                        usercreatedCount: superior_datum.usercreatedCount - ((get_user.usercreatedCount + get_user.userAllocatedCount) + 1),
+                        userAllocatedCount: superior_datum.userAllocatedCount + ((get_user.usercreatedCount + get_user.userAllocatedCount) + 1)
+                    })
+                }
                 const super_superior_datum = await userModel.getUser(superior_datum.assignedBy);
 
                 if (!super_superior_datum) return await helperUtil.responseSender(res, 'error', 400, responseObj, `dont get supirior_datum`);
-                const update_user = await userModel.update(req.body.id, {
-                    usercreatedCount: super_superior_datum.usercreatedCount - 1,
-                    userAllocatedCount: super_superior_datum.userAllocatedCount + 1
-                })
+                if (super_superior_datum.role != 'SUPER_ADMIN') {
+                    if (super_superior_datum.usercreatedCount > 0) {
+                        const update_user = await userModel.update(super_superior_datum.id, {
+                            usercreatedCount: super_superior_datum.usercreatedCount - 1,
+                            userAllocatedCount: super_superior_datum.userAllocatedCount + 1
+                        })
+                    }
+
+                }
             }
         }
+        const userCollection = await userModel.deleteUser(UserId, req.body.id);
+        if (!userCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, `user deletion failed`);
 
         responseObj = { "userCollection": userCollection };
         return await helperUtil.responseSender(res, 'data', 200, responseObj, `user deleted successfully`);

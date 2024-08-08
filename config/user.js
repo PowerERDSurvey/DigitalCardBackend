@@ -56,7 +56,7 @@ let users = {
   },
   getUsertokenById: async function (userId, verificationCodeParam) {
     return await User.findOne({
-      where: { id: userId, verificationCode: verificationCodeParam },
+      where: { id: userId, verificationCode: verificationCodeParam, isDelete: false },
       // attributes: ['id', 'verificationCode', 'userName', 'primaryEmail', 'randomInitialPassword', 'verificationExpires', 'isActive'],
       // rejectOnEmpty: true,
     })

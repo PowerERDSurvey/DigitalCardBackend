@@ -205,14 +205,13 @@ app.use("/",CountryANDState);
 // app.use();
 
 
-async function cardAllocation(requestBody, UserId, req, res) {
+async function cardAllocation(requestBody, UserId, old_data, res) {
     if (requestBody.role == 'COMPANY_ADMIN' || requestBody.role == 'INDIVIDUAL_USER') {
         // requestBody.userAllocatedCount = requestBody.userAllocatedCount - 1;
         // requestBody.usercreatedCount = requestBody.usercreatedCount + 1;
         return;
     } else {
         if (!requestBody.assignedBy) return;
-        const old_data = await userModel.getUser(UserId);
         if(old_data.userAllocatedCount == requestBody.userAllocatedCount) return;
         const superior_datum = await userModel.getUser(requestBody.assignedBy);
         // if (superior_datum.userAllocatedCount > requestBody.userAllocatedCount) return await helperUtil.responseSender(res, 'error', 400, {}, `you can give maximum user as ${superior_datum.userAllocatedCount}`); //todo//initially it will zero
@@ -272,6 +271,32 @@ async function cardAllocation(requestBody, UserId, req, res) {
 
 
 }
+
+async function getDifferences(requestBody, old_data) {
+    const differences = {};
+
+    for (const key in requestBody) {
+        if (requestBody.hasOwnProperty(key)) {
+            const newValue = requestBody[key
+            ];
+            const oldValue = old_data[key
+            ];
+
+            // Skip if the new value is undefined, null, or if the values are the same
+            if (
+                newValue !== undefined &&
+                newValue !== null &&
+                newValue !== "undefined" &&
+                newValue !== oldValue &&
+                typeof newValue === typeof oldValue
+            ) {
+                differences[key] = newValue;
+            }
+        }
+    }
+
+    return differences;
+}
 app.put("/user/:ID",auth,upload.fields([
     { name: 'profilePhoto', maxCount: 1 },
     { name: 'coverPhoto', maxCount: 1 }
@@ -280,7 +305,12 @@ app.put("/user/:ID",auth,upload.fields([
     try {
    
 
-    var UserId = req.params.ID;
+        var UserId = req.params.ID;
+        
+
+        const old_data = await userModel.getUser(UserId);
+        console.log('olddata', old_data.dataValues);
+
     // var requestBody =  req.body;
     var requestBody =  {
         userName: req.body.userName != 'null' && req.body.userName != 'undefined'?  req.body.userName :null,
@@ -308,16 +338,19 @@ app.put("/user/:ID",auth,upload.fields([
         youtube: req.body.youtube != 'null' && req.body.youtube != 'undefined'? req.body.youtube : null,
         department: req.body.department != 'null' && req.body.department != 'undefined'? req.body.department : null,
         role: req.body.role != 'null' && req.body.role != 'undefined' ? req.body.role : null,
-        usercreatedCount: req.body.usercreatedCount != 'null' && req.body.usercreatedCount != 'undifined' ? req.body.usercreatedCount : 0 ,
-        userAllocatedCount: req.body.userAllocatedCount != 'null' && req.body.userAllocatedCount != 'undifined' ? req.body.userAllocatedCount : 0 ,
-        createdcardcount: req.body.createdcardcount != 'null' && req.body.createdcardcount != 'undifined' ? req.body.createdcardcount : 0 ,
-        cardAllocationCount: req.body.cardAllocationCount != 'null' && req.body.cardAllocationCount != 'undifined' ? req.body.cardAllocationCount : 0 ,
+        usercreatedCount: req.body.usercreatedCount != 'null' && req.body.usercreatedCount != 'undefined' ? req.body.usercreatedCount : 0 ,
+        userAllocatedCount: req.body.userAllocatedCount != 'null' && req.body.userAllocatedCount != 'undefined' ? req.body.userAllocatedCount : 0 ,
+        createdcardcount: req.body.createdcardcount != 'null' && req.body.createdcardcount != 'undefined' ? req.body.createdcardcount : 0 ,
+        cardAllocationCount: req.body.cardAllocationCount != 'null' && req.body.cardAllocationCount != 'undefined' ? req.body.cardAllocationCount : 0 ,
         companyId: req.body.companyId,
         assignedBy: req.body.assignedBy,
-        isUserCardAllocated: req.body.isUserCardAllocated
+        isUserCardAllocated: req.body.isUserCardAllocated != 'null' && req.body.isUserCardAllocated != 'undefined' ? req.body.isUserCardAllocated: false,
         };
-        
-        if (req.body.password) {
+        console.log('requestBody', requestBody);
+
+        const modified_re_body = await getDifferences(requestBody, old_data);
+        if (Object.keys(modified_re_body).length === 0) return await helperUtil.responseSender(res, 'error', 400, {}, 'No data to update');
+        if (modified_re_body?.password) {
             const getUser = await userModel.getALLUserbyQuery({ where: { id: UserId } });
             if (getUser.length == 0) return  await helperUtil.responseSender(res, 'error', 400, {}, 'dont have user to update the password');
             if (req.body.component == 'ChangePassword')  if (cryptr.decrypt(getUser[0].dataValues.password) != req.body.oldPassword) return await helperUtil.responseSender(res, 'error', 400, {}, 'Old password does not match');
@@ -330,7 +363,7 @@ app.put("/user/:ID",auth,upload.fields([
 
         var pass = await helperUtil.generateRandomPassword();
       const token = jwt.sign({email:req.body.primaryEmail}, 'RANDOM_TOKEN_SECRET', { expiresIn: '24h' });
-      if (req.body.primaryEmail && req.body.primaryEmail != 'null') {
+      if (modified_re_body?.primaryEmail && modified_re_body?.primaryEmail != 'null') {
          requestBody.password = null;
          requestBody.randomInitialPassword = cryptr.encrypt(pass),
           requestBody.isEmailVerified = false;
@@ -340,12 +373,12 @@ app.put("/user/:ID",auth,upload.fields([
 
         }
         
-        if ((req.body.usercreatedCount != 'null' && req.body.usercreatedCount != 'undifined') ||
-            (req.body.userAllocatedCount != 'null' && req.body.userAllocatedCount != 'undifined') ||
-            (req.body.createdcardcount != 'null' && req.body.createdcardcount != 'undifined') ||
-            (req.body.cardAllocationCount != 'null' && req.body.cardAllocationCount != 'undifined')) {
+        if ((modified_re_body.usercreatedCount != 'null' && modified_re_body.usercreatedCount != 'undifined') ||
+            (modified_re_body.userAllocatedCount != 'null' && modified_re_body.userAllocatedCount != 'undifined') ||
+            (modified_re_body.createdcardcount != 'null' && modified_re_body.createdcardcount != 'undifined') ||
+            (modified_re_body.cardAllocationCount != 'null' && modified_re_body.cardAllocationCount != 'undifined')) {
 
-            await cardAllocation(requestBody, UserId, req, res);
+            await cardAllocation(requestBody, UserId, old_data, res);
         }
       var message = "User updated successfully";
       var httpStatusCode = 500;

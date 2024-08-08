@@ -14,7 +14,8 @@ const transporter = nodemailer.createTransport({
 
 const sendVerificationEmail = {
   sendInitialVerificationEmail: async (userId, email, token, collection) => {
-    var url = `${process.env.BaseURL}/resetpassword/${userId}/verify/${token}/${collection.password}`;
+    // var url = `${process.env.BaseURL}/resetpassword/${userId}/verify/${token}/${collection.password}`;
+    var url = `${process.env.BaseURL}/resetpassword/${userId}/verify/${token}/password`;
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
