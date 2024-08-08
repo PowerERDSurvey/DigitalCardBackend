@@ -488,8 +488,41 @@ router.post('/deleteUser/:UserId', auth, bodyParser, async function (req, res) {
     var responseObj = {};
     if (!UserId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
     try {
+        const get_user = await userModel.getUser(req.body.id);
+        if (!get_user) return await helperUtil.responseSender(res, 'error', 400, responseObj, `user deletion failed`);
+
         const userCollection = await userModel.deleteUser(UserId, req.body.id);
         if (!userCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, `user deletion failed`);
+
+
+
+        const exist_user = await userModel.getALLUserbyQuery({ where: { isDelete: false, assignedBy: UserId } });
+
+        if (exist_user.length > get_user.userAllocatedCount) return await helperUtil.responseSender(res, 'error', 400, {}, `Already the account have ${exist_user.length} user. please delete and try to update`);
+
+        const update_user = await userModel.update(req.body.id, {
+            usercreatedCount: get_user.usercreatedCount - 1,
+            userAllocatedCount: get_user.userAllocatedCount + 1
+        })
+        if (get_user.role != 'COMPANY_ADMIN' || get_user.role != 'INDIVIDIAL_USER') {
+
+            const superior_datum = await userModel.getUser(get_user.assignedBy);
+
+            if (!superior_datum) return await helperUtil.responseSender(res, 'error', 400, responseObj, `dont get supirior_datum`);
+            const update_user = await userModel.update(req.body.id, {
+                usercreatedCount: superior_datum.usercreatedCount - 1,
+                userAllocatedCount: superior_datum.userAllocatedCount + 1
+            })
+            if (superior_datum.role != 'SUPER_ADMIN') {
+                const super_superior_datum = await userModel.getUser(superior_datum.assignedBy);
+
+                if (!super_superior_datum) return await helperUtil.responseSender(res, 'error', 400, responseObj, `dont get supirior_datum`);
+                const update_user = await userModel.update(req.body.id, {
+                    usercreatedCount: super_superior_datum.usercreatedCount - 1,
+                    userAllocatedCount: super_superior_datum.userAllocatedCount + 1
+                })
+            }
+        }
 
         responseObj = { "userCollection": userCollection };
         return await helperUtil.responseSender(res, 'data', 200, responseObj, `user deleted successfully`);
