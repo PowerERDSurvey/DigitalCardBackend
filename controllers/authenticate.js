@@ -85,7 +85,12 @@ module.exports.authenticate = async function (req, res) {
                 "images": userImages,
                 "randomKey": user.randomKey,
                 "role": user.role,
-                "companyId": user.companyId
+                "companyId": user.companyId,
+                "usercreatedCount": user.usercreatedCount,
+                "userAllocatedCount": user.userAllocatedCount,
+                "createdcardcount": user.createdcardcount,
+                "cardAllocationCount": user.cardAllocationCount,
+                "isUserCardAllocated": user.isUserCardAllocated,
               }
               return res.json({ "status": 200, "token": token, "data": responsedata });
             }).catch((err) => {

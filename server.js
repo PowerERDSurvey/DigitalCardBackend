@@ -206,30 +206,32 @@ app.use("/",CountryANDState);
 
 
 async function cardAllocation(requestBody, UserId, req, res) {
-    if (requestBody.role == 'COMPANY_SUPER_ADMIN' || requestBody.role == 'INDIVIDUAL_USER') {
-        requestBody.userAllocatedCount = requestBody.userAllocatedCount - 1;
-        requestBody.usercreatedCount = requestBody.usercreatedCount + 1;
+    if (requestBody.role == 'COMPANY_ADMIN' || requestBody.role == 'INDIVIDUAL_USER') {
+        // requestBody.userAllocatedCount = requestBody.userAllocatedCount - 1;
+        // requestBody.usercreatedCount = requestBody.usercreatedCount + 1;
         return;
     } else {
         if (!requestBody.assignedBy) return;
         const old_data = await userModel.getUser(UserId);
-
+        if(old_data.userAllocatedCount == requestBody.userAllocatedCount) return;
         const superior_datum = await userModel.getUser(requestBody.assignedBy);
-        if (superior_datum.userAllocatedCount > requestBody.userAllocatedCount) return await helperUtil.responseSender(res, 'error', 400, {}, `you can give maximum user as ${superior_datum.userAllocatedCount}`); //todo//initially it will zero
-        if (superior_datum.cardAllocationCount > requestBody.cardAllocationCount) return await helperUtil.responseSender(res, 'error', 400, {}, `you can give maximum user as ${superior_datum.cardAllocationCount}`); //todo//initially it will zero
+        // if (superior_datum.userAllocatedCount > requestBody.userAllocatedCount) return await helperUtil.responseSender(res, 'error', 400, {}, `you can give maximum user as ${superior_datum.userAllocatedCount}`); //todo//initially it will zero
+        // if (superior_datum.cardAllocationCount > requestBody.cardAllocationCount) return await helperUtil.responseSender(res, 'error', 400, {}, `you can give maximum user as ${superior_datum.cardAllocationCount}`); //todo//initially it will zero
 
         // var count_to_be_reduce = 0;
         // requestBody.userAllocatedCount != 0 ? count_to_be_reduce = requestBody.userAllocatedCount + 1 : count_to_be_reduce = 1;
         var superior_datum_param = {};
+        var old_allocated_count = old_data.userAllocatedCount + old_data.usercreatedCount;
         if (requestBody.userAllocatedCount != 0) {
-            if (requestBody.userAllocatedCount > old_data.userAllocatedCount) {
+            if (requestBody.userAllocatedCount > old_allocated_count) {
                 superior_datum_param = {
                     ...superior_datum_param,
-                    userAllocatedCount: superior_datum.userAllocatedCount - (requestBody.userAllocatedCount - old_data.userAllocatedCount),
-                    usercreatedCount: superior_datum.usercreatedCount + (requestBody.userAllocatedCount - old_data.userAllocatedCount)
+                    userAllocatedCount: superior_datum.userAllocatedCount - (requestBody.userAllocatedCount - old_allocated_count),
+                    usercreatedCount: superior_datum.usercreatedCount + (requestBody.userAllocatedCount - old_allocated_count)
                 }
+                requestBody.userAllocatedCount = requestBody.userAllocatedCount - old_data.usercreatedCount;
             } 
-            if (requestBody.userAllocatedCount < old_data.userAllocatedCount) {
+            if (requestBody.userAllocatedCount < old_allocated_count) {
                 // cardcount
                 const exist_user = await userModel.getALLUserbyQuery({ where: { isDelete: false, assignedBy: UserId } });
 
@@ -237,10 +239,20 @@ async function cardAllocation(requestBody, UserId, req, res) {
 
                 superior_datum_param = {
                     ...superior_datum_param,
-                    userAllocatedCount: superior_datum.userAllocatedCount + (old_data.userAllocatedCount - requestBody.userAllocatedCount),
-                    usercreatedCount: superior_datum.usercreatedCount - (old_data.userAllocatedCount - requestBody.userAllocatedCount)
+                    userAllocatedCount: superior_datum.userAllocatedCount + (old_allocated_count - requestBody.userAllocatedCount),
+                    usercreatedCount: superior_datum.usercreatedCount - (old_allocated_count - requestBody.userAllocatedCount)
                 }
+                // requestBody.userAllocatedCount = old_allocated_count - requestBody.userAllocatedCount;
+                requestBody.userAllocatedCount = requestBody.userAllocatedCount - old_data.usercreatedCount;
             } 
+        } else {
+            requestBody.isUserCardAllocated = false;
+            superior_datum_param = {
+                ...superior_datum_param,
+                userAllocatedCount: superior_datum.userAllocatedCount + (old_allocated_count - requestBody.userAllocatedCount),
+                usercreatedCount: superior_datum.usercreatedCount - old_allocated_count
+            }
+            requestBody.userAllocatedCount = requestBody.userAllocatedCount - old_data.usercreatedCount;
         }
         if (requestBody.cardAllocationCount != 0) {
             if (requestBody.cardAllocationCount > old_data.cardAllocationCount) { 
@@ -301,7 +313,8 @@ app.put("/user/:ID",auth,upload.fields([
         createdcardcount: req.body.createdcardcount != 'null' && req.body.createdcardcount != 'undifined' ? req.body.createdcardcount : 0 ,
         cardAllocationCount: req.body.cardAllocationCount != 'null' && req.body.cardAllocationCount != 'undifined' ? req.body.cardAllocationCount : 0 ,
         companyId: req.body.companyId,
-        assignedBy: requestBody.assignedBy,
+        assignedBy: req.body.assignedBy,
+        isUserCardAllocated: req.body.isUserCardAllocated
         };
         
         if (req.body.password) {

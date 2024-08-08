@@ -63,7 +63,7 @@ module.exports = {
         'isUserCardAllocated', // new field name
         {
           type: Sequelize.BOOLEAN,
-          allowNull: true,
+          defaultValue: false,
         },
       ),
     ])

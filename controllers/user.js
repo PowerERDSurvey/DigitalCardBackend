@@ -87,6 +87,7 @@ async function handleGoogleSSOUser(req, res, requestBody) {
 }
 
 async function cardAllocation(requestBody, req, res) {
+    if(requestBody.role == "SUPER_ADMIN") return;
     if (requestBody.role == 'COMPANY_ADMIN' || requestBody.role == 'INDIVIDUAL_USER') {
         requestBody.userAllocatedCount = requestBody.userAllocatedCount - 1;
         requestBody.usercreatedCount = requestBody.usercreatedCount + 1;
@@ -100,14 +101,20 @@ async function cardAllocation(requestBody, req, res) {
         var count_to_be_reduce = 0;
         requestBody.userAllocatedCount != 0 ? count_to_be_reduce = requestBody.userAllocatedCount + 1 : count_to_be_reduce = 1;
         var superior_datum_param = {};
-        if (requestBody.userAllocatedCount != 0 || requestBody.userAllocatedCount != "undefined" || requestBody.userAllocatedCount != undefined) {
+        if (requestBody.userAllocatedCount != 0 ) {
             superior_datum_param = {
                 ...superior_datum_param,
                 userAllocatedCount: superior_datum.userAllocatedCount - count_to_be_reduce,
                 usercreatedCount: superior_datum.usercreatedCount + count_to_be_reduce
             }
+        } else {
+            superior_datum_param = {
+                ...superior_datum_param,
+                userAllocatedCount: superior_datum.userAllocatedCount - 1,
+                usercreatedCount: superior_datum.usercreatedCount + 1
+            }
         }
-        if (requestBody.cardAllocationCount != 0 || requestBody.cardAllocationCount != "undefined" || requestBody.cardAllocationCount != undefined) {
+        if (requestBody.cardAllocationCount != 0 ) {
             superior_datum_param = {
                 ...superior_datum_param,
                 // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
@@ -189,10 +196,10 @@ function createUserInputObject(requestBody, token = null) {
         verificationExpires: Date.now() + 7200000,
         isDelete: false,//todo createdby upxdateby
         createdBy: requestBody.createdBy,
-        usercreatedCount: requestBody.usercreatedCount,
-        userAllocatedCount: requestBody.userAllocatedCount,
-        createdcardcount: requestBody.createdcardcount,
-        cardAllocationCount: requestBody.cardAllocationCount,
+        usercreatedCount: requestBody.usercreatedCount == null || requestBody.usercreatedCount == "undefined" || requestBody.usercreatedCount == undefined ? 0 : requestBody.usercreatedCount ,
+        userAllocatedCount: requestBody.userAllocatedCount == null || requestBody.userAllocatedCount == "undefined" || requestBody.userAllocatedCount == undefined ? 0 : requestBody.userAllocatedCount ,
+        createdcardcount: requestBody.createdcardcount == null || requestBody.createdcardcount == "undefined" || requestBody.createdcardcount == undefined ? 0 : requestBody.createdcardcount ,
+        cardAllocationCount: requestBody.cardAllocationCount == null || requestBody.cardAllocationCount == "undefined" || requestBody.cardAllocationCount == undefined ? 0 : requestBody.cardAllocationCount ,
         assignedBy: requestBody.assignedBy,
         isUserCardAllocated: requestBody.isUserCardAllocated,
     };
