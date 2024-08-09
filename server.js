@@ -141,7 +141,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (request, 
                 const sub_collection = await subscriptionModel.getAllSubscriptionByquery({ where: { id: paymetscollection.subId } });
                 const getplans = await productModel.getOneProductById(sub_collection[0].productId);
                 const user_update = await userModel.update(userCollection.id,{
-                    cardAllocationCount: userDetail.cardAllocationCount + getplans.cardCount
+                    cardAllocationCount: userCollection.cardAllocationCount + getplans.cardCount
                 });
                 if (!user_update) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'updation faild');
             }
@@ -527,7 +527,7 @@ app.post('/user/createCard/:userId', auth, upload.fields([
         const userDetail = await userModel.getUser(userId);
         if (!userDetail) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'userDetail not found');
 
-        if (existing_card_cout.length > 1) {
+        if (existing_card_cout.length > 0) {
             var limit_message = userDetail.role == 'INDIVIDUAL_USER' ?`Limit reached. please purchase for more card` : `Limit reached. Your account didn't allocated other than free card. please contact your hierarchy`;
 
             if (userDetail.cardAllocationCount == 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, limit_message);
@@ -655,12 +655,12 @@ app.post('/user/createCard/:userId', auth, upload.fields([
 
         // };
         const images = await cardImageUpload(req, cardCollection.id, res);
-        if(existing_card_cout > 1 ) {
-            const user_update = await userModel.update({
+        if(existing_card_cout.length > 0 ) {
+            const user_update = await userModel.update(userDetail.id, {
                 createdcardcount: userDetail.createdcardcount + 1,
                 cardAllocationCount: userDetail.cardAllocationCount-1
             });
-            if (!user_update) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'updation faild');
+            if (!user_update) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'Creation faild');
         }
 
         responseObj.cardCollection.dataValues.images = images;

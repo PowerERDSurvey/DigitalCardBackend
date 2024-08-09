@@ -65,94 +65,94 @@ router.get('/user/getOneCard/:userrandomkey/:cardrandomkey', bodyParser, async f
         return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
     }
 });
-router.get('/getCardCount/:userId', bodyParser, async function (req, res) {
-    // const companyId = req.body.companyId;
-    const userId = req.params.userId;
-    var message = "";
-    var httpStatusCode = 500;
-    var responseObj = {};
-    if (!userId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
-    try {
-        const userDetail = await userModel.getUser(userId);
-        if (!userDetail) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'userDetail not found');
+// router.get('/getCardCount/:userId', bodyParser, async function (req, res) {
+//     // const companyId = req.body.companyId;
+//     const userId = req.params.userId;
+//     var message = "";
+//     var httpStatusCode = 500;
+//     var responseObj = {};
+//     if (!userId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
+//     try {
+//         const userDetail = await userModel.getUser(userId);
+//         if (!userDetail) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'userDetail not found');
 
-        var getCompanyId = userDetail.dataValues.companyId;
+//         var getCompanyId = userDetail.dataValues.companyId;
 
-        // get all the user by companyid
-        // var userquery = {
-        //     where: {
-        //         id: userId
-        //     }
-        // }
-        var userSubscriptionquery = {
-            where: {
-                userId: userId,
-                isActive: true
-            }
-        }
-        var company_Detail;
-        const userIds = [];
-        if (userDetail.role == 'COMPANY_USER') {
+//         // get all the user by companyid
+//         // var userquery = {
+//         //     where: {
+//         //         id: userId
+//         //     }
+//         // }
+//         var userSubscriptionquery = {
+//             where: {
+//                 userId: userId,
+//                 isActive: true
+//             }
+//         }
+//         var company_Detail;
+//         const userIds = [];
+//         if (userDetail.role == 'COMPANY_USER') {
 
-            userSubscriptionquery.where = {
-                companyId: getCompanyId,
-                isActive: true
-            }
-            company_Detail = await companyModel.getActiveCompanyById(getCompanyId);
-            var userquery = { where: { companyId: getCompanyId } }; const company_usersDetail = await userModel.getALLUserbyQuery(userquery);
-            userIds.push(...company_usersDetail.map((item) => item.id));
-        }
+//             userSubscriptionquery.where = {
+//                 companyId: getCompanyId,
+//                 isActive: true
+//             }
+//             company_Detail = await companyModel.getActiveCompanyById(getCompanyId);
+//             var userquery = { where: { companyId: getCompanyId } }; const company_usersDetail = await userModel.getALLUserbyQuery(userquery);
+//             userIds.push(...company_usersDetail.map((item) => item.id));
+//         }
 
-        const cardDetails = userDetail.role == 'COMPANY_USER' ? await cardModel.getALLCardbyUserId(userIds) : await cardModel.getALLCardbyUserId(userId);
-        var exsitingCardCount = cardDetails.length;
+//         const cardDetails = userDetail.role == 'COMPANY_USER' ? await cardModel.getALLCardbyUserId(userIds) : await cardModel.getALLCardbyUserId(userId);
+//         var exsitingCardCount = cardDetails.length;
 
-        //get subscription ids from userSubscription
-        const userSubscription = await userSubscriptionModel.getAllUserSubscriptionByQuery(userSubscriptionquery);
+//         //get subscription ids from userSubscription
+//         const userSubscription = await userSubscriptionModel.getAllUserSubscriptionByQuery(userSubscriptionquery);
 
-        var userSubscriptionIds = userSubscription.map((item) => item.subscriptionId);
+//         var userSubscriptionIds = userSubscription.map((item) => item.subscriptionId);
 
-        console.log('userSubscriptionIds', userSubscriptionIds);
+//         console.log('userSubscriptionIds', userSubscriptionIds);
 
-        //get Active subscription from subscription id //forloop
-        var getSubscription = [];
-        for (let index = 0; index < userSubscriptionIds.length; index++) {
-            // const element = array[index];
+//         //get Active subscription from subscription id //forloop
+//         var getSubscription = [];
+//         for (let index = 0; index < userSubscriptionIds.length; index++) {
+//             // const element = array[index];
 
-            var subs = await subscriptionModel.getAllSubscriptionByquery({ where: { isActive: true, id: userSubscriptionIds[index] } });
-            getSubscription.push(subs[0]);
+//             var subs = await subscriptionModel.getAllSubscriptionByquery({ where: { isActive: true, id: userSubscriptionIds[index] } });
+//             getSubscription.push(subs[0]);
 
-        }
+//         }
 
-        var subscriptionCardCount = 0;
+//         var subscriptionCardCount = 0;
 
-        for (let index = 0; index < getSubscription.length; index++) {
-            var sub = getSubscription[index];
-            const getplans = await productModel.getOneProductById(sub.dataValues.productId);
-            subscriptionCardCount += getplans.cardCount;
-            // getSubscription[index].dataValues.plan = [getplans];
-        }
+//         for (let index = 0; index < getSubscription.length; index++) {
+//             var sub = getSubscription[index];
+//             const getplans = await productModel.getOneProductById(sub.dataValues.productId);
+//             subscriptionCardCount += getplans.cardCount;
+//             // getSubscription[index].dataValues.plan = [getplans];
+//         }
 
 
-        if (userDetail.role == 'COMPANY_USER') {
-            // if (subscriptionCardCount != 0) subscriptionCardCount += company_Detail.noOfUsers
-            subscriptionCardCount += company_Detail.noOfUsers
-            // if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount >= company_Detail.noOfUsers) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have ${subscriptionCardCount} cards please contact Admin`);
+//         if (userDetail.role == 'COMPANY_USER') {
+//             // if (subscriptionCardCount != 0) subscriptionCardCount += company_Detail.noOfUsers
+//             subscriptionCardCount += company_Detail.noOfUsers
+//             // if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount >= company_Detail.noOfUsers) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have ${subscriptionCardCount} cards please contact Admin`);
 
-        } else {
-            subscriptionCardCount++
-            // if (subscriptionCardCount != 0) subscriptionCardCount++
-            // if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount > 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have ${subscriptionCardCount} cards please contact Admin`);
+//         } else {
+//             subscriptionCardCount++
+//             // if (subscriptionCardCount != 0) subscriptionCardCount++
+//             // if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount > 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have ${subscriptionCardCount} cards please contact Admin`);
 
-        }
-        responseObj = { "exsitingCardCount": exsitingCardCount, 'subscriptionCardCount': subscriptionCardCount };
-        return await helperUtil.responseSender(res, 'data', 200, responseObj, 'Card count collected successfully');
+//         }
+//         responseObj = { "exsitingCardCount": exsitingCardCount, 'subscriptionCardCount': subscriptionCardCount };
+//         return await helperUtil.responseSender(res, 'data', 200, responseObj, 'Card count collected successfully');
 
-    } catch (error) {
-        message = "card count retrieved Failed.";
-        responseObj = error;
-        return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
-    }
-});
+//     } catch (error) {
+//         message = "card count retrieved Failed.";
+//         responseObj = error;
+//         return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
+//     }
+// });
 
 
 router.get('/getCardCount/:userId', bodyParser, async function (req, res) {
@@ -172,7 +172,11 @@ router.get('/getCardCount/:userId', bodyParser, async function (req, res) {
         var subscriptionCardCount = 0;
 
         if (userDetail.cardAllocationCount > 0) {
-            exsitingCardCount = userDetail.createdcardcount;
+            if (existing_card_cout.length > 0) {
+                exsitingCardCount = userDetail.createdcardcount + 1;
+
+            }
+            // exsitingCardCount = userDetail.createdcardcount;
             subscriptionCardCount = userDetail.cardAllocationCount;
         }
         else if (existing_card_cout.length > 0) {
@@ -238,7 +242,7 @@ router.get('/deleteCard/:cardId', auth, bodyParser, async function (req, res) {
                 createdcardcount: getUseDatail.createdcardcount - 1,
                 cardAllocationCount: getUseDatail.cardAllocationCount + 1
             }
-            const userUpdate = await userModel.update(getUseDatail.Id, updateParam)
+            const userUpdate = await userModel.update(getUseDatail.id, updateParam)
         }
         if (!cardCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'card updated. but waiting for response please contact BC');
         responseObj = { "cardCollection": cardCollection };
