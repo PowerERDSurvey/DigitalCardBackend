@@ -155,6 +155,44 @@ router.get('/getCardCount/:userId', bodyParser, async function (req, res) {
 });
 
 
+router.get('/getCardCount/:userId', bodyParser, async function (req, res) {
+    // const companyId = req.body.companyId;
+    const userId = req.params.userId;
+    var message = "";
+    var httpStatusCode = 500;
+    var responseObj = {};
+    if (!userId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
+    try {
+        const userDetail = await userModel.getUser(userId);
+        if (!userDetail) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'userDetail not found');
+
+        const existing_card_cout = await cardModel.getALLCardbyUserId(userId);
+
+        var exsitingCardCount = 0;
+        var subscriptionCardCount = 0;
+
+        if (userDetail.cardAllocationCount > 0) {
+            exsitingCardCount = userDetail.createdcardcount;
+            subscriptionCardCount = userDetail.cardAllocationCount;
+        }
+        else if (existing_card_cout.length > 0) {
+            exsitingCardCount = 1;
+            subscriptionCardCount = 1;
+        } else {
+            subscriptionCardCount = 1;
+        }
+
+        responseObj = { "exsitingCardCount": exsitingCardCount, 'subscriptionCardCount': subscriptionCardCount };
+        return await helperUtil.responseSender(res, 'data', 200, responseObj, 'Card count collected successfully');
+
+    } catch (error) {
+        message = "card count retrieved Failed.";
+        responseObj = error;
+        return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
+    }
+});
+
+
 
 
 
@@ -188,14 +226,14 @@ router.get('/deleteCard/:cardId', auth, bodyParser, async function (req, res) {
     if (!cardId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
     try {
         const getCardDetail = await cardModel.getACard(cardId);
-        if(!getCardDetail) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'Card Collection Failed');
+        if (!getCardDetail) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'Card Collection Failed');
         const getUseDatail = await userModel.getUser(getCardDetail.userId);
-        if(!getUseDatail) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'User Collection Failed');
+        if (!getUseDatail) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'User Collection Failed');
         var inputparam = {
             isDelete: true,
         }
         const cardCollection = await cardModel.updateCard(inputparam, cardId);
-        if(getUseDatail.createdcardcount > 0 ){
+        if (getUseDatail.createdcardcount > 0) {
             var updateParam = {
                 createdcardcount: getUseDatail.createdcardcount - 1,
                 cardAllocationCount: getUseDatail.cardAllocationCount + 1
