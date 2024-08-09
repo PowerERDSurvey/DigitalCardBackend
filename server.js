@@ -272,31 +272,84 @@ async function cardAllocation(requestBody, UserId, old_data, res) {
 
 }
 
-async function getDifferences(requestBody, old_data) {
+// async function getDifferences(requestBody, old_data) {
+//     const differences = {};
+
+//     for (const key in requestBody) {
+//         if (requestBody.hasOwnProperty(key)) {
+//             const newValue = requestBody[key
+//             ];
+//             const oldValue = old_data[key
+//             ];
+
+//             // Skip if the new value is undefined, null, or if the values are the same
+//             if (
+//                 newValue !== undefined &&
+//                 newValue !== null &&
+//                 newValue !== "undefined" &&
+//                 newValue != oldValue &&
+//                 typeof newValue == typeof oldValue
+//                 // newValue != oldValue
+//             ) {
+//                 differences[key] = newValue;
+//             }
+//         }
+//     }
+
+//     return differences;
+// }
+
+function getDifferences(requestBody, old_data) {
     const differences = {};
-
+  
     for (const key in requestBody) {
-        if (requestBody.hasOwnProperty(key)) {
-            const newValue = requestBody[key
-            ];
-            const oldValue = old_data[key
-            ];
-
-            // Skip if the new value is undefined, null, or if the values are the same
-            if (
-                newValue !== undefined &&
-                newValue !== null &&
-                newValue !== "undefined" &&
-                newValue !== oldValue &&
-                typeof newValue === typeof oldValue
-            ) {
-                differences[key] = newValue;
+      if (requestBody.hasOwnProperty(key)) {
+        const newValue = requestBody[key];
+        const oldValue = old_data[key];
+  
+        // Skip undefined, null, and the string "undefined" in newValue
+        if (newValue !== undefined && newValue !== null && newValue !== "undefined") {
+          
+          // Convert string to number if the old value is a number and the new value is a numeric string
+          if (typeof oldValue === 'number' && typeof newValue === 'string' && !isNaN(newValue)) {
+            const coercedNewValue = Number(newValue);
+            if (coercedNewValue !== oldValue) {
+              differences[key] = {
+                oldValue: oldValue,
+                newValue: coercedNewValue
+              };
             }
+          } 
+          // Compare as strings
+          else if (typeof oldValue === 'string' && typeof newValue === 'number') {
+            const coercedOldValue = String(oldValue);
+            if (coercedOldValue !== newValue) {
+              differences[key] = {
+                oldValue: oldValue,
+                newValue: String(newValue)
+              };
+            }
+          } 
+          // Handle other comparisons where types match
+          else if (newValue !== oldValue && typeof newValue === typeof oldValue) {
+            differences[key] = newValue;
+          }
+          else if ( oldValue == null && (typeof newValue === 'string' || typeof newValue === 'number')) {
+            differences[key] = newValue;
+            // const coercedNewValue = Number(newValue);
+            // if (coercedNewValue !== oldValue) {
+            //   differences[key] = {
+            //     oldValue: oldValue,
+            //     newValue: coercedNewValue
+            //   };
+            // }
+          } 
         }
+      }
     }
-
+  
     return differences;
-}
+  }
 app.put("/user/:ID",auth,upload.fields([
     { name: 'profilePhoto', maxCount: 1 },
     { name: 'coverPhoto', maxCount: 1 }
@@ -349,7 +402,7 @@ app.put("/user/:ID",auth,upload.fields([
         console.log('requestBody', requestBody);
 
         const modified_re_body = await getDifferences(requestBody, old_data);
-        if (Object.keys(modified_re_body).length === 0) return await helperUtil.responseSender(res, 'error', 400, {}, 'No data to update');
+        if (Object.keys(modified_re_body).length === 0 && !(req.files)) return await helperUtil.responseSender(res, 'error', 400, {}, 'No data to update');
         if (modified_re_body?.password) {
             const getUser = await userModel.getALLUserbyQuery({ where: { id: UserId } });
             if (getUser.length == 0) return  await helperUtil.responseSender(res, 'error', 400, {}, 'dont have user to update the password');
@@ -390,7 +443,7 @@ app.put("/user/:ID",auth,upload.fields([
         const userUpdate = await userModel.update(UserId, requestBody);
         if(!userUpdate) return await helperUtil.responseSender(res,'error',400,responseObj, 'user updated. but waiting for response please contact BC');
 
-        if (req.body.primaryEmail && req.body.primaryEmail != 'null') {
+        if (modified_re_body?.primaryEmail && modified_re_body?.primaryEmail != 'null') {
         // const emailSent = await sendVerificationEmail.sendVerificationEmail(UserId, req.body.primaryEmail, token,{password:cryptr.decrypt(userUpdate.dataValues.password), userName :userUpdate.dataValues.userName });
         const emailSent = await sendVerificationEmail.sendInitialVerificationEmail(UserId, req.body.primaryEmail, token, { password: cryptr.decrypt(userUpdate.dataValues.randomInitialPassword), userName: userUpdate.dataValues.userName });
 
@@ -474,8 +527,8 @@ app.post('/user/createCard/:userId', auth, upload.fields([
         const userDetail = await userModel.getUser(userId);
         if (!userDetail) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'userDetail not found');
 
-        if (existing_card_cout.length > 0) {
-            var limit_message = userDetail.role == 'INDIVIDUAL_USER' ?`Limit reached. please purchase for more card` : `Limit reached. Your account didn't allocated other than free card. please contact your hiraricy`;
+        if (existing_card_cout.length > 1) {
+            var limit_message = userDetail.role == 'INDIVIDUAL_USER' ?`Limit reached. please purchase for more card` : `Limit reached. Your account didn't allocated other than free card. please contact your hierarchy`;
 
             if (userDetail.cardAllocationCount == 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, limit_message);
 
@@ -584,6 +637,7 @@ app.post('/user/createCard/:userId', auth, upload.fields([
             department: req.body.department != 'null' && req.body.department != 'undefined' ? req.body.department : null,
             vCardDetails: req.body.vCardDetails != 'null' && req.body.vCardDetails != 'undefined' ? req.body.vCardDetails : null,
             randomKey: req.body.randomKey != 'null' && req.body.randomKey != 'undefined' ? req.body.randomKey : null,
+            isDelete: false,
         };
 
         const cardCollection = await cardModel.createcreateCard(inputparam);
@@ -601,11 +655,14 @@ app.post('/user/createCard/:userId', auth, upload.fields([
 
         // };
         const images = await cardImageUpload(req, cardCollection.id, res);
-        const user_update = await userModel.update({
-            createdcardcount: userDetail.createdcardcount + 1,
-            cardAllocationCount: userDetail.cardAllocationCount-1
-        });
-        if (!user_update) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'updation faild');
+        if(existing_card_cout > 1 ) {
+            const user_update = await userModel.update({
+                createdcardcount: userDetail.createdcardcount + 1,
+                cardAllocationCount: userDetail.cardAllocationCount-1
+            });
+            if (!user_update) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'updation faild');
+        }
+
         responseObj.cardCollection.dataValues.images = images;
         return await helperUtil.responseSender(res, 'data', 200, responseObj, 'Card Created successfully');
     }

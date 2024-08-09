@@ -187,10 +187,21 @@ router.get('/deleteCard/:cardId', auth, bodyParser, async function (req, res) {
     var responseObj = {};
     if (!cardId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
     try {
+        const getCardDetail = await cardModel.getACard(cardId);
+        if(!getCardDetail) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'Card Collection Failed');
+        const getUseDatail = await userModel.getUser(getCardDetail.userId);
+        if(!getUseDatail) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'User Collection Failed');
         var inputparam = {
-            isActive: false,
+            isDelete: true,
         }
         const cardCollection = await cardModel.updateCard(inputparam, cardId);
+        if(getUseDatail.createdcardcount > 0 ){
+            var updateParam = {
+                createdcardcount: getUseDatail.createdcardcount - 1,
+                cardAllocationCount: getUseDatail.cardAllocationCount + 1
+            }
+            const userUpdate = await userModel.update(getUseDatail.Id, updateParam)
+        }
         if (!cardCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'card updated. but waiting for response please contact BC');
         responseObj = { "cardCollection": cardCollection };
         return await helperUtil.responseSender(res, 'data', 200, responseObj, 'card deleted successfully');

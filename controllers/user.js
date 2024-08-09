@@ -87,8 +87,8 @@ async function handleGoogleSSOUser(req, res, requestBody) {
 }
 
 async function cardAllocation(requestBody, req, res) {
-    if (requestBody.role == "SUPER_ADMIN") return;
-    if (requestBody.role == 'COMPANY_ADMIN' || requestBody.role == 'INDIVIDUAL_USER') {
+    if (requestBody.role == "SUPER_ADMIN" || requestBody.role == 'INDIVIDUAL_USER' ) return;
+    if (requestBody.role == 'COMPANY_ADMIN') {
         requestBody.userAllocatedCount = requestBody.userAllocatedCount - 1;
         requestBody.usercreatedCount = requestBody.usercreatedCount + 1;
         return;
@@ -122,14 +122,14 @@ async function cardAllocation(requestBody, req, res) {
             }
         }
         const update_superior = await userModel.update(superior_datum.id, superior_datum_param);
-        if (requestBody.role == 'COMPANY_USER') {
-            const super_superior_datum = await userModel.getUser(superior_datum.assignedBy);
-            var update_sup_superior_param = {
-                userAllocatedCount: super_superior_datum.userAllocatedCount - 1,
-                usercreatedCount: super_superior_datum.usercreatedCount + 1
-            }
-            const update_sup_superior = await userModel.update(super_superior_datum.id, update_sup_superior_param);
-        }
+        // if (requestBody.role == 'COMPANY_USER') {
+        //     const super_superior_datum = await userModel.getUser(superior_datum.assignedBy);
+        //     var update_sup_superior_param = {
+        //         userAllocatedCount: super_superior_datum.userAllocatedCount - 1,
+        //         usercreatedCount: super_superior_datum.usercreatedCount + 1
+        //     }
+        //     const update_sup_superior = await userModel.update(super_superior_datum.id, update_sup_superior_param);
+        // }
         return;
     }
 
@@ -534,18 +534,18 @@ router.post('/deleteUser/:UserId', auth, bodyParser, async function (req, res) {
                         userAllocatedCount: superior_datum.userAllocatedCount + ((get_user.usercreatedCount + get_user.userAllocatedCount) + 1)
                     })
                 }
-                const super_superior_datum = await userModel.getUser(superior_datum.assignedBy);
+                // const super_superior_datum = await userModel.getUser(superior_datum.assignedBy);
 
-                if (!super_superior_datum) return await helperUtil.responseSender(res, 'error', 400, responseObj, `dont get supirior_datum`);
-                if (super_superior_datum.role != 'SUPER_ADMIN') {
-                    if (super_superior_datum.usercreatedCount > 0) {
-                        const update_user = await userModel.update(super_superior_datum.id, {
-                            usercreatedCount: super_superior_datum.usercreatedCount - 1,
-                            userAllocatedCount: super_superior_datum.userAllocatedCount + 1
-                        })
-                    }
+                // if (!super_superior_datum) return await helperUtil.responseSender(res, 'error', 400, responseObj, `dont get supirior_datum`);
+                // if (super_superior_datum.role != 'SUPER_ADMIN') {
+                //     if (super_superior_datum.usercreatedCount > 0) {
+                //         const update_user = await userModel.update(super_superior_datum.id, {
+                //             usercreatedCount: super_superior_datum.usercreatedCount - 1,
+                //             userAllocatedCount: super_superior_datum.userAllocatedCount + 1
+                //         })
+                //     }
 
-                }
+                // }
             }
         }
         const userCollection = await userModel.deleteUser(UserId, req.body.id);
