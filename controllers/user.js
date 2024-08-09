@@ -60,6 +60,7 @@ async function handleUserCreation(req, res, requestBody) {
     if (requestBody.type === 'GOOGLE_SSO') {
         if (!isEmailValid) {
             const email = await userModel.getALLUserbyQuery({ where: { primaryEmail: requestBody.email } });
+            if (email[0].signupType != 'GOOGLE_SSO') return await sendErrorResponse(res, 400, {}, 'Email already been used');
             const token = generateToken({ email: email[0].primaryEmail });
             await insertToUsertToken(email[0].id, token);
             const userImages = await userImageModel.getAllUserImageByUserId(email[0].id);
@@ -87,7 +88,7 @@ async function handleGoogleSSOUser(req, res, requestBody) {
 }
 
 async function cardAllocation(requestBody, req, res) {
-    if (requestBody.role == "SUPER_ADMIN" || requestBody.role == 'INDIVIDUAL_USER' ) return;
+    if (requestBody.role == "SUPER_ADMIN" || requestBody.role == 'INDIVIDUAL_USER') return;
     if (requestBody.role == 'COMPANY_ADMIN') {
         requestBody.userAllocatedCount = requestBody.userAllocatedCount - 1;
         requestBody.usercreatedCount = requestBody.usercreatedCount + 1;
