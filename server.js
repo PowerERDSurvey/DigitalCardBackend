@@ -210,9 +210,43 @@ async function cardAllocation(requestBody, UserId, old_data, res) {
         // requestBody.userAllocatedCount = requestBody.userAllocatedCount - 1;
         // requestBody.usercreatedCount = requestBody.usercreatedCount + 1;
         return;
-    } else {
+    } else if(old_data.userAllocatedCount == requestBody.userAllocatedCount) {
         if (!requestBody.assignedBy) return;
-        if(old_data.userAllocatedCount == requestBody.userAllocatedCount) return;
+        const superior_datum = await userModel.getUser(requestBody.assignedBy);
+        // if (superior_datum.userAllocatedCount > requestBody.userAllocatedCount) return await helperUtil.responseSender(res, 'error', 400, {}, `you can give maximum user as ${superior_datum.userAllocatedCount}`); //todo//initially it will zero
+        // if (superior_datum.cardAllocationCount > requestBody.cardAllocationCount) return await helperUtil.responseSender(res, 'error', 400, {}, `you can give maximum user as ${superior_datum.cardAllocationCount}`); //todo//initially it will zero
+
+        // var count_to_be_reduce = 0;
+        // requestBody.userAllocatedCount != 0 ? count_to_be_reduce = requestBody.userAllocatedCount + 1 : count_to_be_reduce = 1;
+        var superior_datum_param = {};
+        if (requestBody.cardAllocationCount != 0) {
+            if (requestBody.cardAllocationCount > old_data.cardAllocationCount) { 
+                superior_datum_param = {
+                    ...superior_datum_param,
+                    // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
+                    cardAllocationCount: superior_datum.cardAllocationCount - (requestBody.cardAllocationCount - old_data.cardAllocationCount)
+                }
+            }
+            else if(requestBody.cardAllocationCount < old_data.cardAllocationCount) {
+                superior_datum_param = {
+                    ...superior_datum_param,
+                    // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
+                    cardAllocationCount: superior_datum.cardAllocationCount + (old_data.cardAllocationCount - requestBody.cardAllocationCount )
+                }
+            }
+
+            
+        } else if(requestBody.cardAllocationCount == 0 && old_data.cardAllocationCount != 0 ) {
+            superior_datum_param = {
+                ...superior_datum_param,
+                // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
+                cardAllocationCount: superior_datum.cardAllocationCount + old_data.cardAllocationCount
+            }
+        }
+        const update_superior = await userModel.update(superior_datum.id, superior_datum_param);
+        return;
+    } else{
+        if (!requestBody.assignedBy) return;
         const superior_datum = await userModel.getUser(requestBody.assignedBy);
         // if (superior_datum.userAllocatedCount > requestBody.userAllocatedCount) return await helperUtil.responseSender(res, 'error', 400, {}, `you can give maximum user as ${superior_datum.userAllocatedCount}`); //todo//initially it will zero
         // if (superior_datum.cardAllocationCount > requestBody.cardAllocationCount) return await helperUtil.responseSender(res, 'error', 400, {}, `you can give maximum user as ${superior_datum.cardAllocationCount}`); //todo//initially it will zero
@@ -253,6 +287,7 @@ async function cardAllocation(requestBody, UserId, old_data, res) {
             }
             requestBody.userAllocatedCount = requestBody.userAllocatedCount - old_data.usercreatedCount;
         }
+        
         if (requestBody.cardAllocationCount != 0) {
             if (requestBody.cardAllocationCount > old_data.cardAllocationCount) { 
                 superior_datum_param = {
@@ -261,9 +296,23 @@ async function cardAllocation(requestBody, UserId, old_data, res) {
                     cardAllocationCount: superior_datum.cardAllocationCount - (requestBody.cardAllocationCount - old_data.cardAllocationCount)
                 }
             }
+            else if(requestBody.cardAllocationCount < old_data.cardAllocationCount) {
+                superior_datum_param = {
+                    ...superior_datum_param,
+                    // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
+                    cardAllocationCount: superior_datum.cardAllocationCount + (old_data.cardAllocationCount - requestBody.cardAllocationCount )
+                }
+            }
 
             
+        } else if(requestBody.cardAllocationCount == 0 && old_data.cardAllocationCount != 0 ) {
+            superior_datum_param = {
+                ...superior_datum_param,
+                // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
+                cardAllocationCount: superior_datum.cardAllocationCount + old_data.cardAllocationCount
+            }
         }
+
         const update_superior = await userModel.update(superior_datum.id, superior_datum_param);
         return;
     }
@@ -533,7 +582,7 @@ app.post('/user/createCard/:userId', auth, upload.fields([
             if (userDetail.cardAllocationCount == 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, limit_message);
 
 
-            if (userDetail.createdcardcount >= userDetail.cardAllocationCount) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Limit reached. Already you have ${userDetail.createdcardcount} out of ${userDetail.cardAllocationCount}`);
+            if ((userDetail.createdcardcount + userDetail.cardAllocationCount) <= userDetail.createdcardcount ) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Limit reached. Already you have ${userDetail.createdcardcount} out of ${userDetail.cardAllocationCount}`);
 
 
 

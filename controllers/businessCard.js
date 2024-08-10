@@ -171,17 +171,20 @@ router.get('/getCardCount/:userId', bodyParser, async function (req, res) {
         var exsitingCardCount = 0;
         var subscriptionCardCount = 0;
 
-        if (userDetail.cardAllocationCount > 0) {
-            if (existing_card_cout.length > 0) {
-                exsitingCardCount = userDetail.createdcardcount + 1;
+        if (userDetail.cardAllocationCount > 0 || userDetail.createdcardcount > 0 ) {
+            if (existing_card_cout.length == 1 ) {
+                // exsitingCardCount = userDetail.createdcardcount + 1;
+                exsitingCardCount = userDetail.createdcardcount;
 
+            } else if(existing_card_cout.length > 0 ){
+                exsitingCardCount = userDetail.createdcardcount;
             }
             // exsitingCardCount = userDetail.createdcardcount;
             subscriptionCardCount = userDetail.cardAllocationCount;
         }
         else if (existing_card_cout.length > 0) {
             exsitingCardCount = 1;
-            subscriptionCardCount = 1;
+            // subscriptionCardCount = 1;
         } else {
             subscriptionCardCount = 1;
         }

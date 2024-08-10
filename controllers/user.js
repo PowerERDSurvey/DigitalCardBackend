@@ -119,7 +119,7 @@ async function cardAllocation(requestBody, req, res) {
             superior_datum_param = {
                 ...superior_datum_param,
                 // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
-                cardAllocationCount: superior_datum.userAllocatedCount - requestBody.cardAllocationCount
+                cardAllocationCount: superior_datum.cardAllocationCount - requestBody.cardAllocationCount
             }
         }
         const update_superior = await userModel.update(superior_datum.id, superior_datum_param);
