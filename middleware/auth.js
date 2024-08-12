@@ -34,7 +34,7 @@ module.exports = (req, res, next) => {
           if (req.url.startsWith('/api/')) {
             res.status(401).send(ERROR_INVALID_TOKEN);
           } else {
-            res.redirect('/Login');
+            res.redirect(`${process.env.BASE_URL}/Login`);
           }
         }
         else {
@@ -55,7 +55,7 @@ module.exports = (req, res, next) => {
               if (req.url.startsWith('/api/')) {
                 res.status(401).send(ERROR_INVALID_TOKEN);
               } else {
-                res.redirect('/Login');
+                res.redirect(`${process.env.BASE_URL}/Login`);
               }
             }
           } catch (error) {
@@ -67,7 +67,7 @@ module.exports = (req, res, next) => {
     } else if (req.url.startsWith('/api/')) {
       res.status(401).send(ERROR_MISSING_TOKEN);
     } else {
-      res.redirect('/Login');
+      res.redirect(`${process.env.BASE_URL}/Login`);
     }
   } catch (err) {
     console.log('error', err);

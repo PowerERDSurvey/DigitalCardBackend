@@ -205,121 +205,186 @@ app.use("/",CountryANDState);
 // app.use();
 
 
-async function cardAllocation(requestBody, UserId, old_data, res) {
-    if (requestBody.role == 'COMPANY_ADMIN' || requestBody.role == 'INDIVIDUAL_USER') {
-        // requestBody.userAllocatedCount = requestBody.userAllocatedCount - 1;
-        // requestBody.usercreatedCount = requestBody.usercreatedCount + 1;
-        return;
-    } else if(old_data.userAllocatedCount == requestBody.userAllocatedCount) {
-        if (!requestBody.assignedBy) return;
-        const superior_datum = await userModel.getUser(requestBody.assignedBy);
-        // if (superior_datum.userAllocatedCount > requestBody.userAllocatedCount) return await helperUtil.responseSender(res, 'error', 400, {}, `you can give maximum user as ${superior_datum.userAllocatedCount}`); //todo//initially it will zero
-        // if (superior_datum.cardAllocationCount > requestBody.cardAllocationCount) return await helperUtil.responseSender(res, 'error', 400, {}, `you can give maximum user as ${superior_datum.cardAllocationCount}`); //todo//initially it will zero
+// async function cardAllocation(requestBody, UserId, old_data, res) {
+//     if (requestBody.role == 'COMPANY_ADMIN' || requestBody.role == 'INDIVIDUAL_USER') {
+//         // requestBody.userAllocatedCount = requestBody.userAllocatedCount - 1;
+//         // requestBody.usercreatedCount = requestBody.usercreatedCount + 1;
+//         return;
+//     } else if(old_data.userAllocatedCount == requestBody.userAllocatedCount) {
+//         if (!requestBody.assignedBy) return;
+//         const superior_datum = await userModel.getUser(requestBody.assignedBy);
+//         // if (superior_datum.userAllocatedCount > requestBody.userAllocatedCount) return await helperUtil.responseSender(res, 'error', 400, {}, `you can give maximum user as ${superior_datum.userAllocatedCount}`); //todo//initially it will zero
+//         // if (superior_datum.cardAllocationCount > requestBody.cardAllocationCount) return await helperUtil.responseSender(res, 'error', 400, {}, `you can give maximum user as ${superior_datum.cardAllocationCount}`); //todo//initially it will zero
 
-        // var count_to_be_reduce = 0;
-        // requestBody.userAllocatedCount != 0 ? count_to_be_reduce = requestBody.userAllocatedCount + 1 : count_to_be_reduce = 1;
-        var superior_datum_param = {};
-        if (requestBody.cardAllocationCount != 0) {
-            if (requestBody.cardAllocationCount > old_data.cardAllocationCount) { 
-                superior_datum_param = {
-                    ...superior_datum_param,
-                    // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
-                    cardAllocationCount: superior_datum.cardAllocationCount - (requestBody.cardAllocationCount - old_data.cardAllocationCount)
-                }
-            }
-            else if(requestBody.cardAllocationCount < old_data.cardAllocationCount) {
-                superior_datum_param = {
-                    ...superior_datum_param,
-                    // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
-                    cardAllocationCount: superior_datum.cardAllocationCount + (old_data.cardAllocationCount - requestBody.cardAllocationCount )
-                }
-            }
+//         // var count_to_be_reduce = 0;
+//         // requestBody.userAllocatedCount != 0 ? count_to_be_reduce = requestBody.userAllocatedCount + 1 : count_to_be_reduce = 1;
+//         var superior_datum_param = {};
+//         if (requestBody.cardAllocationCount != 0) {
+//             if (requestBody.cardAllocationCount > old_data.cardAllocationCount) {
+//                 superior_datum_param = {
+//                     ...superior_datum_param,
+//                     // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
+//                     cardAllocationCount: superior_datum.cardAllocationCount - (requestBody.cardAllocationCount - old_data.cardAllocationCount)
+//                 }
+//             }
+//             else if(requestBody.cardAllocationCount < old_data.cardAllocationCount) {
+//                 superior_datum_param = {
+//                     ...superior_datum_param,
+//                     // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
+//                     cardAllocationCount: superior_datum.cardAllocationCount + (old_data.cardAllocationCount - requestBody.cardAllocationCount )
+//                 }
+//             }
 
             
-        } else if(requestBody.cardAllocationCount == 0 && old_data.cardAllocationCount != 0 ) {
-            superior_datum_param = {
-                ...superior_datum_param,
-                // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
-                cardAllocationCount: superior_datum.cardAllocationCount + old_data.cardAllocationCount
-            }
-        }
-        const update_superior = await userModel.update(superior_datum.id, superior_datum_param);
-        return;
-    } else{
-        if (!requestBody.assignedBy) return;
-        const superior_datum = await userModel.getUser(requestBody.assignedBy);
-        // if (superior_datum.userAllocatedCount > requestBody.userAllocatedCount) return await helperUtil.responseSender(res, 'error', 400, {}, `you can give maximum user as ${superior_datum.userAllocatedCount}`); //todo//initially it will zero
-        // if (superior_datum.cardAllocationCount > requestBody.cardAllocationCount) return await helperUtil.responseSender(res, 'error', 400, {}, `you can give maximum user as ${superior_datum.cardAllocationCount}`); //todo//initially it will zero
+//         } else if(requestBody.cardAllocationCount == 0 && old_data.cardAllocationCount != 0 ) {
+//             superior_datum_param = {
+//                 ...superior_datum_param,
+//                 // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
+//                 cardAllocationCount: superior_datum.cardAllocationCount + old_data.cardAllocationCount
+//             }
+//         }
+//         const update_superior = await userModel.update(superior_datum.id, superior_datum_param);
+//         return;
+//     } else{
+//         if (!requestBody.assignedBy) return;
+//         const superior_datum = await userModel.getUser(requestBody.assignedBy);
+//         // if (superior_datum.userAllocatedCount > requestBody.userAllocatedCount) return await helperUtil.responseSender(res, 'error', 400, {}, `you can give maximum user as ${superior_datum.userAllocatedCount}`); //todo//initially it will zero
+//         // if (superior_datum.cardAllocationCount > requestBody.cardAllocationCount) return await helperUtil.responseSender(res, 'error', 400, {}, `you can give maximum user as ${superior_datum.cardAllocationCount}`); //todo//initially it will zero
 
-        // var count_to_be_reduce = 0;
-        // requestBody.userAllocatedCount != 0 ? count_to_be_reduce = requestBody.userAllocatedCount + 1 : count_to_be_reduce = 1;
-        var superior_datum_param = {};
-        var old_allocated_count = old_data.userAllocatedCount + old_data.usercreatedCount;
-        if (requestBody.userAllocatedCount != 0) {
-            if (requestBody.userAllocatedCount > old_allocated_count) {
-                superior_datum_param = {
-                    ...superior_datum_param,
-                    userAllocatedCount: superior_datum.userAllocatedCount - (requestBody.userAllocatedCount - old_allocated_count),
-                    usercreatedCount: superior_datum.usercreatedCount + (requestBody.userAllocatedCount - old_allocated_count)
-                }
-                requestBody.userAllocatedCount = requestBody.userAllocatedCount - old_data.usercreatedCount;
-            } 
-            if (requestBody.userAllocatedCount < old_allocated_count) {
-                // cardcount
-                const exist_user = await userModel.getALLUserbyQuery({ where: { isDelete: false, assignedBy: UserId } });
+//         // var count_to_be_reduce = 0;
+//         // requestBody.userAllocatedCount != 0 ? count_to_be_reduce = requestBody.userAllocatedCount + 1 : count_to_be_reduce = 1;
+//         var superior_datum_param = {};
+//         var old_allocated_count = old_data.userAllocatedCount + old_data.usercreatedCount;
+//         if (requestBody.userAllocatedCount != 0) {
+//             if (requestBody.userAllocatedCount > old_allocated_count) {
+//                 superior_datum_param = {
+//                     ...superior_datum_param,
+//                     userAllocatedCount: superior_datum.userAllocatedCount - (requestBody.userAllocatedCount - old_allocated_count),
+//                     usercreatedCount: superior_datum.usercreatedCount + (requestBody.userAllocatedCount - old_allocated_count)
+//                 }
+//                 requestBody.userAllocatedCount = requestBody.userAllocatedCount - old_data.usercreatedCount;
+//             }
+//             if (requestBody.userAllocatedCount < old_allocated_count) {
+//                 // cardcount
+//                 const exist_user = await userModel.getALLUserbyQuery({ where: { isDelete: false, assignedBy: UserId } });
 
-                if (exist_user.length > requestBody.userAllocatedCount) return await helperUtil.responseSender(res, 'error', 400, {}, `Already the account have ${exist_user.length} user. please delete and try to update`);
+//                 if (exist_user.length > requestBody.userAllocatedCount) return await helperUtil.responseSender(res, 'error', 400, {}, `Already the account have ${exist_user.length} user. please delete and try to update`);
 
-                superior_datum_param = {
-                    ...superior_datum_param,
-                    userAllocatedCount: superior_datum.userAllocatedCount + (old_allocated_count - requestBody.userAllocatedCount),
-                    usercreatedCount: superior_datum.usercreatedCount - (old_allocated_count - requestBody.userAllocatedCount)
-                }
-                // requestBody.userAllocatedCount = old_allocated_count - requestBody.userAllocatedCount;
-                requestBody.userAllocatedCount = requestBody.userAllocatedCount - old_data.usercreatedCount;
-            } 
-        } else {
-            requestBody.isUserCardAllocated = false;
-            superior_datum_param = {
-                ...superior_datum_param,
-                userAllocatedCount: superior_datum.userAllocatedCount + (old_allocated_count - requestBody.userAllocatedCount),
-                usercreatedCount: superior_datum.usercreatedCount - old_allocated_count
-            }
-            requestBody.userAllocatedCount = requestBody.userAllocatedCount - old_data.usercreatedCount;
-        }
+//                 superior_datum_param = {
+//                     ...superior_datum_param,
+//                     userAllocatedCount: superior_datum.userAllocatedCount + (old_allocated_count - requestBody.userAllocatedCount),
+//                     usercreatedCount: superior_datum.usercreatedCount - (old_allocated_count - requestBody.userAllocatedCount)
+//                 }
+//                 // requestBody.userAllocatedCount = old_allocated_count - requestBody.userAllocatedCount;
+//                 requestBody.userAllocatedCount = requestBody.userAllocatedCount - old_data.usercreatedCount;
+//             }
+//         } else {
+//             requestBody.isUserCardAllocated = false;
+//             superior_datum_param = {
+//                 ...superior_datum_param,
+//                 userAllocatedCount: superior_datum.userAllocatedCount + (old_allocated_count - requestBody.userAllocatedCount),
+//                 usercreatedCount: superior_datum.usercreatedCount - old_allocated_count
+//             }
+//             requestBody.userAllocatedCount = requestBody.userAllocatedCount - old_data.usercreatedCount;
+//         }
         
-        if (requestBody.cardAllocationCount != 0) {
-            if (requestBody.cardAllocationCount > old_data.cardAllocationCount) { 
-                superior_datum_param = {
-                    ...superior_datum_param,
-                    // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
-                    cardAllocationCount: superior_datum.cardAllocationCount - (requestBody.cardAllocationCount - old_data.cardAllocationCount)
-                }
-            }
-            else if(requestBody.cardAllocationCount < old_data.cardAllocationCount) {
-                superior_datum_param = {
-                    ...superior_datum_param,
-                    // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
-                    cardAllocationCount: superior_datum.cardAllocationCount + (old_data.cardAllocationCount - requestBody.cardAllocationCount )
-                }
-            }
+//         if (requestBody.cardAllocationCount != 0) {
+//             if (requestBody.cardAllocationCount > old_data.cardAllocationCount) {
+//                 superior_datum_param = {
+//                     ...superior_datum_param,
+//                     // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
+//                     cardAllocationCount: superior_datum.cardAllocationCount - (requestBody.cardAllocationCount - old_data.cardAllocationCount)
+//                 }
+//             }
+//             else if(requestBody.cardAllocationCount < old_data.cardAllocationCount) {
+//                 superior_datum_param = {
+//                     ...superior_datum_param,
+//                     // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
+//                     cardAllocationCount: superior_datum.cardAllocationCount + (old_data.cardAllocationCount - requestBody.cardAllocationCount )
+//                 }
+//             }
 
             
-        } else if(requestBody.cardAllocationCount == 0 && old_data.cardAllocationCount != 0 ) {
-            superior_datum_param = {
-                ...superior_datum_param,
-                // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
-                cardAllocationCount: superior_datum.cardAllocationCount + old_data.cardAllocationCount
-            }
-        }
+//         } else if(requestBody.cardAllocationCount == 0 && old_data.cardAllocationCount != 0 ) {
+//             superior_datum_param = {
+//                 ...superior_datum_param,
+//                 // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
+//                 cardAllocationCount: superior_datum.cardAllocationCount + old_data.cardAllocationCount
+//             }
+//         }
 
-        const update_superior = await userModel.update(superior_datum.id, superior_datum_param);
+//         const update_superior = await userModel.update(superior_datum.id, superior_datum_param);
+//         return;
+//     }
+
+
+
+// }
+async function cardAllocation(requestBody, UserId, old_data, res) {
+    if (requestBody.role === 'COMPANY_ADMIN' || requestBody.role === 'INDIVIDUAL_USER') {
         return;
     }
 
+    if (!requestBody.assignedBy) return;
 
+    const superior_datum = await userModel.getUser(requestBody.assignedBy);
+    let superior_datum_param = {};
 
+    // Update card allocation count
+    if (requestBody.cardAllocationCount !== old_data.cardAllocationCount) {
+        const allocationDifference = requestBody.cardAllocationCount - old_data.cardAllocationCount;
+
+        superior_datum_param.cardAllocationCount =
+            superior_datum.cardAllocationCount - allocationDifference;
+
+        if (requestBody.cardAllocationCount === 0 && old_data.cardAllocationCount !== 0) {
+            superior_datum_param.cardAllocationCount += old_data.cardAllocationCount;
+        }
+    }
+
+    const old_allocated_count = old_data.userAllocatedCount + old_data.usercreatedCount;
+
+    if (requestBody.userAllocatedCount !== old_allocated_count) {
+        if (requestBody.userAllocatedCount > old_allocated_count) {
+            const allocationDifference = requestBody.userAllocatedCount - old_allocated_count;
+            superior_datum_param.userAllocatedCount =
+                superior_datum.userAllocatedCount - allocationDifference;
+            superior_datum_param.usercreatedCount =
+                superior_datum.usercreatedCount + allocationDifference;
+
+            requestBody.userAllocatedCount -= old_data.usercreatedCount;
+
+        } else if (requestBody.userAllocatedCount < old_allocated_count) {
+            const exist_user = await userModel.getALLUserbyQuery({
+                where: { isDelete: false, assignedBy: UserId }
+            });
+
+            if (exist_user.length > requestBody.userAllocatedCount) {
+                return await helperUtil.responseSender(res, 'error', 400, {},
+                    `Already the account has ${exist_user.length} users. Please delete and try to update.`);
+            }
+
+            const allocationDifference = old_allocated_count - requestBody.userAllocatedCount;
+            superior_datum_param.userAllocatedCount =
+                superior_datum.userAllocatedCount + allocationDifference;
+            superior_datum_param.usercreatedCount =
+                superior_datum.usercreatedCount - allocationDifference;
+
+            requestBody.userAllocatedCount -= old_data.usercreatedCount;
+        }
+    } else {
+        requestBody.isUserCardAllocated = false;
+        superior_datum_param.userAllocatedCount =
+            superior_datum.userAllocatedCount + old_allocated_count;
+        superior_datum_param.usercreatedCount =
+            superior_datum.usercreatedCount - old_allocated_count;
+
+        requestBody.userAllocatedCount -= old_data.usercreatedCount;
+    }
+
+    await userModel.update(superior_datum.id, superior_datum_param);
 }
+
 
 // async function getDifferences(requestBody, old_data) {
 //     const differences = {};

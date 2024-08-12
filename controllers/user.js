@@ -103,10 +103,20 @@ async function cardAllocation(requestBody, req, res) {
         requestBody.userAllocatedCount != 0 ? count_to_be_reduce = requestBody.userAllocatedCount + 1 : count_to_be_reduce = 1;
         var superior_datum_param = {};
         if (requestBody.userAllocatedCount != 0) {
-            superior_datum_param = {
-                ...superior_datum_param,
-                userAllocatedCount: superior_datum.userAllocatedCount - count_to_be_reduce,
-                usercreatedCount: superior_datum.usercreatedCount + count_to_be_reduce
+            if (requestBody.userAllocatedCount == superior_datum.userAllocatedCount) {
+                requestBody.userAllocatedCount = requestBody.userAllocatedCount - 1;
+                superior_datum_param = {
+                    ...superior_datum_param,
+                    userAllocatedCount: 0,
+                    usercreatedCount: superior_datum.userAllocatedCount + superior_datum.usercreatedCount
+                }
+            } else {
+
+                superior_datum_param = {
+                    ...superior_datum_param,
+                    userAllocatedCount: superior_datum.userAllocatedCount - count_to_be_reduce,
+                    usercreatedCount: superior_datum.usercreatedCount + count_to_be_reduce
+                }
             }
         } else {
             superior_datum_param = {
@@ -497,68 +507,141 @@ router.put('/initialPasswordResetuser/:UserId/tocken/:Token', async function (re
 })
 
 
+// router.post('/deleteUser/:UserId', auth, bodyParser, async function (req, res) {
+//     const UserId = req.params.UserId;
+//     var message = "";
+//     var httpStatusCode = 500;
+//     var responseObj = {};
+//     if (!UserId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
+//     try {
+//         const get_user = await userModel.getUser(req.body.id);
+//         if (!get_user) return await helperUtil.responseSender(res, 'error', 400, responseObj, `user deletion failed`);
+
+
+
+
+
+//         const exist_user = await userModel.getALLUserbyQuery({ where: { isDelete: false, assignedBy: req.body.id } });
+//         const superior_datum = await userModel.getUser(get_user.assignedBy);
+
+//         if (exist_user.length > 0) return await helperUtil.responseSender(res, 'error', 400, {}, `Already the account have ${exist_user.length} user. please delete and try to update`);
+
+
+//         if (get_user.role != 'COMPANY_ADMIN' && get_user.role != 'INDIVIDIAL_USER') {
+//             if (get_user.usercreatedCount > 0) {
+//                 const update_current_user = await userModel.update(req.body.id, {
+//                     usercreatedCount: get_user.usercreatedCount - 1,
+//                     userAllocatedCount: get_user.userAllocatedCount + 1
+//                 })
+//             }
+
+
+
+//             if (!superior_datum) return await helperUtil.responseSender(res, 'error', 400, responseObj, `dont get supirior_datum`);
+
+//             if (superior_datum.role != 'SUPER_ADMIN') {
+//                 if (superior_datum.usercreatedCount > 0) {
+//                     const update_user = await userModel.update(superior_datum.id, {
+//                         usercreatedCount: superior_datum.usercreatedCount - ((get_user.usercreatedCount + get_user.userAllocatedCount) + 1),
+//                         userAllocatedCount: superior_datum.userAllocatedCount + ((get_user.usercreatedCount + get_user.userAllocatedCount) + 1)
+//                     })
+//                 }
+//                 // const super_superior_datum = await userModel.getUser(superior_datum.assignedBy);
+
+//                 // if (!super_superior_datum) return await helperUtil.responseSender(res, 'error', 400, responseObj, `dont get supirior_datum`);
+//                 // if (super_superior_datum.role != 'SUPER_ADMIN') {
+//                 //     if (super_superior_datum.usercreatedCount > 0) {
+//                 //         const update_user = await userModel.update(super_superior_datum.id, {
+//                 //             usercreatedCount: super_superior_datum.usercreatedCount - 1,
+//                 //             userAllocatedCount: super_superior_datum.userAllocatedCount + 1
+//                 //         })
+//                 //     }
+
+//                 // }
+//             }
+//             if ((get_user.cardAllocationCount + createdcardcount) > 0) {
+//                 const update_user = await userModel.update(superior_datum.id, {
+//                     // createdcardcount: superior_datum.createdcardcount - (get_user.cardAllocationCount + get_user.createdcardcount),
+//                     cardAllocationCount: superior_datum.cardAllocationCount + (get_user.cardAllocationCount + get_user.createdcardcount)
+//                 })
+//             }
+//         }
+
+//         const userCollection = await userModel.deleteUser(UserId, req.body.id);
+//         if (!userCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, `user deletion failed`);
+
+//         responseObj = { "userCollection": userCollection };
+//         return await helperUtil.responseSender(res, 'data', 200, responseObj, `user deleted successfully`);
+//     } catch (error) {
+//         message = `user deletion failed.`;
+//         responseObj = error;
+//         return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
+//     }
+// })
 router.post('/deleteUser/:UserId', auth, bodyParser, async function (req, res) {
-    const UserId = req.params.UserId;
-    var message = "";
-    var httpStatusCode = 500;
-    var responseObj = {};
-    if (!UserId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
+    const { UserId } = req.params;
+    const { id } = req.body;
+    let responseObj = {};
+    const httpStatusCode = 500;
+
+    if (!UserId) {
+        return helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'Requested params missing');
+    }
+
     try {
-        const get_user = await userModel.getUser(req.body.id);
-        if (!get_user) return await helperUtil.responseSender(res, 'error', 400, responseObj, `user deletion failed`);
+        const get_user = await userModel.getUser(id);
+        if (!get_user) {
+            return helperUtil.responseSender(res, 'error', 400, responseObj, 'User deletion failed');
+        }
 
+        const exist_user = await userModel.getALLUserbyQuery({ where: { isDelete: false, assignedBy: id } });
+        if (exist_user.length > 0) {
+            return helperUtil.responseSender(res, 'error', 400, responseObj, `Account has ${exist_user.length} users. Please delete them before updating.`);
+        }
 
+        const superior_datum = await userModel.getUser(get_user.assignedBy);
+        if (!superior_datum) {
+            return helperUtil.responseSender(res, 'error', 400, responseObj, 'Superior user not found.');
+        }
 
-
-
-        const exist_user = await userModel.getALLUserbyQuery({ where: { isDelete: false, assignedBy: req.body.id } });
-
-        if (exist_user.length > 0) return await helperUtil.responseSender(res, 'error', 400, {}, `Already the account have ${exist_user.length} user. please delete and try to update`);
-
-
-        if (get_user.role != 'COMPANY_ADMIN' && get_user.role != 'INDIVIDIAL_USER') {
+        if (get_user.role !== 'COMPANY_ADMIN' && get_user.role !== 'INDIVIDIAL_USER') {
             if (get_user.usercreatedCount > 0) {
-                const update_current_user = await userModel.update(req.body.id, {
+                await userModel.update(id, {
                     usercreatedCount: get_user.usercreatedCount - 1,
                     userAllocatedCount: get_user.userAllocatedCount + 1
-                })
+                });
+            }
+            if ((get_user.cardAllocationCount + get_user.createdcardcount) > 0) {
+                await userModel.update(superior_datum.id, {
+                    cardAllocationCount: superior_datum.cardAllocationCount + (get_user.cardAllocationCount + get_user.createdcardcount)
+                });
             }
 
-            const superior_datum = await userModel.getUser(get_user.assignedBy);
+            if (superior_datum.role !== 'SUPER_ADMIN') {
+                const userCountsToAdjust = (get_user.usercreatedCount + get_user.userAllocatedCount) + 1;
 
-            if (!superior_datum) return await helperUtil.responseSender(res, 'error', 400, responseObj, `dont get supirior_datum`);
-
-            if (superior_datum.role != 'SUPER_ADMIN') {
                 if (superior_datum.usercreatedCount > 0) {
-                    const update_user = await userModel.update(superior_datum.id, {
-                        usercreatedCount: superior_datum.usercreatedCount - ((get_user.usercreatedCount + get_user.userAllocatedCount) + 1),
-                        userAllocatedCount: superior_datum.userAllocatedCount + ((get_user.usercreatedCount + get_user.userAllocatedCount) + 1)
-                    })
+                    await userModel.update(superior_datum.id, {
+                        usercreatedCount: superior_datum.usercreatedCount - userCountsToAdjust,
+                        userAllocatedCount: superior_datum.userAllocatedCount + userCountsToAdjust
+                    });
                 }
-                // const super_superior_datum = await userModel.getUser(superior_datum.assignedBy);
 
-                // if (!super_superior_datum) return await helperUtil.responseSender(res, 'error', 400, responseObj, `dont get supirior_datum`);
-                // if (super_superior_datum.role != 'SUPER_ADMIN') {
-                //     if (super_superior_datum.usercreatedCount > 0) {
-                //         const update_user = await userModel.update(super_superior_datum.id, {
-                //             usercreatedCount: super_superior_datum.usercreatedCount - 1,
-                //             userAllocatedCount: super_superior_datum.userAllocatedCount + 1
-                //         })
-                //     }
 
-                // }
             }
         }
-        const userCollection = await userModel.deleteUser(UserId, req.body.id);
-        if (!userCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, `user deletion failed`);
 
-        responseObj = { "userCollection": userCollection };
-        return await helperUtil.responseSender(res, 'data', 200, responseObj, `user deleted successfully`);
+        const userCollection = await userModel.deleteUser(UserId, id);
+        if (!userCollection) {
+            return helperUtil.responseSender(res, 'error', 400, responseObj, 'User deletion failed');
+        }
+
+        responseObj = { userCollection };
+        return helperUtil.responseSender(res, 'data', 200, responseObj, 'User deleted successfully');
     } catch (error) {
-        message = `user deletion failed.`;
-        responseObj = error;
-        return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
+        return helperUtil.responseSender(res, 'error', httpStatusCode, error, 'User deletion failed.');
     }
-})
+});
+
 
 module.exports = router;
