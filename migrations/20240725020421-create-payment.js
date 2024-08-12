@@ -2,34 +2,40 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('businessCardImages', {
+    await queryInterface.createTable('payments', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      filename: {
+      checkoutId: {
         type: Sequelize.STRING
       },
-      filepath: {
+      status: {
         type: Sequelize.STRING
       },
-      type: {
+      productName: {
         type: Sequelize.STRING
       },
-      cardId: {
+      created: {
+        type: Sequelize.INTEGER
+      },
+      amount: {
+        type: Sequelize.INTEGER
+      },
+      paymentStatus: {
+        type: Sequelize.STRING
+      },
+      userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'BusinessCards',
+          model: 'Users',
           key: 'id',
         },
         onUpdate: 'CASCADE',
         onDelete: 'CASCADE',
-      },
-      data: {
-        type: Sequelize.BLOB('long')
       },
       createdAt: {
         allowNull: false,
@@ -42,6 +48,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('businessCardImages');
+    await queryInterface.dropTable('payments');
   }
 };

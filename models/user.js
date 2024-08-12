@@ -48,10 +48,26 @@ module.exports = (sequelize, DataTypes) => {
         as: 'company',
         onDelete: 'CASCADE',
       });
-      User.hasMany(models.userSubscription,{
-        foreignKey:'userId',
-        as:'userSubscription'
-      })
+      User.hasMany(models.userSubscription, {
+        foreignKey: 'userId',
+        as: 'userSubscription'
+      });
+      User.hasMany(models.payment, {
+        foreignKey: 'userId',
+        as: 'payment'
+      });
+      User.belongsTo(User, {
+        as: 'Creator',
+        foreignKey: 'createdBy',
+      });
+      User.belongsTo(User, {
+        as: 'Updater',
+        foreignKey: 'updatedBy',
+      });
+      User.belongsTo(User, {
+        as: 'assigner',
+        foreignKey: 'assignedBy',
+      });
     }
   }
   User.init({
@@ -61,6 +77,8 @@ module.exports = (sequelize, DataTypes) => {
     // secondaryEmail: DataTypes.STRING,
     isActive: DataTypes.BOOLEAN,
     verificationCode: DataTypes.STRING,
+    passwordVerificationCode: DataTypes.STRING,
+    randomInitialPassword: DataTypes.STRING,
     isEmailVerified: DataTypes.BOOLEAN,
     isDelete: DataTypes.BOOLEAN,
     mobileNumber: DataTypes.STRING,
@@ -76,16 +94,25 @@ module.exports = (sequelize, DataTypes) => {
     country: DataTypes.STRING,
     state: DataTypes.STRING,
     password: DataTypes.STRING,
-    signupType:DataTypes.STRING,
-    userName:DataTypes.STRING,
-    Address:DataTypes.STRING,
-    aboutMe:DataTypes.STRING,
-    youtube:DataTypes.STRING,
-    department:DataTypes.STRING,
+    signupType: DataTypes.STRING,
+    userName: DataTypes.STRING,
+    Address: DataTypes.STRING,
+    aboutMe: DataTypes.STRING,
+    youtube: DataTypes.STRING,
+    department: DataTypes.STRING,
     verificationExpires: DataTypes.DATE,
-    randomKey:DataTypes.STRING,
-    role:DataTypes.STRING,
-    companyId:DataTypes.INTEGER,
+    randomKey: DataTypes.STRING,
+    role: DataTypes.STRING,
+    companyId: DataTypes.INTEGER,
+    createdBy: DataTypes.INTEGER,
+    updatedBy: DataTypes.INTEGER,
+    usercreatedCount: DataTypes.INTEGER,
+    userAllocatedCount: DataTypes.INTEGER,
+    createdcardcount: DataTypes.INTEGER,
+    cardAllocationCount: DataTypes.INTEGER,
+    assignedBy: DataTypes.INTEGER,
+    isUserCardAllocated: DataTypes.BOOLEAN,
+
   }, {
     sequelize,
     modelName: 'User',

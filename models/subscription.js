@@ -10,21 +10,21 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      subscription.belongsTo(models.User,{
-        foreignKey:'createdBy',
-        as:'subscription'
+      subscription.belongsTo(models.User, {
+        foreignKey: 'createdBy',
+        as: 'subscription'
       }),
-      subscription.belongsTo(models.User,{
-        foreignKey:'updatedBy',
-        as:'subscription'
-      })
-      subscription.belongsTo(models.product,{
-        foreignKey:'productId',
-        as:'product'
+        subscription.belongsTo(models.User, {
+          foreignKey: 'updatedBy',
+          as: 'subscription'
+        })
+      subscription.belongsTo(models.product, {
+        foreignKey: 'productId',
+        as: 'product'
       });
-      subscription.hasMany(models.userSubscription,{
-        foreignKey:'subscriptionId',
-        as:'userSubscription'
+      subscription.hasMany(models.userSubscription, {
+        foreignKey: 'subscriptionId',
+        as: 'userSubscription'
       })
     }
   }
@@ -33,6 +33,7 @@ module.exports = (sequelize, DataTypes) => {
     startDate: DataTypes.DATE,
     endDate: DataTypes.DATE,
     Description: DataTypes.STRING,
+    currency: DataTypes.STRING,
     cost: DataTypes.INTEGER,
     isActive: DataTypes.BOOLEAN,
     createdBy: DataTypes.INTEGER,

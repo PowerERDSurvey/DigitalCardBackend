@@ -15,14 +15,23 @@ global.gConfig = finalConfig;
 
 // DB credentials will be assigned from OS environment variables
 
+// if (environment === 'development') {
+//     global.gConfig["db_username"] = process.env.DEVELOPMENT_DB_USER || global.gConfig["db_username"];
+//     global.gConfig["db_password"] = process.env.DEVELOPMENT_DB_PASSWORD || global.gConfig["db_password"];
+//     global.gConfig["db_schema"] = process.env.DEVELOPMENT_DB_SCHEMA || global.gConfig["db_schema"];
+//     global.gConfig["username"] = process.env.DEVELOPMENT_DB_USER || global.gConfig["username"];
+//     global.gConfig["password"] = process.env.DEVELOPMENT_DB_PASSWORD || global.gConfig["password"];
+//     global.gConfig["database"] = process.env.DEVELOPMENT_DB_SCHEMA || global.gConfig["database"];
+// } //if (environment === 'development') {
+
 if (environment === 'development') {
-    global.gConfig["db_username"] = process.env.DEVELOPMENT_DB_USER || global.gConfig["db_username"];
-    global.gConfig["db_password"] = process.env.DEVELOPMENT_DB_PASSWORD || global.gConfig["db_password"];
-    global.gConfig["db_schema"] = process.env.DEVELOPMENT_DB_SCHEMA || global.gConfig["db_schema"];
-    global.gConfig["username"] = process.env.DEVELOPMENT_DB_USER || global.gConfig["username"];
-    global.gConfig["password"] = process.env.DEVELOPMENT_DB_PASSWORD || global.gConfig["password"];
-    global.gConfig["database"] = process.env.DEVELOPMENT_DB_SCHEMA || global.gConfig["database"];
-} //if (environment === 'development') {
+    global.gConfig["db_username"] = process.env.DB_USER || global.gConfig["db_username"];
+    global.gConfig["db_password"] = process.env.DB_PASSWORD || global.gConfig["db_password"];
+    global.gConfig["db_schema"] = process.env.DB_NAME || global.gConfig["db_schema"];
+    global.gConfig["username"] = process.env.DB_USER || global.gConfig["username"];
+    global.gConfig["password"] = process.env.DB_PASSWORD || global.gConfig["password"];
+    global.gConfig["database"] = process.env.DB_NAME || global.gConfig["database"];
+}
 
 if (environment === 'testing') {
     global.gConfig["db_username"] = process.env.TESTING_DB_USER || global.gConfig["db_username"];

@@ -64,7 +64,7 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     const countries = await queryInterface.sequelize.query(
-      `SELECT id, countryName FROM countries WHERE countryName IN ('India', 'United States');`
+      `SELECT id, countryName FROM Countries WHERE countryName IN ('India', 'United States');`
     );
 
     const countryRows = countries[0];
@@ -72,7 +72,7 @@ module.exports = {
     const usa = countryRows.find(country => country.countryName === 'United States');
 
     await queryInterface.bulkInsert('States', [
-        // States of India
+      // States of India
       { stateName: 'Andhra Pradesh', countryId: india.id, createdAt: new Date(), updatedAt: new Date() },
       { stateName: 'Arunachal Pradesh', countryId: india.id, createdAt: new Date(), updatedAt: new Date() },
       { stateName: 'Assam', countryId: india.id, createdAt: new Date(), updatedAt: new Date() },
@@ -110,7 +110,7 @@ module.exports = {
       { stateName: 'Ladakh', countryId: india.id, createdAt: new Date(), updatedAt: new Date() },
       { stateName: 'Jammu and Kashmir', countryId: india.id, createdAt: new Date(), updatedAt: new Date() },
 
-        // States of usa
+      // States of usa
       { stateName: 'Alabama', countryId: usa.id, createdAt: new Date(), updatedAt: new Date() },
       { stateName: 'Alaska', countryId: usa.id, createdAt: new Date(), updatedAt: new Date() },
       { stateName: 'Arizona', countryId: usa.id, createdAt: new Date(), updatedAt: new Date() },
