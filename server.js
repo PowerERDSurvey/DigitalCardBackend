@@ -37,7 +37,7 @@ const app = express();
 const allowedOrigins = [ 'https://checkout.stripe.com'];
 app.use((req, res, next) => {
     const fullUrl = `${req.protocol}://${req.hostname}:3000`
-    console.log('Hostname:', fullUrl);
+    //console.log('Hostname:', fullUrl);
     process.env.BaseURL = fullUrl;
     allowedOrigins.push(fullUrl);
     next();
@@ -59,7 +59,7 @@ const corsOptions = {
 
 // app.use(express.static(path.join(__dirname, 'uploads')));
 // app.use(express.static(__dirname + "/public"));
-console.log(__dirname, 'DIR')
+//console.log(__dirname, 'DIR')
 
 
 
@@ -84,7 +84,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (request, 
     switch (event.type) {
         case 'payment_intent.succeeded':
             const session = event.data.object;
-            console.log('event------', session);
+            //console.log('event------', session);
             
 
             const sessions = await stripe.checkout.sessions.list({
@@ -94,7 +94,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (request, 
             if (sessions.data.length > 0) {
                 // Retrieve the Checkout Session
                 const session = sessions.data[0];
-                console.log('event------2', session);
+                //console.log('event------2', session);
 
                 
                 // Retrieve the line items
@@ -148,7 +148,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (request, 
             break;
         // ... handle other event types
         default:
-            console.log(`Unhandled event type ${event.type}`);
+            //console.log(`Unhandled event type ${event.type}`);
     }
 
     // Return a 200 response to acknowledge receipt of the event
@@ -170,7 +170,7 @@ app.use(bodyParser.json({ limit: '50mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'resources/static/assets/uploads')));
 
 var User = require("./controllers/user.js");
-console.log(User);
+//console.log(User);
 app.use("/",User);
 
 
@@ -476,7 +476,7 @@ app.put("/user/:ID",auth,upload.fields([
         
 
         const old_data = await userModel.getUser(UserId);
-        console.log('olddata', old_data.dataValues);
+        //console.log('olddata', old_data.dataValues);
 
     // var requestBody =  req.body;
     var requestBody =  {
@@ -513,7 +513,7 @@ app.put("/user/:ID",auth,upload.fields([
         assignedBy: req.body.assignedBy,
         isUserCardAllocated: req.body.isUserCardAllocated != 'null' && req.body.isUserCardAllocated != 'undefined' ? req.body.isUserCardAllocated: false,
         };
-        console.log('requestBody', requestBody);
+        //console.log('requestBody', requestBody);
 
         const modified_re_body = await getDifferences(requestBody, old_data);
         if (Object.keys(modified_re_body).length === 0 && !(req.files)) return await helperUtil.responseSender(res, 'error', 400, {}, 'No data to update');
@@ -686,7 +686,7 @@ app.post('/user/createCard/:userId', auth, upload.fields([
 
             // var userSubscriptionIds = userSubscription.map((item) => item.subscriptionId);
 
-            // console.log('userSubscriptionIds', userSubscriptionIds);
+            // //console.log('userSubscriptionIds', userSubscriptionIds);
 
             // //get Active subscription from subscription id //forloop
             // var getSubscription = [];
@@ -856,7 +856,7 @@ let server;
 
 if (require.main === module) {
     server = app.listen(port, () => {
-        console.log(`Server running on port ${port}`);
+        //console.log(`Server running on port ${port}`);
     });
 }
 
@@ -868,7 +868,7 @@ module.exports = {
                 if (err) {
                     reject(err);
                 } else {
-                    console.log(`Server running on port ${port}`);
+                    //console.log(`Server running on port ${port}`);
                     resolve(server);
                 }
             });
@@ -928,7 +928,7 @@ module.exports = {
 // const PORT = global.gConfig.node_port;
 
 // app.use(express.static(__dirname + "/public"));
-// console.log(__dirname,'DIR')
+// //console.log(__dirname,'DIR')
 // app.use(function(req, res, next) {
 //     // if (req.get('x-amz-sns-message-type')) {
 //         req.headers['content-type'] = 'application/json';
@@ -959,11 +959,11 @@ module.exports = {
 // //app.post("/products/documents",uploadOne, function(req, res){
 // const auth = require('./middleware/auth');
 // var User = require("./controllers/user.js");
-// console.log(User);
+// //console.log(User);
 // app.use("/",User);
 
 
 
 // app.listen(PORT,()=>{
-// console.log(`post running with ${PORT}`);
+// //console.log(`post running with ${PORT}`);
 // })

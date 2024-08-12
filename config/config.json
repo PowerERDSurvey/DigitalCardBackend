@@ -1,14 +1,14 @@
 {
   "development": {
         "database": "DigitalCard",
-        "db_host" : "localhost",
+        "db_host" : "db",
         "db_port" : "3306",
         "db_username" : "DigiUser",
         "db_password" : "Babish@1998",
         "db_schema" : "DigitalCard",
         "username": "DigiUser",
         "password": "Babish@1998",
-        "host": "localhost",
+        "host": "db",
         "dialect": "mysql",
         "migrationStorage": "sequelize",
         "seederStorage": "sequelize"

@@ -111,7 +111,7 @@ router.get('/user/getOneCard/:userrandomkey/:cardrandomkey', bodyParser, async f
 
 //         var userSubscriptionIds = userSubscription.map((item) => item.subscriptionId);
 
-//         console.log('userSubscriptionIds', userSubscriptionIds);
+//         //console.log('userSubscriptionIds', userSubscriptionIds);
 
 //         //get Active subscription from subscription id //forloop
 //         var getSubscription = [];
@@ -171,12 +171,12 @@ router.get('/getCardCount/:userId', bodyParser, async function (req, res) {
         var exsitingCardCount = 0;
         var subscriptionCardCount = 0;
 
-        if (userDetail.cardAllocationCount > 0 || userDetail.createdcardcount > 0 ) {
-            if (existing_card_cout.length == 1 ) {
+        if (userDetail.cardAllocationCount > 0 || userDetail.createdcardcount > 0) {
+            if (existing_card_cout.length == 1) {
                 // exsitingCardCount = userDetail.createdcardcount + 1;
                 exsitingCardCount = userDetail.createdcardcount;
 
-            } else if(existing_card_cout.length > 0 ){
+            } else if (existing_card_cout.length > 0) {
                 exsitingCardCount = userDetail.createdcardcount;
             }
             // exsitingCardCount = userDetail.createdcardcount;

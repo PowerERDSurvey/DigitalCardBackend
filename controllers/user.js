@@ -26,7 +26,7 @@ router.post("/user", async function (req, res) {
     var Randpassword = await helperUtil.generateRandomPassword();
     let encryptedPassword = cryptr.encrypt(requestBody.password ? requestBody.password : Randpassword);
     requestBody.PASSWORD = encryptedPassword;
-    console.log(requestBody);
+    //console.log(requestBody);
 
     try {
         await handleUserCreation(req, res, requestBody);
@@ -256,7 +256,7 @@ async function insertTokenAndRespond(res, userId, token, email) {
         const responseData = createResponseData(email, userImages, token);
         return res.json({ status: 200, token: token, data: responseData });
     } catch (err) {
-        console.log('Insert error user token', err);
+        //console.log('Insert error user token', err);
     }
 }
 

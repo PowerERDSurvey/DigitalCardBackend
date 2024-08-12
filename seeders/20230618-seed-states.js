@@ -5,7 +5,7 @@
 //     const countries = await queryInterface.sequelize.query(
 //       `SELECT id, countryName FROM digitalcard.countries WHERE countryName IN ('India', 'United States');`
 //     );
-// console.log('countries',countries);
+// //console.log('countries',countries);
 //     const countryRows = countries[0];
 
 //     const india = countryRows.find(country => country.countryName === 'India');
