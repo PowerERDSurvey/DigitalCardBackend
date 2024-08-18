@@ -657,74 +657,6 @@ app.post('/user/createCard/:userId', auth, upload.fields([
 
 
 
-            // var getCompanyId = userDetail.dataValues.companyId;
-
-            // // get all the user by companyid
-            // // var userquery = {
-            // //     where: {
-            // //         id: userId
-            // //     }
-            // // }
-            // var userSubscriptionquery = {
-            //     where: {
-            //         userId: userId,
-            //         isActive: true
-            //     }
-            // }
-            // var company_Detail;
-            // const userIds = [];
-            // if (userDetail.role == 'COMPANY_USER') {
-
-            //     userSubscriptionquery.where = {
-            //         companyId: getCompanyId,
-            //         isActive: true
-            //     }
-            //     company_Detail = await companyModel.getActiveCompanyById(getCompanyId);
-            //     var userquery = { where: { companyId: getCompanyId } }; const company_usersDetail = await userModel.getALLUserbyQuery(userquery);
-            //     userIds.push(...company_usersDetail.map((item) => item.id));
-            // }
-
-            // const cardDetails = userDetail.role == 'COMPANY_USER' ? await cardModel.getALLCardbyUserId(userIds) : await cardModel.getALLCardbyUserId(userId);
-            // var exsitingCardCount = cardDetails.length;
-
-            // //get subscription ids from userSubscription
-            // const userSubscription = await userSubscriptionModel.getAllUserSubscriptionByQuery(userSubscriptionquery);
-
-            // var userSubscriptionIds = userSubscription.map((item) => item.subscriptionId);
-
-            // console.log('userSubscriptionIds', userSubscriptionIds);
-
-            // //get Active subscription from subscription id //forloop
-            // var getSubscription = [];
-            // for (let index = 0; index < userSubscriptionIds.length; index++) {
-            //     // const element = array[index];
-
-            //     var subs = await subscriptionModel.getAllSubscriptionByquery({ where: { isActive: true, id: userSubscriptionIds[index] } });
-            //     getSubscription.push(subs[0]);
-
-            // }
-
-            // var subscriptionCardCount = 0;
-
-            // for (let index = 0; index < getSubscription.length; index++) {
-            //     var sub = getSubscription[index];
-            //     const getplans = await productModel.getOneProductById(sub.dataValues.productId);
-            //     subscriptionCardCount += getplans.cardCount;
-            //     // getSubscription[index].dataValues.plan = [getplans];
-            // }
-
-
-            // if (userDetail.role == 'COMPANY_USER') {
-            //     if (subscriptionCardCount != 0) subscriptionCardCount += company_Detail.noOfUsers
-            //     if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount >= company_Detail.noOfUsers) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have ${subscriptionCardCount} cards please contact Admin`);
-
-            // } else {
-            //     if (subscriptionCardCount != 0) subscriptionCardCount++
-            //     if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount > 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have ${subscriptionCardCount} cards please contact Admin`);
-
-            // }
-            // //count the card creation count and restric the flow
-            //     // const userDetail = 
 
         }
         
@@ -736,7 +668,7 @@ app.post('/user/createCard/:userId', auth, upload.fields([
             lastName: req.body.lastName != 'null' && req.body.lastName != 'undefined' ? req.body.lastName : null,
             primaryEmail: req.body.secondaryEmail != 'null' && req.body.secondaryEmail != 'undefined' ? req.body.secondaryEmail : null,
             // primaryEmail: req.body.primaryEmail != 'null' && req.body.primaryEmail != 'undefined' ? req.body.primaryEmail : null,
-            isActive: true,
+            isActive: req.body.isActive != 'null' && req.body.isActive != 'undefined' ? req.body.isActive : false,
             verificationCode: req.body.verificationCode != 'null' && req.body.verificationCode != 'undefined' ? req.body.verificationCode : null,
             isEmailVerified: req.body.isEmailVerified != 'null' && req.body.isEmailVerified != 'undefined' ? req.body.isEmailVerified : null,
             mobileNumber: req.body.mobileNumber != 'null' && req.body.mobileNumber != 'undefined' ? req.body.mobileNumber : null,
