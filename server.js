@@ -641,6 +641,12 @@ app.post('/user/createCard/:userId', auth, upload.fields([
         const userDetail = await userModel.getUser(userId);
         if (!userDetail) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'userDetail not found');
 
+        if (userDetail.companyId) {
+            const company_detail = await companyModel.getActiveCompanyById(userDetail.companyId);
+            const active_cards = await cardModel.getALLActiveCardbyUserId(userId);
+            if (company_detail.ActiveCardCount <= active_cards.length) return await helperUtil.responseSender(res, 'error', 400, responseObj, `You can only hold ${company_detail.ActiveCardCount} cards please deactivate one card and try to create. `);
+        }
+
         if (existing_card_cout.length > 0) {
             var limit_message = userDetail.role == 'INDIVIDUAL_USER' ?`Limit reached. please purchase for more card` : `Limit reached. Your account didn't allocated other than free card. please contact your hierarchy`;
 
