@@ -116,7 +116,7 @@ router.get('/getCardCount/:userId', bodyParser, async function (req, res) {
 
 
 
-router.get('/user/card/activate/:cardId', auth, bodyParser, async function (req, res) {
+router.put('/user/card/activate/:cardId', auth, bodyParser, async function (req, res) {
     const cardId = req.params.cardId;
     var message = "";
     var httpStatusCode = 500;
