@@ -31,8 +31,54 @@ const helperUtil = require('./util/helper.js');
 const upload = require('./middleware/upload.js');
 // var bodyParser = require('body-parser').json();
 const app = express();
+app.use(cors());
+const { OAuth2Client } = require('google-auth-library');
 
+const oAuth2Client = new OAuth2Client(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    process.env.REDIRECT_URI
+  );
 
+// Endpoint to get the Google Client ID
+app.get('/api/google-client-id', (request, res) => {
+    try {
+        var httpStatusCode = 200;
+        var responseObj = {};
+        responseObj = {clientId: process.env.GOOGLE_CLIENT_ID};
+        var response = { "status": httpStatusCode, "data": responseObj, "message": "Google Key fetched" };
+        // res.json({ clientId: process.env.GOOGLE_CLIENT_ID });
+        return res.status(httpStatusCode).json(response);
+    } catch (error) {
+        httpStatusCode = 500;
+        response = { "status": httpStatusCode, "message": "Google Key Failed" };
+        return res.status(httpStatusCode).json(response);
+    }
+});
+  
+// Redirect user to Google consent screen
+app.get('/auth/google', (req, res) => {
+    const authUrl = oAuth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: ['profile', 'email'],
+    });
+    res.redirect(authUrl);
+  });
+
+  // Callback endpoint to handle Google response
+app.get('/auth/callback', async (req, res) => {
+    const code = req.query.code;
+    try {
+      const { tokens } = await oAuth2Client.getToken(code);
+      oAuth2Client.setCredentials(tokens);
+  
+      // Pass token to frontend (or handle as needed)
+      res.redirect(`http://localhost:3000/?token=${tokens.id_token}`);
+    } catch (error) {
+      console.error('Error exchanging code for tokens:', error);
+      res.status(500).send('Authentication failed');
+    }
+  });
 
 const allowedOrigins = [ 'https://checkout.stripe.com'];
 app.use((req, res, next) => {
