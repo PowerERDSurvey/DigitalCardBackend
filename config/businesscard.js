@@ -24,6 +24,10 @@ let businessCard = {
 
     },
     getALLCardbyUserId: async function (userid) {
+        const returnVal = await BusinessCard.findAll({ where: { userId: userid, isDelete: false } });
+        return returnVal;
+    },
+    getALLActiveCardbyUserId: async function (userid) {
         const returnVal = await BusinessCard.findAll({ where: { userId: userid, isActive: true, isDelete: false } });
         return returnVal;
     },

@@ -11,21 +11,21 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      company.hasMany(models.User,{
-        foreignKey:'companyId',
-        as:'company'
+      company.hasMany(models.User, {
+        foreignKey: 'companyId',
+        as: 'company'
       }),
-      company.belongsTo(models.User,{
-        foreignKey:'createdBy',
-        as:'company'
-      }),
-      company.belongsTo(models.User,{
-        foreignKey:'updatedBy',
-        as:'company'
-      });
-      company.hasMany(models.userSubscription,{
-        foreignKey:'companyId',
-        as:'userSubscription'
+        company.belongsTo(models.User, {
+          foreignKey: 'createdBy',
+          as: 'company'
+        }),
+        company.belongsTo(models.User, {
+          foreignKey: 'updatedBy',
+          as: 'company'
+        });
+      company.hasMany(models.userSubscription, {
+        foreignKey: 'companyId',
+        as: 'userSubscription'
       })
     }
   }
@@ -46,6 +46,7 @@ module.exports = (sequelize, DataTypes) => {
     isDelete: DataTypes.BOOLEAN,
     noOfUsers: DataTypes.INTEGER,
     noOfAdmin: DataTypes.INTEGER,
+    ActiveCardCount: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'company',

@@ -133,28 +133,6 @@ router.get('/user/getOneCard/:userrandomkey/:cardrandomkey', bodyParser, async f
 //         }
 
 
-//         if (userDetail.role == 'COMPANY_USER') {
-//             // if (subscriptionCardCount != 0) subscriptionCardCount += company_Detail.noOfUsers
-//             subscriptionCardCount += company_Detail.noOfUsers
-//             // if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount >= company_Detail.noOfUsers) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have ${subscriptionCardCount} cards please contact Admin`);
-
-//         } else {
-//             subscriptionCardCount++
-//             // if (subscriptionCardCount != 0) subscriptionCardCount++
-//             // if (subscriptionCardCount <= exsitingCardCount && exsitingCardCount > 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Card creation limit reached. you already have ${subscriptionCardCount} cards please contact Admin`);
-
-//         }
-//         responseObj = { "exsitingCardCount": exsitingCardCount, 'subscriptionCardCount': subscriptionCardCount };
-//         return await helperUtil.responseSender(res, 'data', 200, responseObj, 'Card count collected successfully');
-
-//     } catch (error) {
-//         message = "card count retrieved Failed.";
-//         responseObj = error;
-//         return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
-//     }
-// });
-
-
 router.get('/getCardCount/:userId', bodyParser, async function (req, res) {
     // const companyId = req.body.companyId;
     const userId = req.params.userId;
@@ -204,23 +182,25 @@ router.get('/getCardCount/:userId', bodyParser, async function (req, res) {
 
 
 
-router.get('/user/card/activate/:cardId', auth, bodyParser, async function (req, res) {
+router.put('/user/card/activate/:cardId', auth, bodyParser, async function (req, res) {
     const cardId = req.params.cardId;
     var message = "";
     var httpStatusCode = 500;
     var responseObj = {};
     if (!cardId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
+    var key_word = req.body.isActive == true ? 'Acivated' : 'Deactivated';
     try {
+
         var inputparam = {
             isActive: req.body.isActive,
         }
         const cardCollection = await cardModel.updateCard(inputparam, cardId);
         if (!cardCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'card updated. but waiting for response please contact BC');
         responseObj = { "cardCollection": cardCollection };
-        return await helperUtil.responseSender(res, 'data', 200, responseObj, 'card Acivated/disactivated successfully');
+        return await helperUtil.responseSender(res, 'data', 200, responseObj, `card ${key_word} successfully`);
 
     } catch (error) {
-        message = "card Acivated/disactivated Failed.";
+        message = `card ${key_word} successfully`;
         responseObj = error;
         return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
     }
