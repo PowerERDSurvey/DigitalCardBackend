@@ -2,11 +2,11 @@ version: "3.8"
 
 services:
   app:
-    build: .
+    image: moni36/digitalcard:backend-latest
     container_name: node_app
     environment:
       - NODE_ENV=development
-      - DB_HOST=host.docker.internal
+      - DB_HOST=10.142.0.2
       - DB_PORT=3306
       - DB_USER=DigiUser
       - DB_PASSWORD=Babish@1998

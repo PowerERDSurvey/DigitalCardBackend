@@ -4,7 +4,7 @@
     "database": "DigitalCard",
     "username": "DigiUser",
     "password": "Babish@1998",
-    "host": "host.docker.internal",
+    "host": "10.142.0.2",
     "dialect": "mysql",
     "migrationStorage": "sequelize",
     "seederStorage": "sequelize"

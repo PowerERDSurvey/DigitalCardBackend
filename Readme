@@ -1,0 +1,145 @@
+docker build -t frontend-app .
+docker build -t backend-app .
+
+ docker tag frontend-app:latest moni36/digitalcard:frontend
+  docker tag backend-app:latest moni36/digitalcard:backend
+
+
+docker pull moni36/digitalcard:backend
+docker pull moni36/digitalcard:frontend
+
+ docker run -d -p 8080:8080 moni36/digitalcard:backend-l
+  docker run -d -p 3000:3000 moni36/digitalcard:frontend
+----------------------------
+create tag and push into hub
+
+docker tag digitalcardbackend-app:latest moni36/digitalcard:backend 
+docker tag frontend-app:latest moni36/digitalcard:latest 
+docker push moni36/digitalcard:backend
+docker push moni36/digitalcard:latest
+-----------------------------------------
+
+sudo docker exec -it mysql_container mysql -u DigiUser -p
+
+-------------------------------------------
+
+docker clean
+
+docker container prune
+docker image prune
+docker volume prune
+docker system prune -a
+
+-------------------------------
+
+using swap memmory
+
+sudo swapon --show
+sudo fallocate -l 1G /swapfile
+sudo dd if=/dev/zero of=/swapfile bs=1M count=1024
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+ls -lh /swapfile
+
+
+
+
+ image: moni36/digitalcard:backend-latest
+
+mysql -u root -p
+
+----------------------------------
+find and kill
+
+sudo lsof -i :3306
+sudo kill -9 568
+----------------------------
+
+create new user in DB
+
+mysql -u root -p
+CREATE USER 'DigiUser'@'%' IDENTIFIED BY 'babish1998';
+GRANT ALL PRIVILEGES ON *.* TO 'DigiUser'@'%' WITH GRANT OPTION; --> privillage permission for all host with %
+FLUSH PRIVILEGES;
+
+-------------------------------------
+docker run --name mysql_container -e MYSQL_ROOT_PASSWORD=Babish@1998 -d mysql:5.7
+
+
+Bye
+babish@instance-20240730-121252:~$ sudo nano /etc/mysql/my.cnf
+babish@instance-20240730-121252:~$ sudo nano /etc/mysql/conf.d/
+babish@instance-20240730-121252:~$ sudo nano /etc/mysql/my.cnf
+babish@instance-20240730-121252:~$ grep -r "bind-address" /etc/mysql/conf.d/
+babish@instance-20240730-121252:~$ grep -r "bind-address" /etc/mysql/mysql.conf.d/
+/etc/mysql/mysql.conf.d/mysqld.cnf:bind-address         = 127.0.0.1
+/etc/mysql/mysql.conf.d/mysqld.cnf:mysqlx-bind-address  = 127.0.0.1
+/etc/mysql/mysql.conf.d/mysqld.cnf.save:bind-address            =0.0.0.0
+/etc/mysql/mysql.conf.d/mysqld.cnf.save:mysqlx-bind-address     = 127.0.0.1
+babish@instance-20240730-121252:~$ sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+babish@instance-20240730-121252:~$ sudo service mysql restart
+babish@instance-20240730-121252:~$ sudo netstat -tulnp | grep mysql
+
+
+
+
+FLUSH PRIVILEGES;
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'Babish@1998';
+ALTER USER 'root'@'%' IDENTIFIED BY 'Babish@1998';
+FLUSH PRIVILEGES;
+exit;
+
+FLUSH PRIVILEGES;
+
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'Babish@1998';
+ALTER USER 'root'@'%' IDENTIFIED BY 'Babish@1998';
+
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'Babish@1998' WITH GRANT OPTION;
+
+FLUSH PRIVILEGES;
+
+exit;
+
+
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'babish1998';
+FLUSH PRIVILEGES;
+
+
+scp C:/Users/User/Downloads/backendwhatsapperocrmkey.key babish@34.139.11.97:/home/babish/
+scp C:/Users/User/Downloads/backend.whatsapp.erocrm.com.cer babish@34.139.11.97:/home/babish/
+
+sudo mv /home/your_username/backendwhatsapperocrmkey.key /etc/ssl/
+sudo mv /home/your_username/backend.whatsapp.erocrm.com.cer /etc/ssl/
+sudo vi /etc/nginx/sites-available/bizcard
+# upstream backend_bizcard_nodejs_upstream {
+#     server 127.0.0.1:8080;
+#     keepalive 64;
+# }
+
+# server {
+#     listen 443 ssl;
+#     server_name backend.whatsapp.erocrm.com;
+
+#     ssl_certificate /etc/ssl/backend.whatsapp.erocrm.com.cer;
+#     ssl_certificate_key /etc/ssl/backendwhatsapperocrmkey.key;
+
+#     location / {
+#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+#         proxy_set_header X-Real-IP $remote_addr;
+#         proxy_set_header Host $http_host;
+
+#         proxy_http_version 1.1;
+#         add_header X-Upstream $upstream_addr;
+#         proxy_set_header Upgrade $http_upgrade;
+#         proxy_set_header Connection "upgrade";
+#         proxy_set_header Cookie $http_cookie;
+#         proxy_pass_request_headers on;
+
+#         proxy_pass http://backend_bizcard_nodejs_upstream/;
+#         proxy_redirect off;
+#         proxy_read_timeout 240s;
+#     }
+# }
+
+
+ssh-keygen -t rsa -b 2048 -f ~/.ssh/my-gcp-key
