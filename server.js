@@ -111,8 +111,8 @@ const corsOptions = {
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 app.post('/webhook', express.raw({ type: 'application/json' }), async (request, response) => {
-    var endpointSecret;
-    process.env.BaseURL == 'http://localhost:3000' ? endpointSecret = "whsec_2e90767501784982e709d966a4edd71344707f3fcab22ebba31e5ef6dacf1514" : endpointSecret = "we_1Pl1pPBrB64sXHWF6kW6WfkM";
+    var endpointSecret = process.env.STRIPE_END_POINT_SECRET;
+    // process.env.BaseURL == 'http://localhost:3000' ? endpointSecret = "whsec_2e90767501784982e709d966a4edd71344707f3fcab22ebba31e5ef6dacf1514" : endpointSecret = "we_1Pl1pPBrB64sXHWF6kW6WfkM";
 
     const sig = request.headers['stripe-signature'];
     var responseObj = {};
