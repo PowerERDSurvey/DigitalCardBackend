@@ -33,6 +33,7 @@ const upload = require('./middleware/upload.js');
 const app = express();
 app.use(cors());
 const { OAuth2Client } = require('google-auth-library');
+const { google } = require('googleapis');
 
 const oAuth2Client = new OAuth2Client(
     process.env.GOOGLE_CLIENT_ID,
@@ -58,11 +59,16 @@ app.get('/api/google-client-id', (request, res) => {
   
 // Redirect user to Google consent screen
 app.get('/auth/google', (req, res) => {
+    var httpStatusCode = 200;
+    var responseObj = {};
     const authUrl = oAuth2Client.generateAuthUrl({
       access_type: 'offline',
       scope: ['profile', 'email'],
     });
-    res.redirect(authUrl);
+    responseObj = { url: authUrl };
+    var response = { "status": httpStatusCode, "data": responseObj, "message": "Google Key fetched" };
+    return res.status(httpStatusCode).json(response);
+    // res.redirect(authUrl);
   });
 
   // Callback endpoint to handle Google response
@@ -71,9 +77,23 @@ app.get('/auth/callback', async (req, res) => {
     try {
       const { tokens } = await oAuth2Client.getToken(code);
       oAuth2Client.setCredentials(tokens);
-  
-      // Pass token to frontend (or handle as needed)
-      res.redirect(`http://localhost:3000/?token=${tokens.id_token}`);
+        // Retrieve user info using Google OAuth2 API
+        const oauth2 = google.oauth2({
+            auth: oAuth2Client,
+            version: 'v2'
+        });
+
+        const userInfo = await oauth2.userinfo.get();
+        const { name, email } = userInfo.data;
+        const data = Buffer.from(JSON.stringify(userInfo.data)).toString('base64');
+
+
+
+        const fullUrl = `${req.protocol}://${req.hostname}:3000`
+        console.log('Hostname:', fullUrl);
+        process.env.BaseURL = fullUrl;
+        // Pass token to frontend (or handle as needed)
+        res.redirect(`${fullUrl}/googleLogin/${data}`);
     } catch (error) {
       console.error('Error exchanging code for tokens:', error);
       res.status(500).send('Authentication failed');
