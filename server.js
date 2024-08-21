@@ -563,7 +563,7 @@ app.put("/user/:ID",auth,upload.fields([
 
         const modified_re_body = await getDifferences(requestBody, old_data);
         if (Object.keys(modified_re_body).length === 0 && !(req.files)) return await helperUtil.responseSender(res, 'error', 400, {}, 'No data to update');
-        if (modified_re_body?.password) {
+        if (req.body?.password) {
             const getUser = await userModel.getALLUserbyQuery({ where: { id: UserId } });
             if (getUser.length == 0) return  await helperUtil.responseSender(res, 'error', 400, {}, 'dont have user to update the password');
             if (req.body.component == 'ChangePassword')  if (cryptr.decrypt(getUser[0].dataValues.password) != req.body.oldPassword) return await helperUtil.responseSender(res, 'error', 400, {}, 'Old password does not match');
