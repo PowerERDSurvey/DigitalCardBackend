@@ -401,8 +401,10 @@ router.post('/resetpassword', bodyParser, async function (req, res) {
 
         if (userCollection[0].dataValues.signupType == 'GOOGLE_SSO') return res.redirect('/login');
         // if (userCollection[0].dataValues.passwordVerificationCode != 'verified') return await helperUtil.responseSender(res, 'error', 400, responseObj, 'Already Link send your email');
-
         const tokenz = generateToken({ email: emailId });
+        await deleteExpiredTokenz(userCollection[0].id);
+        await insertToUsertToken(userCollection[0].id, tokenz);
+
 
         var reqbody = {
             // password: await helperUtil.generateRandomPassword()
@@ -426,42 +428,7 @@ router.post('/resetpassword', bodyParser, async function (req, res) {
         return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
     }
 })
-// router.put('/initialPasswordResetuser/:UserId/:InitialPassword/:Token', async function (req, res) {
 
-//     const UserId = req.params.UserId;
-//     const InitialPassword = req.params.InitialPassword;
-//     const verificationCode = req.params.Token;
-//     var message = "";
-//     var responseObj = {};
-//     var httpStatusCode = 400;
-//     try {
-//         if (!UserId || !InitialPassword) return await helperUtil.responseSender(res, 'error', 500, responseObj, 'req params  missing');
-//         const userCollection = await userModel.getUsertokenById(UserId, verificationCode);
-
-//         if (!userCollection) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'link expired');
-
-//         // if (userCollection.dataValues.verificationCode == 'verified') return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'link expired');
-
-//         const newToken = generateToken({ email: userCollection.primaryEmail });
-//         const emailsent = await sendVerificationEmail.sendVerificationEmail(UserId, userCollection.primaryEmail, newToken, { password: cryptr.decrypt(InitialPassword), userName: null })
-
-
-//         var inputParams = {
-//             password: req.body.password
-//         }
-//         const updateUser = await userModel.update(UserId, inputParams);
-
-//         if (!updateUser) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'Password reset but no data to retrive');
-
-
-//         return await helperUtil.responseSender(res, 'data', 200, responseObj, `Password reset. Verification email sent to ${userCollection.primaryEmail}`);
-
-//     } catch (error) {
-//         message = `Reset password failed.`;
-//         responseObj = error;
-//         return await helperUtil.responseSender(res, 'error', 500, responseObj, message);
-//     }
-// })
 
 router.put('/initialPasswordResetuser/:UserId/tocken/:Token', async function (req, res) {
 
@@ -507,77 +474,7 @@ router.put('/initialPasswordResetuser/:UserId/tocken/:Token', async function (re
 })
 
 
-// router.post('/deleteUser/:UserId', auth, bodyParser, async function (req, res) {
-//     const UserId = req.params.UserId;
-//     var message = "";
-//     var httpStatusCode = 500;
-//     var responseObj = {};
-//     if (!UserId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
-//     try {
-//         const get_user = await userModel.getUser(req.body.id);
-//         if (!get_user) return await helperUtil.responseSender(res, 'error', 400, responseObj, `user deletion failed`);
 
-
-
-
-
-//         const exist_user = await userModel.getALLUserbyQuery({ where: { isDelete: false, assignedBy: req.body.id } });
-//         const superior_datum = await userModel.getUser(get_user.assignedBy);
-
-//         if (exist_user.length > 0) return await helperUtil.responseSender(res, 'error', 400, {}, `Already the account have ${exist_user.length} user. please delete and try to update`);
-
-
-//         if (get_user.role != 'COMPANY_ADMIN' && get_user.role != 'INDIVIDIAL_USER') {
-//             if (get_user.usercreatedCount > 0) {
-//                 const update_current_user = await userModel.update(req.body.id, {
-//                     usercreatedCount: get_user.usercreatedCount - 1,
-//                     userAllocatedCount: get_user.userAllocatedCount + 1
-//                 })
-//             }
-
-
-
-//             if (!superior_datum) return await helperUtil.responseSender(res, 'error', 400, responseObj, `dont get supirior_datum`);
-
-//             if (superior_datum.role != 'SUPER_ADMIN') {
-//                 if (superior_datum.usercreatedCount > 0) {
-//                     const update_user = await userModel.update(superior_datum.id, {
-//                         usercreatedCount: superior_datum.usercreatedCount - ((get_user.usercreatedCount + get_user.userAllocatedCount) + 1),
-//                         userAllocatedCount: superior_datum.userAllocatedCount + ((get_user.usercreatedCount + get_user.userAllocatedCount) + 1)
-//                     })
-//                 }
-//                 // const super_superior_datum = await userModel.getUser(superior_datum.assignedBy);
-
-//                 // if (!super_superior_datum) return await helperUtil.responseSender(res, 'error', 400, responseObj, `dont get supirior_datum`);
-//                 // if (super_superior_datum.role != 'SUPER_ADMIN') {
-//                 //     if (super_superior_datum.usercreatedCount > 0) {
-//                 //         const update_user = await userModel.update(super_superior_datum.id, {
-//                 //             usercreatedCount: super_superior_datum.usercreatedCount - 1,
-//                 //             userAllocatedCount: super_superior_datum.userAllocatedCount + 1
-//                 //         })
-//                 //     }
-
-//                 // }
-//             }
-//             if ((get_user.cardAllocationCount + createdcardcount) > 0) {
-//                 const update_user = await userModel.update(superior_datum.id, {
-//                     // createdcardcount: superior_datum.createdcardcount - (get_user.cardAllocationCount + get_user.createdcardcount),
-//                     cardAllocationCount: superior_datum.cardAllocationCount + (get_user.cardAllocationCount + get_user.createdcardcount)
-//                 })
-//             }
-//         }
-
-//         const userCollection = await userModel.deleteUser(UserId, req.body.id);
-//         if (!userCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, `user deletion failed`);
-
-//         responseObj = { "userCollection": userCollection };
-//         return await helperUtil.responseSender(res, 'data', 200, responseObj, `user deleted successfully`);
-//     } catch (error) {
-//         message = `user deletion failed.`;
-//         responseObj = error;
-//         return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
-//     }
-// })
 router.post('/deleteUser/:UserId', auth, bodyParser, async function (req, res) {
     const { UserId } = req.params;
     const { id } = req.body;

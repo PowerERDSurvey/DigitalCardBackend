@@ -40,7 +40,7 @@ let businessCard = {
     },
     getACard: async function (cardId) {
         // const returnVal = await BusinessCard.findOne({where:{id: cardId, isActive:true}});
-        const returnVal = await BusinessCard.findOne({ where: { id: cardId, isActive: true, isDelete: false } });
+        const returnVal = await BusinessCard.findOne({ where: { id: cardId, isDelete: false } });
         return returnVal;
     },
 }
