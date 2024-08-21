@@ -417,8 +417,10 @@ router.post('/resetpassword', bodyParser, async function (req, res) {
 
         if (userCollection[0].dataValues.signupType == 'GOOGLE_SSO') return res.redirect('/login');
         // if (userCollection[0].dataValues.passwordVerificationCode != 'verified') return await helperUtil.responseSender(res, 'error', 400, responseObj, 'Already Link send your email');
-
         const tokenz = generateToken({ email: emailId });
+        await deleteExpiredTokenz(userCollection[0].id);
+        await insertToUsertToken(userCollection[0].id, tokenz);
+
 
         var reqbody = {
             // password: await helperUtil.generateRandomPassword()
@@ -594,6 +596,118 @@ router.put('/initialPasswordResetuser/:UserId/tocken/:Token', async function (re
 //         return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
 //     }
 // })
+router.post('/deleteUser/:UserId', auth, bodyParser, async function (req, res) {
+    const { UserId } = req.params;
+    const { id } = req.body;
+    let responseObj = {};
+    const httpStatusCode = 500;
+
+    if (!UserId) {
+        return helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'Requested params missing');
+    }
+
+    try {
+        const get_user = await userModel.getUser(id);
+        if (!get_user) {
+            return helperUtil.responseSender(res, 'error', 400, responseObj, 'User deletion failed');
+        }
+
+        const exist_user = await userModel.getALLUserbyQuery({ where: { isDelete: false, assignedBy: id } });
+        if (exist_user.length > 0) {
+            return helperUtil.responseSender(res, 'error', 400, responseObj, `Account has ${exist_user.length} users. Please delete them before updating.`);
+        }
+
+        const superior_datum = await userModel.getUser(get_user.assignedBy);
+        if (!superior_datum) {
+            return helperUtil.responseSender(res, 'error', 400, responseObj, 'Superior user not found.');
+        }
+
+        if (get_user.role !== 'COMPANY_ADMIN' && get_user.role !== 'INDIVIDIAL_USER') {
+            if (get_user.usercreatedCount > 0) {
+                await userModel.update(id, {
+                    usercreatedCount: get_user.usercreatedCount - 1,
+                    userAllocatedCount: get_user.userAllocatedCount + 1
+                });
+            }
+            if ((get_user.cardAllocationCount + get_user.createdcardcount) > 0) {
+                await userModel.update(superior_datum.id, {
+                    cardAllocationCount: superior_datum.cardAllocationCount + (get_user.cardAllocationCount + get_user.createdcardcount)
+                });
+            }
+
+            if (superior_datum.role !== 'SUPER_ADMIN') {
+                const userCountsToAdjust = (get_user.usercreatedCount + get_user.userAllocatedCount) + 1;
+
+                if (superior_datum.usercreatedCount > 0) {
+                    await userModel.update(superior_datum.id, {
+                        usercreatedCount: superior_datum.usercreatedCount - userCountsToAdjust,
+                        userAllocatedCount: superior_datum.userAllocatedCount + userCountsToAdjust
+                    });
+                }
+
+
+            }
+        }
+
+        const userCollection = await userModel.deleteUser(UserId, id);
+        if (!userCollection) {
+            return helperUtil.responseSender(res, 'error', 400, responseObj, 'User deletion failed');
+        }
+
+        responseObj = { userCollection };
+        return helperUtil.responseSender(res, 'data', 200, responseObj, 'User deleted successfully');
+    } catch (error) {
+        return helperUtil.responseSender(res, 'error', httpStatusCode, error, 'User deletion failed.');
+    }
+});
+
+
+
+router.put('/initialPasswordResetuser/:UserId/tocken/:Token', async function (req, res) {
+
+    const UserId = req.params.UserId;
+    // const InitialPassword = req.params.InitialPassword;
+    const verificationCode = req.params.Token;
+    var message = "";
+    var responseObj = {};
+    var httpStatusCode = 400;
+    try {
+        if (!UserId) return await helperUtil.responseSender(res, 'error', 500, responseObj, 'req params  missing');
+        const userCollection = await userModel.getUsertokenById(UserId, verificationCode);
+
+        if (!userCollection) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'link expired');
+        var decrptPass = cryptr.decrypt(userCollection.randomInitialPassword);
+        if (decrptPass != req.body.oldPassword) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, `old password doesn't match`);
+
+        // if (userCollection.dataValues.verificationCode == 'verified') return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'link expired');
+        const newToken = generateToken({ email: userCollection.primaryEmail });
+
+        const emailsent = await sendVerificationEmail.sendVerificationEmail(UserId, userCollection.primaryEmail, newToken, { password: req.body.password, userName: userCollection.userName })
+
+
+        var inputParams = {
+            password: cryptr.encrypt(req.body.password),
+            verificationCode: newToken
+        }
+        const updateUser = await userModel.update(UserId, inputParams);
+
+        if (!updateUser) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'Password reset but no data to retrive');
+
+
+        if (!emailsent) return await helperUtil.responseSender(res, 'data', 200, responseObj, `Email sent failed`);
+
+        responseObj = { 'url': emailsent }
+        return await helperUtil.responseSender(res, 'data', 200, responseObj, `Password reset successfully`);
+
+    } catch (error) {
+        message = `Reset password failed.`;
+        responseObj = error;
+        return await helperUtil.responseSender(res, 'error', 500, responseObj, message);
+    }
+})
+
+
+
 router.post('/deleteUser/:UserId', auth, bodyParser, async function (req, res) {
     const { UserId } = req.params;
     const { id } = req.body;

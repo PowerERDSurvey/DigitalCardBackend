@@ -33,6 +33,7 @@ const upload = require('./middleware/upload.js');
 const app = express();
 app.use(cors());
 const { OAuth2Client } = require('google-auth-library');
+const { google } = require('googleapis');
 
 const oAuth2Client = new OAuth2Client(
     process.env.GOOGLE_CLIENT_ID,
@@ -58,11 +59,16 @@ app.get('/api/google-client-id', (request, res) => {
   
 // Redirect user to Google consent screen
 app.get('/auth/google', (req, res) => {
+    var httpStatusCode = 200;
+    var responseObj = {};
     const authUrl = oAuth2Client.generateAuthUrl({
       access_type: 'offline',
       scope: ['profile', 'email'],
     });
-    res.redirect(authUrl);
+    responseObj = { url: authUrl };
+    var response = { "status": httpStatusCode, "data": responseObj, "message": "Google Key fetched" };
+    return res.status(httpStatusCode).json(response);
+    // res.redirect(authUrl);
   });
 
   // Callback endpoint to handle Google response
@@ -71,9 +77,23 @@ app.get('/auth/callback', async (req, res) => {
     try {
       const { tokens } = await oAuth2Client.getToken(code);
       oAuth2Client.setCredentials(tokens);
-  
-      // Pass token to frontend (or handle as needed)
-      res.redirect(`http://localhost:3000/?token=${tokens.id_token}`);
+        // Retrieve user info using Google OAuth2 API
+        const oauth2 = google.oauth2({
+            auth: oAuth2Client,
+            version: 'v2'
+        });
+
+        const userInfo = await oauth2.userinfo.get();
+        const { name, email } = userInfo.data;
+        const data = Buffer.from(JSON.stringify(userInfo.data)).toString('base64');
+
+
+
+        const fullUrl = `${req.protocol}://${req.hostname}:3000`
+        console.log('Hostname:', fullUrl);
+        process.env.BaseURL = fullUrl;
+        // Pass token to frontend (or handle as needed)
+        res.redirect(`${fullUrl}/googleLogin/${data}`);
     } catch (error) {
       console.error('Error exchanging code for tokens:', error);
       res.status(500).send('Authentication failed');
@@ -83,7 +103,7 @@ app.get('/auth/callback', async (req, res) => {
 const allowedOrigins = [ 'https://checkout.stripe.com'];
 app.use((req, res, next) => {
     const fullUrl = `${req.protocol}://${req.hostname}:3000`
-    //console.log('Hostname:', fullUrl);
+    console.log('Hostname:', fullUrl);
     process.env.BaseURL = fullUrl;
     allowedOrigins.push(fullUrl);
     next();
@@ -105,7 +125,7 @@ const corsOptions = {
 
 // app.use(express.static(path.join(__dirname, 'uploads')));
 // app.use(express.static(__dirname + "/public"));
-//console.log(__dirname, 'DIR')
+console.log(__dirname, 'DIR')
 
 
 
@@ -130,7 +150,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (request, 
     switch (event.type) {
         case 'payment_intent.succeeded':
             const session = event.data.object;
-            //console.log('event------', session);
+            console.log('event------', session);
             
 
             const sessions = await stripe.checkout.sessions.list({
@@ -140,7 +160,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (request, 
             if (sessions.data.length > 0) {
                 // Retrieve the Checkout Session
                 const session = sessions.data[0];
-                //console.log('event------2', session);
+                console.log('event------2', session);
 
                 
                 // Retrieve the line items
@@ -194,7 +214,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (request, 
             break;
         // ... handle other event types
         default:
-            //console.log(`Unhandled event type ${event.type}`);
+            console.log(`Unhandled event type ${event.type}`);
     }
 
     // Return a 200 response to acknowledge receipt of the event
@@ -522,7 +542,7 @@ app.put("/user/:ID",auth,upload.fields([
         
 
         const old_data = await userModel.getUser(UserId);
-        //console.log('olddata', old_data.dataValues);
+        console.log('olddata', old_data.dataValues);
 
     // var requestBody =  req.body;
     var requestBody =  {
@@ -559,11 +579,16 @@ app.put("/user/:ID",auth,upload.fields([
         assignedBy: req.body.assignedBy,
         isUserCardAllocated: req.body.isUserCardAllocated != 'null' && req.body.isUserCardAllocated != 'undefined' ? req.body.isUserCardAllocated: false,
         };
-        //console.log('requestBody', requestBody);
+        console.log('requestBody', requestBody);
 
         const modified_re_body = await getDifferences(requestBody, old_data);
         if (Object.keys(modified_re_body).length === 0 && !(req.files)) return await helperUtil.responseSender(res, 'error', 400, {}, 'No data to update');
-        if (modified_re_body?.password) {
+        if (modified_re_body?.isActive) {
+            const getUser = await userModel.getALLUserbyQuery({ where: { id: UserId } });
+            if (getUser.length == 0) return await helperUtil.responseSender(res, 'error', 400, {}, 'dont have user to update the password');
+            if (getUser[0].dataValues.verificationCode != 'verified') return await helperUtil.responseSender(res, 'error', 400, {}, 'Account not verified');
+        }
+        if (req.body?.password) {
             const getUser = await userModel.getALLUserbyQuery({ where: { id: UserId } });
             if (getUser.length == 0) return  await helperUtil.responseSender(res, 'error', 400, {}, 'dont have user to update the password');
             if (req.body.component == 'ChangePassword')  if (cryptr.decrypt(getUser[0].dataValues.password) != req.body.oldPassword) return await helperUtil.responseSender(res, 'error', 400, {}, 'Old password does not match');

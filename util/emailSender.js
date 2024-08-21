@@ -25,7 +25,7 @@ const sendVerificationEmail = {
     try {
       return await transporter.sendMail(mailOptions);
     } catch (error) {
-      //console.log('Error sendVerificationEmail - ', error);
+      console.log('Error sendVerificationEmail - ', error);
     }
   },
   sendVerificationEmail: async (userId, email, token, collection) => {
@@ -39,7 +39,7 @@ const sendVerificationEmail = {
     // try {
     //   return await transporter.sendMail(mailOptions);
     // } catch (error) {
-    //   //console.log('Error sendVerificationEmail - ', error);
+    //   console.log('Error sendVerificationEmail - ', error);
     // }
     return url;
   },
@@ -54,7 +54,7 @@ const sendVerificationEmail = {
     try {
       return await transporter.sendMail(mailOptions);
     } catch (error) {
-      //console.log('Error sendVerificationEmail - ', error);
+      console.log('Error sendVerificationEmail - ', error);
     }
   },
 }

@@ -4,9 +4,9 @@ const userModel = require("../models/mvc_User.js");
 
 module.exports = (req, res, next) => {
   try {
-    //console.log('req.headers.cookie', req.headers.cookie);
-    //console.log('reqbody', req.body);
-    //console.log('req.cookies', req.cookies);
+    console.log('req.headers.cookie', req.headers.cookie);
+    console.log('reqbody', req.body);
+    console.log('req.cookies', req.cookies);
     let token = req.headers['x-access-token'] || req.headers.authorization; // Express headers are auto converted to lowercase
 
     if (!token || token.includes('token=')) {
@@ -49,7 +49,7 @@ module.exports = (req, res, next) => {
             let latestToken = await getLatestUserToken(userId);
             if (latestToken.dataValues.token === token) {
               req.user = decoded.user ? decoded.user : decoded.email;
-              ////console.log('isAuthenticated', `Logged in user data fetched from token.`, decoded);
+              //console.log('isAuthenticated', `Logged in user data fetched from token.`, decoded);
               next();
             } else {
               if (req.url.startsWith('/api/')) {
@@ -70,7 +70,7 @@ module.exports = (req, res, next) => {
       res.redirect(`${process.env.BASE_URL}/Login`);
     }
   } catch (err) {
-    //console.log('error', err);
+    console.log('error', err);
     res.status(401).json({
       error: new Error('Invalid request!')
     });

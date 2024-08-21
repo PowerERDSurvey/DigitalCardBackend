@@ -122,6 +122,22 @@ router.put('/updateCompany/:Admin', auth, bodyParser, async function (req, res) 
         const companyCollection = await companyModel.updateCompany(inputparam, req.body.companyId);
         if (!companyCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'company updated but retriving data failed');
 
+        const company_admin = await userModel.getALLUserbyQuery({
+            where: {
+                role: 'COMPANY_ADMIN',
+                companyId: companyCollection.id
+            }
+        });
+        if (company_admin.length != 0) {
+            if (req.body.noOfUsers < (company_admin[0].usercreatedCount)) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Your company already have ${company_admin[0].usercreatedCount} user`);
+            // if (req.body.noOfUsers < (company_admin[0].userAllocatedCount + company_admin[0].usercreatedCount)) return await helperUtil.responseSender(res, 'error', 400, responseObj, ``);
+            companyadmin_reqbody = {
+                userAllocatedCount: req.body.noOfUsers - company_admin[0].usercreatedCount
+            }
+            await userModel.update(company_admin[0].id, companyadmin_reqbody);
+
+        }
+
         // if (!isActiveState) {
         //     const getCompanyUsers = await userModel.getALLUserbyQuery({where:{companyId : req.body.companyId}});
         //     var userids = getCompanyUsers.map((item)=>item.id);

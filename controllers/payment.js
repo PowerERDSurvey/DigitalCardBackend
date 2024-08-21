@@ -59,7 +59,7 @@ router.post('/payment/checkOut:userId', auth, bodyParser, async function (req, r
     var responseObj = {};
     if (!userId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
     try {
-        //console.log('req data', req);
+        console.log('req data', req);
 
 
         const userData = await userModel.getUser(userId);
@@ -83,7 +83,7 @@ router.post('/payment/checkOut:userId', auth, bodyParser, async function (req, r
             ],
             mode: 'payment',
         });
-        //console.log(session.url);
+        console.log(session.url);
         // if (session.payment_status )
         var inputParams = {
             productName: req.body.planName,
