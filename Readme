@@ -111,35 +111,68 @@ scp C:/Users/User/Downloads/backend.whatsapp.erocrm.com.cer babish@34.139.11.97:
 sudo mv /home/your_username/backendwhatsapperocrmkey.key /etc/ssl/
 sudo mv /home/your_username/backend.whatsapp.erocrm.com.cer /etc/ssl/
 sudo vi /etc/nginx/sites-available/bizcard
-# upstream backend_bizcard_nodejs_upstream {
-#     server 127.0.0.1:8080;
-#     keepalive 64;
-# }
+upstream backend_bizcard_nodejs_upstream {
+    server 127.0.0.1:8080;
+    keepalive 64;
+}
 
-# server {
-#     listen 443 ssl;
-#     server_name backend.whatsapp.erocrm.com;
+server {
+    listen 443 ssl;
+    server_name backend.whatsapp.erocrm.com;
 
-#     ssl_certificate /etc/ssl/backend.whatsapp.erocrm.com.cer;
-#     ssl_certificate_key /etc/ssl/backendwhatsapperocrmkey.key;
+    ssl_certificate /etc/ssl/backend.whatsapp.erocrm.com.cer;
+    ssl_certificate_key /etc/ssl/backendwhatsapperocrmkey.key;
 
-#     location / {
-#         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-#         proxy_set_header X-Real-IP $remote_addr;
-#         proxy_set_header Host $http_host;
+    location / {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Host $http_host;
 
-#         proxy_http_version 1.1;
-#         add_header X-Upstream $upstream_addr;
-#         proxy_set_header Upgrade $http_upgrade;
-#         proxy_set_header Connection "upgrade";
-#         proxy_set_header Cookie $http_cookie;
-#         proxy_pass_request_headers on;
+        proxy_http_version 1.1;
+        add_header X-Upstream $upstream_addr;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Cookie $http_cookie;
+        proxy_pass_request_headers on;
 
-#         proxy_pass http://backend_bizcard_nodejs_upstream/;
-#         proxy_redirect off;
-#         proxy_read_timeout 240s;
-#     }
-# }
+        proxy_pass http://backend_bizcard_nodejs_upstream/;
+        proxy_redirect off;
+        proxy_read_timeout 240s;
+    }
+}
+
+upstream frontend_bizcard_nodejs_upstream {
+    server 127.0.0.1:3000;
+    keepalive 64;
+}
+
+server {
+    listen 443 ssl;
+    server_name test.bizcard.pfdigital.in;
+
+    ssl_certificate /etc/ssl/backend.whatsapp.erocrm.com.cer;
+    ssl_certificate_key /etc/ssl/backendwhatsapperocrmkey.key;
+
+    location / {
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Host $http_host;
+
+        proxy_http_version 1.1;
+        add_header X-Upstream $upstream_addr;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Cookie $http_cookie;
+        proxy_pass_request_headers on;
+
+        proxy_pass http://frontend_bizcard_nodejs_upstream/;
+        proxy_redirect off;
+        proxy_read_timeout 240s;
+    }
+}
+sudo ln -s /etc/nginx/sites-available/bizcard-frontendTest /etc/nginx/sites-enabled/
+sudo systemctl restart nginx
+
 
 
 ssh-keygen -t rsa -b 2048 -f ~/.ssh/my-gcp-key
