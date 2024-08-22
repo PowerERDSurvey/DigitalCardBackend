@@ -125,11 +125,37 @@ router.put('/user/card/activate/:cardId', auth, bodyParser, async function (req,
     var key_word = req.body.isActive == true ? 'Acivated' : 'Deactivated';
     try {
 
+        const cardDetail = await cardModel.getACard(cardId);
+        const user_detail = await userModel.getUser(cardDetail.userId);
+        const active_cards = await cardModel.getALLActiveCardbyUserId(cardDetail.userId);
+
+        var user_update_param = {};
+
+        if (key_word == 'Acivated') {
+            if ((user_detail.cardAllocationCount + user_detail.createdcardcount) + 1 <= active_cards.length) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Your account already have ${active_cards.length}Active cards`);
+            user_update_param = {
+                createdcardcount: user_detail.createdcardcount + 1,
+                cardAllocationCount: user_detail.cardAllocationCount - 1
+            }
+
+        }
+        if (key_word == 'Deactivated') {
+            user_update_param = {
+                createdcardcount: user_detail.createdcardcount - 1,
+                cardAllocationCount: user_detail.cardAllocationCount + 1
+            }
+        }
+
         var inputparam = {
             isActive: req.body.isActive,
         }
         const cardCollection = await cardModel.updateCard(inputparam, cardId);
         if (!cardCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'card updated. but waiting for response please contact BC');
+
+        const user_update = await userModel.update(user_detail.id, user_update_param);
+        if (!user_update) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'Creation faild');
+
+
         responseObj = { "cardCollection": cardCollection };
         return await helperUtil.responseSender(res, 'data', 200, responseObj, `card ${key_word} successfully`);
 

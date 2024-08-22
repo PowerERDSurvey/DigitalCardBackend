@@ -704,42 +704,13 @@ app.post('/user/createCard/:userId', auth, upload.fields([
     try {
         //---------------------subscription plan---------------
 
-
-
-        const existing_card_cout = await cardModel.getALLCardbyUserId(userId);
-
-        // get company id for the user  
-        const userDetail = await userModel.getUser(userId);
-        if (!userDetail) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'userDetail not found');
-
-        if (userDetail.companyId) {
-            const company_detail = await companyModel.getActiveCompanyById(userDetail.companyId);
-            const active_cards = await cardModel.getALLActiveCardbyUserId(userId);
-            if (company_detail.ActiveCardCount <= active_cards.length) return await helperUtil.responseSender(res, 'error', 400, responseObj, `You can only hold ${company_detail.ActiveCardCount} cards please deactivate one card and try to create. `);
-        }
-
-        if (existing_card_cout.length > 0) {
-            var limit_message = userDetail.role == 'INDIVIDUAL_USER' ?`Limit reached. please purchase for more card` : `Limit reached. Your account didn't allocated other than free card. please contact your hierarchy`;
-
-            if (userDetail.cardAllocationCount == 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, limit_message);
-
-
-            if ((userDetail.createdcardcount + userDetail.cardAllocationCount) <= userDetail.createdcardcount ) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Limit reached. Already you have ${userDetail.createdcardcount} out of ${userDetail.cardAllocationCount}`);
-
-
-
-
-        }
-        
-
-
         var inputparam = {
             userId: userId != 'null' ? userId : null,
             firstName: req.body.firstName != 'null' && req.body.firstName != 'undefined' ? req.body.firstName : null,
             lastName: req.body.lastName != 'null' && req.body.lastName != 'undefined' ? req.body.lastName : null,
             primaryEmail: req.body.secondaryEmail != 'null' && req.body.secondaryEmail != 'undefined' ? req.body.secondaryEmail : null,
             // primaryEmail: req.body.primaryEmail != 'null' && req.body.primaryEmail != 'undefined' ? req.body.primaryEmail : null,
-            isActive: req.body.isActive != 'null' && req.body.isActive != 'undefined' ? req.body.isActive : false,
+            // isActive: req.body.isActive != 'null' && req.body.isActive != 'undefined' ? req.body.isActive : false,
             verificationCode: req.body.verificationCode != 'null' && req.body.verificationCode != 'undefined' ? req.body.verificationCode : null,
             isEmailVerified: req.body.isEmailVerified != 'null' && req.body.isEmailVerified != 'undefined' ? req.body.isEmailVerified : null,
             mobileNumber: req.body.mobileNumber != 'null' && req.body.mobileNumber != 'undefined' ? req.body.mobileNumber : null,
@@ -762,6 +733,57 @@ app.post('/user/createCard/:userId', auth, upload.fields([
             randomKey: req.body.randomKey != 'null' && req.body.randomKey != 'undefined' ? req.body.randomKey : null,
             isDelete: false,
         };
+        const existing_card_cout = await cardModel.getALLCardbyUserId(userId);
+
+        const userDetail = await userModel.getUser(userId);
+        if (!userDetail) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'userDetail not found');
+        // const active_cards = await cardModel.getALLActiveCardbyUserId(userId);
+        if (existing_card_cout.length > 0) { 
+            if (userDetail.cardAllocationCount != 0) {
+                inputparam.isActive = true; 
+                const user_update = await userModel.update(userDetail.id, {
+                    createdcardcount: userDetail.createdcardcount + 1,
+                    cardAllocationCount: userDetail.cardAllocationCount - 1
+                });
+                if (!user_update) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'Creation faild');
+            } else {
+                
+                inputparam.isActive = false; 
+            }
+        } else {
+            inputparam.isActive = true; 
+        }
+
+
+
+        // const existing_card_cout = await cardModel.getALLCardbyUserId(userId);
+
+        // get company id for the user  
+        // const userDetail = await userModel.getUser(userId);
+        // if (!userDetail) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'userDetail not found');
+
+        // if (userDetail.companyId) {
+        //     const company_detail = await companyModel.getActiveCompanyById(userDetail.companyId);
+        //     // const active_cards = await cardModel.getALLActiveCardbyUserId(userId);
+        //     if (company_detail.ActiveCardCount <= active_cards.length) return await helperUtil.responseSender(res, 'error', 400, responseObj, `You can only hold ${company_detail.ActiveCardCount} cards please deactivate one card and try to create. `);
+        // }
+
+        // if (existing_card_cout.length > 0) {
+        //     var limit_message = userDetail.role == 'INDIVIDUAL_USER' ?`Limit reached. please purchase for more card` : `Limit reached. Your account didn't allocated other than free card. please contact your hierarchy`;
+
+        //     if (userDetail.cardAllocationCount == 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, limit_message);
+
+
+        //     if ((userDetail.createdcardcount + userDetail.cardAllocationCount) <= userDetail.createdcardcount ) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Limit reached. Already you have ${userDetail.createdcardcount} out of ${userDetail.cardAllocationCount}`);
+
+
+
+
+        // }
+        
+
+
+       
 
         const cardCollection = await cardModel.createcreateCard(inputparam);
         if (!cardCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'there is no error on database but not created please contact BC service');
@@ -778,13 +800,13 @@ app.post('/user/createCard/:userId', auth, upload.fields([
 
         // };
         const images = await cardImageUpload(req, cardCollection.id, res);
-        if(existing_card_cout.length > 0 ) {
-            const user_update = await userModel.update(userDetail.id, {
-                createdcardcount: userDetail.createdcardcount + 1,
-                cardAllocationCount: userDetail.cardAllocationCount-1
-            });
-            if (!user_update) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'Creation faild');
-        }
+        // if(existing_card_cout.length > 0 ) {
+        //     const user_update = await userModel.update(userDetail.id, {
+        //         createdcardcount: userDetail.createdcardcount + 1,
+        //         cardAllocationCount: userDetail.cardAllocationCount-1
+        //     });
+        //     if (!user_update) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'Creation faild');
+        // }
 
         responseObj.cardCollection.dataValues.images = images;
         return await helperUtil.responseSender(res, 'data', 200, responseObj, 'Card Created successfully');
@@ -813,7 +835,7 @@ app.put('/user/card/update/:cardId',auth,upload.fields([
             firstName: req.body.firstName != 'null'? req.body.firstName : null,
             lastName: req.body.lastName != 'null'? req.body.lastName : null,
             primaryEmail: req.body.secondaryEmail != 'null' ? req.body.secondaryEmail : null,
-            isActive: req.body.isActive != 'null'? req.body.isActive : null,
+            // isActive: req.body.isActive != 'null'? req.body.isActive : null,
             verificationCode: req.body.verificationCode != 'null'? req.body.verificationCode : null,
             isEmailVerified: req.body.isEmailVerified != 'null'? req.body.isEmailVerified : null,
             mobileNumber: req.body.mobileNumber != 'null'? req.body.mobileNumber : null,
