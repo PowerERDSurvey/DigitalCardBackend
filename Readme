@@ -111,6 +111,7 @@ scp C:/Users/User/Downloads/backend.whatsapp.erocrm.com.cer babish@34.139.11.97:
 sudo mv /home/your_username/backendwhatsapperocrmkey.key /etc/ssl/
 sudo mv /home/your_username/backend.whatsapp.erocrm.com.cer /etc/ssl/
 sudo vi /etc/nginx/sites-available/bizcard
+sudo nano /etc/nginx/sites-available/bizcard
 upstream backend_bizcard_nodejs_upstream {
     server 127.0.0.1:8080;
     keepalive 64;
@@ -170,7 +171,7 @@ server {
         proxy_read_timeout 240s;
     }
 }
-sudo ln -s /etc/nginx/sites-available/bizcard-frontendTest /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/bizcard /etc/nginx/sites-enabled/
 sudo systemctl restart nginx
 
 
