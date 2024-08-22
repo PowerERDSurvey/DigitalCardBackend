@@ -177,3 +177,7 @@ sudo systemctl restart nginx
 
 
 ssh-keygen -t rsa -b 2048 -f ~/.ssh/my-gcp-key
+
+
+
+
