@@ -75,7 +75,7 @@ router.post('/createCompany/:SuperAdmin', auth, bodyParser, async function (req,
             "isDelete": false,
             "noOfUsers": req.body.noOfUsers,
             "noOfAdmin": req.body.noOfAdmin,
-            "ActiveCardCount": req.body.ActiveCardCount,
+            // "ActiveCardCount": req.body.ActiveCardCount,
             "randomKey": req.body.randomKey,
             "isActive": true,
             "createdBy": userId,
@@ -115,7 +115,7 @@ router.put('/updateCompany/:Admin', auth, bodyParser, async function (req, res) 
             "zipcode": req.body.zipcode,
             "noOfUsers": req.body.noOfUsers,
             "noOfAdmin": req.body.noOfAdmin,
-            "ActiveCardCount": req.body.ActiveCardCount,
+            // "ActiveCardCount": req.body.ActiveCardCount,
             "isActive": req.body.isActive,
             "updatedBy": userId
         };
