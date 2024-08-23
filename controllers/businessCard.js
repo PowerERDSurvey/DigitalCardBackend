@@ -133,9 +133,12 @@ router.put('/user/card/activate/:cardId', auth, bodyParser, async function (req,
 
         if (key_word == 'Acivated') {
             if ((user_detail.cardAllocationCount + user_detail.createdcardcount) + 1 <= active_cards.length) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Your account already have ${active_cards.length} Active cards`);
-            user_update_param = {
-                createdcardcount: user_detail.createdcardcount + 1,
-                cardAllocationCount: user_detail.cardAllocationCount - 1
+
+            if (user_detail.cardAllocationCount > 0) {
+                user_update_param = {
+                    createdcardcount: user_detail.createdcardcount + 1,
+                    cardAllocationCount: user_detail.cardAllocationCount - 1
+                }
             }
 
         }
