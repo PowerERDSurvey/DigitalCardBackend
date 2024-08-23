@@ -752,6 +752,11 @@ app.post('/user/createCard/:userId', auth, upload.fields([
             }
         } else {
             inputparam.isActive = true; 
+            const user_update = await userModel.update(userDetail.id, {
+                createdcardcount: userDetail.createdcardcount + 1,
+                cardAllocationCount: userDetail.cardAllocationCount - 1
+            });
+            if (!user_update) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'Creation faild');
         }
 
 
