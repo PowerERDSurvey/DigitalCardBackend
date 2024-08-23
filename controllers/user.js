@@ -218,7 +218,7 @@ function createUserInputObject(requestBody, token = null) {
         usercreatedCount: requestBody.usercreatedCount == null || requestBody.usercreatedCount == "undefined" || requestBody.usercreatedCount == undefined ? 0 : requestBody.usercreatedCount,
         userAllocatedCount: requestBody.userAllocatedCount == null || requestBody.userAllocatedCount == "undefined" || requestBody.userAllocatedCount == undefined ? 0 : requestBody.userAllocatedCount,
         createdcardcount: requestBody.createdcardcount == null || requestBody.createdcardcount == "undefined" || requestBody.createdcardcount == undefined ? 0 : requestBody.createdcardcount,
-        cardAllocationCount: requestBody.cardAllocationCount == null || requestBody.cardAllocationCount == "undefined" || requestBody.cardAllocationCount == undefined ? 0 : requestBody.cardAllocationCount,
+        cardAllocationCount: requestBody.cardAllocationCount == null || requestBody.cardAllocationCount == "undefined" || requestBody.cardAllocationCount == undefined ? 1 : requestBody.cardAllocationCount,
         assignedBy: requestBody.assignedBy,
         isUserCardAllocated: requestBody.isUserCardAllocated,
     };
