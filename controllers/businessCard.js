@@ -144,6 +144,8 @@ router.put('/user/card/activate/:cardId', auth, bodyParser, async function (req,
 
         }
         if (key_word == 'Deactivated') {
+            // if (active_cards.length == 1) return await helperUtil.responseSender(res, 'error', 400, responseObj, `You account must have  ${active_cards.length} Active card`);
+
             if (user_detail.createdcardcount > 0) {
                 user_update_param = {
                     createdcardcount: user_detail.createdcardcount - 1,

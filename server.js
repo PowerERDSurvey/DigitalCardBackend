@@ -600,7 +600,20 @@ app.put("/user/:ID",auth,upload.fields([
         }
 
         var pass = await helperUtil.generateRandomPassword();
-      const token = jwt.sign({email:req.body.primaryEmail}, 'RANDOM_TOKEN_SECRET', { expiresIn: '24h' });
+        const token = jwt.sign({ email: req.body.primaryEmail }, 'RANDOM_TOKEN_SECRET', { expiresIn: '24h' });
+        if (modified_re_body?.lastName || modified_re_body?.firstName) {
+            const get_allCard = await cardModel.getALLCardbyUserId(UserId);
+            var cardIds = [];
+            for (let index = 0; index < get_allCard.length; index++) {
+                cardIds.push(get_allCard[index].id);
+                
+            }
+            var input_param = {
+                firstName: modified_re_body?.firstName,
+                lastName: modified_re_body?.lastName,
+            }
+            await cardModel.updateCard(input_param, cardIds)
+        }
       if (modified_re_body?.primaryEmail && modified_re_body?.primaryEmail != 'null') {
          requestBody.password = null;
          requestBody.randomInitialPassword = cryptr.encrypt(pass),

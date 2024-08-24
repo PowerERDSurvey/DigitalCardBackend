@@ -12,27 +12,26 @@ module.exports = {
       name: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
       },
       layoutId: {
         type: Sequelize.INTEGER,
-        allowNull:false,
-           references: {
-            model: 'layouts',
-            key: 'id',
-          },
-          onUpdate: 'CASCADE'
+        allowNull: false,
+        references: {
+          model: 'layouts',
+          key: 'id',
+        },
+        onUpdate: 'CASCADE'
       },
       cardId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         unique: true,
-           references: {
-            model: 'BusinessCards',
-            key: 'id',
-          },
-          onUpdate: 'CASCADE',
-          onDelete: 'CASCADE',
+        references: {
+          model: 'BusinessCards',
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
       },
       fontFamily: {
         type: Sequelize.STRING
