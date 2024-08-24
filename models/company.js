@@ -46,7 +46,7 @@ module.exports = (sequelize, DataTypes) => {
     isDelete: DataTypes.BOOLEAN,
     noOfUsers: DataTypes.INTEGER,
     noOfAdmin: DataTypes.INTEGER,
-    ActiveCardCount: DataTypes.INTEGER,
+    // ActiveCardCount: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'company',
