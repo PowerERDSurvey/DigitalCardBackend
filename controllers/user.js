@@ -131,6 +131,11 @@ async function cardAllocation(requestBody, req, res) {
                 // createdcardcount: superior_datum.usercreatedCount + requestBody.cardCreatedCount,
                 cardAllocationCount: superior_datum.cardAllocationCount - requestBody.cardAllocationCount
             }
+            requestBody.cardAllocationCount = requestBody.cardAllocationCount + 1;
+
+        }
+        else {
+            requestBody.cardAllocationCount = 1;
         }
         const update_superior = await userModel.update(superior_datum.id, superior_datum_param);
         // if (requestBody.role == 'COMPANY_USER') {
@@ -510,7 +515,7 @@ router.post('/deleteUser/:UserId', auth, bodyParser, async function (req, res) {
             }
             if ((get_user.cardAllocationCount + get_user.createdcardcount) > 0) {
                 await userModel.update(superior_datum.id, {
-                    cardAllocationCount: superior_datum.cardAllocationCount + (get_user.cardAllocationCount + get_user.createdcardcount)
+                    cardAllocationCount: (superior_datum.cardAllocationCount + (get_user.cardAllocationCount + get_user.createdcardcount)) - 1
                 });
             }
 

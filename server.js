@@ -397,14 +397,49 @@ async function cardAllocation(requestBody, UserId, old_data, res) {
     let superior_datum_param = {};
 
     // Update card allocation count
-    if (requestBody.cardAllocationCount !== old_data.cardAllocationCount) {
+    if (requestBody.cardAllocationCount != old_data.cardAllocationCount) {
         const allocationDifference = requestBody.cardAllocationCount - old_data.cardAllocationCount;
+        if (old_data.createdcardcount > 0) {
 
-        superior_datum_param.cardAllocationCount =
-            superior_datum.cardAllocationCount - allocationDifference;
+            superior_datum_param.cardAllocationCount =
+                superior_datum.cardAllocationCount - allocationDifference;
 
-        if (requestBody.cardAllocationCount === 0 && old_data.cardAllocationCount !== 0) {
-            superior_datum_param.cardAllocationCount += old_data.cardAllocationCount;
+            if (requestBody.cardAllocationCount === 0 && old_data.cardAllocationCount !== 0) {
+                superior_datum_param.cardAllocationCount += old_data.cardAllocationCount;
+            }
+        } else {
+            // superior_datum_param.cardAllocationCount =
+            //     superior_datum.cardAllocationCount - allocationDifference;
+            // if (requestBody.cardAllocationCount == 0) superior_datum_param.cardAllocationCount = old_data.cardAllocationCount;
+            // requestBody.cardAllocationCount == 0 ? requestBody.cardAllocationCount = 1 : requestBody.cardAllocationCount;
+
+
+
+
+
+            if (old_data.cardAllocationCount <= requestBody.cardAllocationCount) {
+                
+                if (superior_datum.createdcardcount > 0 ) {
+                    superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount - parseInt(requestBody.cardAllocationCount, 10);
+                } else {
+                    // superior_datum_param.cardAllocationCount = (requestBody.cardAllocationCount -1) + superior_datum.cardAllocationCount ;
+                    superior_datum_param.cardAllocationCount = (superior_datum.cardAllocationCount - requestBody.cardAllocationCount);
+                }
+                requestBody.cardAllocationCount = parseInt(requestBody.cardAllocationCount, 10) + old_data.cardAllocationCount;
+            } else {
+                var diff = old_data.cardAllocationCount - requestBody.cardAllocationCount;
+                if (superior_datum.createdcardcount > 0) {
+                    // superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount - parseInt(requestBody.cardAllocationCount, 10);
+                    superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount + (diff - 1);
+                } else {
+                    superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount + diff;
+                }
+                
+                // requestBody.cardAllocationCount = ;   
+            }
+            requestBody.cardAllocationCount == 0 ? requestBody.cardAllocationCount = 1 : requestBody.cardAllocationCount;
+
+
         }
     }
 
