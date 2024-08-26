@@ -175,6 +175,44 @@ router.put('/user/card/activate/:cardId', auth, bodyParser, async function (req,
         return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
     }
 });
+router.get('/getallocationdetail/:userId', auth, bodyParser, async function (req, res) {
+
+    const userId = req.params.userId;
+    var message = "";
+    var httpStatusCode = 500;
+    var responseObj = {};
+    if (!userId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
+    try {
+        const active_cards = await cardModel.getALLActiveCardbyUserId(userId);
+        const usr_detail = await userModel.getUser(userId);
+
+        var allocation_count;
+        var created_count = 0;
+        var used_freeCard = 0;
+
+        if (active_cards.length > 0) {
+            // if (usr_detail.cardAllocationCount > 0) {
+
+            // }
+            allocation_count = usr_detail.cardAllocationCount + (active_cards.length - 1);
+            created_count = active_cards.length - 1;
+            used_freeCard = 1;
+
+        } else {
+            allocation_count = usr_detail.cardAllocationCount - 1;
+
+        }
+
+
+        responseObj = { "allocationDetail": { 'allocation_count': allocation_count, 'created_count': created_count, 'used_freeCard': used_freeCard } };
+        return await helperUtil.responseSender(res, 'data', 200, responseObj, `card Allocation fetched successfully`);
+    } catch (error) {
+        message = "card allocation fetch faild";
+        responseObj = error;
+        return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
+    }
+})
+
 router.get('/deleteCard/:cardId', auth, bodyParser, async function (req, res) {
     const cardId = req.params.cardId;
     var message = "";
