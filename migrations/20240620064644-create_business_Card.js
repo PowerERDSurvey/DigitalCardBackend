@@ -47,7 +47,7 @@ module.exports = {
         type: Sequelize.BOOLEAN
       },
       mobileNumber: {
-        type: Sequelize.INTEGER(20)
+        type: Sequelize.INTEGER
       },
       companyName: {
         type: Sequelize.STRING
@@ -56,7 +56,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       whatsapp: {
-        type: Sequelize.INTEGER(20)
+        type: Sequelize.INTEGER
       },
       facebook: {
         type: Sequelize.STRING
