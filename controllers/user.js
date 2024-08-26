@@ -384,6 +384,32 @@ router.post("/companybasedUser/:companyId", auth, bodyParser, async function (re
         const userCollection = await userModel.getCompanybasedUser(companyId, req.body.role);
         if (userCollection.length == 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, "no active user in this role");
 
+        for (let index = 0; index < userCollection.length; index++) {
+            const active_cards = await cardModel.getALLActiveCardbyUserId(userCollection[index].userId);
+            const usr_detail = await userModel.getUser(userCollection[index].userId);
+
+            var allocation_count;
+            var created_count = 0;
+            var used_freeCard = 0;
+
+            if (active_cards.length > 0) {
+                // if (usr_detail.cardAllocationCount > 0) {
+
+                // }
+                allocation_count = usr_detail.cardAllocationCount + (active_cards.length - 1);
+                created_count = active_cards.length - 1;
+                used_freeCard = 1;
+
+            } else {
+                allocation_count = usr_detail.cardAllocationCount - 1;
+
+            }
+            var allocationDetail = { 'allocation_count': allocation_count, 'created_count': created_count, 'used_freeCard': used_freeCard }
+            userCollection[index].allocationDetail = allocationDetail;
+
+        }
+
+
         responseObj = { "userCollection": userCollection };
         return await helperUtil.responseSender(res, 'data', 200, responseObj, `user colected successfully`);
     } catch (error) {
