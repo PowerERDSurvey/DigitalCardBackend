@@ -328,8 +328,8 @@ router.get("/user/:ID", auth, bodyParser, async function (req, res) {
     try {
         const UserCollection = await userModel.getUser(UserId);
         if (UserCollection == null) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'No user exist');
-        const active_cards = await cardModel.getALLActiveCardbyUserId(UserCollection.userId);
-        const usr_detail = await userModel.getUser(UserCollection.userId);
+        const active_cards = await cardModel.getALLActiveCardbyUserId(UserCollection.id);
+        const usr_detail = await userModel.getUser(UserCollection.id);
 
         var allocation_count;
         var created_count = 0;
@@ -348,7 +348,7 @@ router.get("/user/:ID", auth, bodyParser, async function (req, res) {
 
         }
         var allocationDetail = { 'allocation_count': allocation_count, 'created_count': created_count, 'used_freeCard': used_freeCard }
-        UserCollection.allocationDetail = allocationDetail;
+        UserCollection.dataValues.allocationDetail = allocationDetail;
         responseObj = { "UserCollection": UserCollection };
         return await helperUtil.responseSender(res, 'data', 200, responseObj, 'user retrived successfully');
     } catch (error) {
@@ -407,8 +407,8 @@ router.post("/companybasedUser/:companyId", auth, bodyParser, async function (re
         if (userCollection.length == 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, "no active user in this role");
 
         for (let index = 0; index < userCollection.length; index++) {
-            const active_cards = await cardModel.getALLActiveCardbyUserId(userCollection[index].userId);
-            const usr_detail = await userModel.getUser(userCollection[index].userId);
+            const active_cards = await cardModel.getALLActiveCardbyUserId(userCollection[index].id);
+            const usr_detail = await userModel.getUser(userCollection[index].id);
 
             var allocation_count;
             var created_count = 0;
@@ -427,7 +427,7 @@ router.post("/companybasedUser/:companyId", auth, bodyParser, async function (re
 
             }
             var allocationDetail = { 'allocation_count': allocation_count, 'created_count': created_count, 'used_freeCard': used_freeCard }
-            userCollection[index].allocationDetail = allocationDetail;
+            userCollection[index].dataValues.allocationDetail = allocationDetail;
 
         }
 

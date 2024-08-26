@@ -444,7 +444,7 @@ async function cardAllocation(requestBody, UserId, old_data, res) {
     // }
     
     //new code for card allocation
-    if (requestBody.cardAllocationCount != old_data.cardAllocationCount) {
+    if (requestBody.cardAllocationCount != old_data.cardAllocationCount || old_data.createdcardcount == 0) {
         var x = 'decrement';
     
         if (old_data.cardAllocationCount > parseInt(requestBody.cardAllocationCount, 10)) {
