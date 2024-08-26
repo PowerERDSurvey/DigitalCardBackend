@@ -210,7 +210,7 @@ function createUserInputObject(requestBody, token = null) {
         randomInitialPassword: requestBody.PASSWORD,
         // password: 'WAITING FOR PASSWORD RESET',
         primaryEmail: requestBody.email,
-        mobileNumber: parseInt(requestBody.mobileNumber, 10),
+        mobileNumber: requestBody.mobileNumber,
         signupType: requestBody.type,
         isActive: requestBody.type == 'GOOGLE_SSO' ? true : false,
         role: requestBody.role,

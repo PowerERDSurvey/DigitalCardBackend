@@ -38,7 +38,7 @@ module.exports = {
         type: Sequelize.BOOLEAN
       },
       mobileNumber: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       companyName: {
         type: Sequelize.STRING
@@ -47,33 +47,30 @@ module.exports = {
         type: Sequelize.STRING
       },
       whatsapp: {
-        type: Sequelize.INTEGER,
-        defaultValue: null
+        type: Sequelize.STRING,
+        defaultValue:null
       },
       facebook: {
         type: Sequelize.STRING,
-        defaultValue: null
+        defaultValue:null
       },
       instagram: {
         type: Sequelize.STRING,
-        defaultValue: null
+        defaultValue:null
       },
       linkedin: {
         type: Sequelize.STRING,
-        defaultValue: null
+        defaultValue:null
       },
       website: {
         type: Sequelize.STRING,
-        defaultValue: null
+        defaultValue:null
       },
       city: {
         type: Sequelize.STRING
       },
       zipCode: {
-        type: Sequelize.INTEGER,
-        validate: {
-          len: [6, 6]
-        }
+        type: Sequelize.STRING
       },
       country: {
         type: Sequelize.STRING

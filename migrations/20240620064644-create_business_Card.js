@@ -47,7 +47,7 @@ module.exports = {
         type: Sequelize.BOOLEAN
       },
       mobileNumber: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       companyName: {
         type: Sequelize.STRING
@@ -56,7 +56,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       whatsapp: {
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       facebook: {
         type: Sequelize.STRING
@@ -74,10 +74,7 @@ module.exports = {
         type: Sequelize.STRING
       },
       zipCode: {
-        type: Sequelize.INTEGER,
-        validate: {
-          len: [6, 6]
-        }
+        type: Sequelize.STRING
       },
       country: {
         type: Sequelize.STRING
