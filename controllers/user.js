@@ -18,6 +18,7 @@ const upload = require('../middleware/upload.js');
 const { insertToUsertToken, listUserTokens, getLatestUserToken, deleteExpiredTokens } = require("../config/usertoken.js");
 const { JSON } = require("sequelize");
 const { json } = require("body-parser");
+const cardModel = require("../models/mvc_BusinessCard.js");
 
 
 router.post("/user", async function (req, res) {
@@ -327,6 +328,27 @@ router.get("/user/:ID", auth, bodyParser, async function (req, res) {
     try {
         const UserCollection = await userModel.getUser(UserId);
         if (UserCollection == null) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'No user exist');
+        const active_cards = await cardModel.getALLActiveCardbyUserId(UserCollection.userId);
+        const usr_detail = await userModel.getUser(UserCollection.userId);
+
+        var allocation_count;
+        var created_count = 0;
+        var used_freeCard = 0;
+
+        if (active_cards.length > 0) {
+            // if (usr_detail.cardAllocationCount > 0) {
+
+            // }
+            allocation_count = usr_detail.cardAllocationCount + (active_cards.length - 1);
+            created_count = active_cards.length - 1;
+            used_freeCard = 1;
+
+        } else {
+            allocation_count = usr_detail.cardAllocationCount - 1;
+
+        }
+        var allocationDetail = { 'allocation_count': allocation_count, 'created_count': created_count, 'used_freeCard': used_freeCard }
+        UserCollection.allocationDetail = allocationDetail;
         responseObj = { "UserCollection": UserCollection };
         return await helperUtil.responseSender(res, 'data', 200, responseObj, 'user retrived successfully');
     } catch (error) {
