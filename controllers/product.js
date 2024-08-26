@@ -111,32 +111,16 @@ router.put('/updatePlan/:superAdmin', auth, bodyParser, async function (req, res
 
 
 
-        // var getSubscriptionIds = getSubscription.map((item)=>{item.id});
-
-        //     const getUserSubscription = await userSubscriptionModel.getAllUserSubscriptionByQuery({where:{ subscriptionId: getSubscriptionIds}})
-
-        // if (getUserSubscription.length > 0) {
-        //     inputparam = {
-        //         "name": req.body.name,
-        //         "updatedBy": userId,
-        //     }
-        //     message = 'Plan already being used. only Plan name updated .'
-        // }
-
-    }
-
-
-
         const planCollection = await productModel.updateProduct(inputparam, req.body.id);
-    if (!planCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'plan updated but no values to show');
+        if (!planCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'plan updated but no values to show');
 
-    responseObj = { "planCollection": planCollection };
-    return await helperUtil.responseSender(res, 'data', 200, responseObj, message);
-} catch (error) {
-    message = "plan updation Failed.";
-    responseObj = error;
-    return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
-}
+        responseObj = { "planCollection": planCollection };
+        return await helperUtil.responseSender(res, 'data', 200, responseObj, message);
+    } catch (error) {
+        message = "plan updation Failed.";
+        responseObj = error;
+        return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
+    }
 })
 
 
