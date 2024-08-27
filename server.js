@@ -397,50 +397,124 @@ async function cardAllocation(requestBody, UserId, old_data, res) {
     let superior_datum_param = {};
 
     // Update card allocation count
-    if (requestBody.cardAllocationCount != old_data.cardAllocationCount) {
-        const allocationDifference = requestBody.cardAllocationCount - old_data.cardAllocationCount;
-        if (old_data.createdcardcount > 0) {
+    // if (requestBody.cardAllocationCount != old_data.cardAllocationCount) {
+    //     const allocationDifference = requestBody.cardAllocationCount - old_data.cardAllocationCount;
+    //     if (old_data.createdcardcount > 0) {
 
-            superior_datum_param.cardAllocationCount =
-                superior_datum.cardAllocationCount - allocationDifference;
+    //         superior_datum_param.cardAllocationCount =
+    //             superior_datum.cardAllocationCount - allocationDifference;
 
-            if (requestBody.cardAllocationCount === 0 && old_data.cardAllocationCount !== 0) {
-                superior_datum_param.cardAllocationCount += old_data.cardAllocationCount;
-            }
-        } else {
-            // superior_datum_param.cardAllocationCount =
-            //     superior_datum.cardAllocationCount - allocationDifference;
-            // if (requestBody.cardAllocationCount == 0) superior_datum_param.cardAllocationCount = old_data.cardAllocationCount;
-            // requestBody.cardAllocationCount == 0 ? requestBody.cardAllocationCount = 1 : requestBody.cardAllocationCount;
-
-
+    //         if (requestBody.cardAllocationCount === 0 && old_data.cardAllocationCount !== 0) {
+    //             superior_datum_param.cardAllocationCount += old_data.cardAllocationCount;
+    //         }
+    //     } else {
+    //         // superior_datum_param.cardAllocationCount =
+    //         //     superior_datum.cardAllocationCount - allocationDifference;
+    //         // if (requestBody.cardAllocationCount == 0) superior_datum_param.cardAllocationCount = old_data.cardAllocationCount;
+    //         // requestBody.cardAllocationCount == 0 ? requestBody.cardAllocationCount = 1 : requestBody.cardAllocationCount;
 
 
 
-            if (old_data.cardAllocationCount <= requestBody.cardAllocationCount) {
+
+
+    //         if (old_data.cardAllocationCount <= requestBody.cardAllocationCount) {
                 
-                if (superior_datum.createdcardcount > 0 ) {
-                    superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount - parseInt(requestBody.cardAllocationCount, 10);
-                } else {
-                    // superior_datum_param.cardAllocationCount = (requestBody.cardAllocationCount -1) + superior_datum.cardAllocationCount ;
-                    superior_datum_param.cardAllocationCount = (superior_datum.cardAllocationCount - requestBody.cardAllocationCount);
-                }
-                requestBody.cardAllocationCount = parseInt(requestBody.cardAllocationCount, 10) + old_data.cardAllocationCount;
-            } else {
-                var diff = old_data.cardAllocationCount - requestBody.cardAllocationCount;
-                if (superior_datum.createdcardcount > 0) {
-                    // superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount - parseInt(requestBody.cardAllocationCount, 10);
-                    superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount + (diff - 1);
-                } else {
-                    superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount + diff;
-                }
+    //             if (superior_datum.createdcardcount > 0 ) {
+    //                 superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount - parseInt(requestBody.cardAllocationCount, 10);
+    //             } else {
+    //                 // superior_datum_param.cardAllocationCount = (requestBody.cardAllocationCount -1) + superior_datum.cardAllocationCount ;
+    //                 superior_datum_param.cardAllocationCount = (superior_datum.cardAllocationCount - requestBody.cardAllocationCount);
+    //             }
+    //             requestBody.cardAllocationCount = parseInt(requestBody.cardAllocationCount, 10) + old_data.cardAllocationCount;
+    //         } else {
+    //             var diff = old_data.cardAllocationCount - requestBody.cardAllocationCount;
+    //             if (superior_datum.createdcardcount > 0) {
+    //                 // superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount - parseInt(requestBody.cardAllocationCount, 10);
+    //                 superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount + (diff - 1);
+    //             } else {
+    //                 superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount + diff;
+    //             }
                 
-                // requestBody.cardAllocationCount = ;   
-            }
-            requestBody.cardAllocationCount == 0 ? requestBody.cardAllocationCount = 1 : requestBody.cardAllocationCount;
+    //             // requestBody.cardAllocationCount = ;   
+    //         }
+    //         requestBody.cardAllocationCount == 0 ? requestBody.cardAllocationCount = 1 : requestBody.cardAllocationCount;
 
 
+    //     }
+    // }
+    
+    //new code for card allocation
+    if (requestBody.cardAllocationCount != old_data.cardAllocationCount || old_data.createdcardcount == 0) {
+        // var x = 'decrement';
+    
+        // if (superior_datum.cardAllocationCount > parseInt(requestBody.cardAllocationCount, 10)) {
+        // // if (old_data.cardAllocationCount < parseInt(requestBody.cardAllocationCount, 10)) {
+
+        //     x = 'increment';
+        // } 
+            
+        // // if (superior_datum.createdcardcount > 0) {
+        // if (x == 'increment') {
+        //     // var dif = parseInt(requestBody.cardAllocationCount, 10)  - old_data.cardAllocationCount 
+        //     var dif = old_data.cardAllocationCount - parseInt(requestBody.cardAllocationCount, 10)
+        //     // superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount - dif;
+        //     superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount - parseInt(requestBody.cardAllocationCount, 10);//tested 8,5
+        //     // superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount - parseInt(requestBody.cardAllocationCount, 10);//tested 8,5
+        //     // if (old_data.createdcardcount > 1) {
+        //     //     var dif = parseInt(requestBody.cardAllocationCount, 10)  - (old_data.cardAllocationCount +1);
+        //     // superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount - dif;
+            
+
+
+        //     // superior_datum_param.cardAllocationCount = old_data.cardAllocationCount - superior_datum.cardAllocationCount;
+        //     // if (superior_datum.createdcardcount == 0) {
+        //     //     superior_datum_param.cardAllocationCount += 1;
+        //     // }
+
+
+
+        //     // }
+        //     } else {
+        //     // superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount - parseInt(requestBody.cardAllocationCount, 10);
+        //     var dif = (old_data.cardAllocationCount -1) - parseInt(requestBody.cardAllocationCount, 10);
+        //     superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount + dif;
+        //     // if (superior_datum.createdcardcount == 0) {
+        //     //     superior_datum_param.cardAllocationCount = (superior_datum.cardAllocationCount -1) + dif;
+        //     // }
+        //     if (old_data.createdcardcount > 1) {
+        //         var dif = (old_data.cardAllocationCount + 1) - parseInt(requestBody.cardAllocationCount, 10);
+        //         superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount + dif;
+        //     }
+        //     }
+        // // }
+        // // else {
+        // //     if (x == 'increment') {
+        // //         superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount - parseInt(requestBody.cardAllocationCount, 10);
+        // //     } else {
+        // //         superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount - parseInt(requestBody.cardAllocationCount, 10);
+        // //     } 
+        // // }
+        
+        
+        // if (requestBody.cardAllocationCount == 0) {
+        //     superior_datum_param.cardAllocationCount = old_data.cardAllocationCount + superior_datum.cardAllocationCount;
+        //     if (superior_datum.createdcardcount == 0) {
+        //         superior_datum_param.cardAllocationCount -= 1;
+        //     }
+        //     else {
+        //         superior_datum_param.cardAllocationCount -= 1;
+        //     }
+        // }
+        if (old_data.createdcardcount == 0) {
+            requestBody.cardAllocationCount = parseInt(requestBody.cardAllocationCount, 10) + 1;
+        } else if (old_data.createdcardcount > 1) {
+            requestBody.cardAllocationCount = parseInt(requestBody.cardAllocationCount, 10) - 1;
         }
+
+        var toatalcount = old_data.cardAllocationCount + superior_datum.cardAllocationCount;
+        var setadtum = toatalcount - requestBody.cardAllocationCount;
+        superior_datum_param.cardAllocationCount = setadtum;
+
     }
 
     const old_allocated_count = old_data.userAllocatedCount + old_data.usercreatedCount;
