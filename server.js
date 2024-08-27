@@ -516,11 +516,13 @@ async function cardAllocation(requestBody, UserId, old_data, res) {
             var setadtum = toatalcount - requestBody.cardAllocationCount;
             superior_datum_param.cardAllocationCount = setadtum;
     }
-    // if (requestBody.role == 'DEPARTMENT_HEAD' && (requestBody.cardAllocationCount != (old_data.cardAllocationCount - old_data.createdcardcount))) {
-        if (requestBody.role == 'DEPARTMENT_HEAD' && (requestBody.cardAllocationCount != old_data.cardAllocationCount || old_data.createdcardcount == 0)) {
+    // if (requestBody.role == 'DEPARTMENT_HEAD' && (requestBody.cardAllocationCount != old_data.createdcardcount != 0 ? old_data.cardAllocationCount :(old_data.cardAllocationCount - 1))) {
+        // if (requestBody.role == 'DEPARTMENT_HEAD' && (requestBody.cardAllocationCount != old_data.cardAllocationCount || old_data.createdcardcount == 0)) {
+        if (requestBody.role == 'DEPARTMENT_HEAD' ) {
         const child_users = await userModel.getALLUserbyQuery({ where: { createdBy: UserId, isDelete: false } });
 
-        var child_card_allocation = 0;
+            var child_card_allocation = 0;
+            var current_user_allocation = old_data.cardAllocationCount
 
         if (child_users.length > 0) {
             const totalChildAllocation = child_users.reduce((total, item) => {
@@ -531,28 +533,45 @@ async function cardAllocation(requestBody, UserId, old_data, res) {
                 return countCalculation;
             }, 0);
             child_card_allocation = totalChildAllocation;
-        }
 
-        if (old_data.createdcardcount == 0) {
-            requestBody.cardAllocationCount = (parseInt(requestBody.cardAllocationCount, 10) - child_card_allocation) + 1;
-        }
-        // else if (old_data.createdcardcount > 1) {
-        //     requestBody.cardAllocationCount = parseInt(requestBody.cardAllocationCount, 10) - 1;
-        // }
-       else {
-            requestBody.cardAllocationCount = parseInt(requestBody.cardAllocationCount, 10) - child_card_allocation;
-        }
-        var tempValue = old_data.cardAllocationCount;
-        if(old_data.createdcardcount == 0){
-            tempValue = old_data.cardAllocationCount - 1 ;
-        }
-        var toatalcount = tempValue - superior_datum.cardAllocationCount;
-        superior_datum_param.cardAllocationCount = 0;
-        if (toatalcount > 0) {
-            superior_datum_param.cardAllocationCount = toatalcount;
-        }
+
+            }
+            if (old_data.createdcardcount ==  0) {
+                current_user_allocation = old_data.cardAllocationCount - 1;
+            } 
+            if ((current_user_allocation + child_card_allocation) != requestBody.cardAllocationCount) {
+                if (old_data.createdcardcount == 0) {
+                    requestBody.cardAllocationCount = (parseInt(requestBody.cardAllocationCount, 10) - child_card_allocation) + 1;
+                }
+                // else if (old_data.createdcardcount > 1) {
+                //     requestBody.cardAllocationCount = parseInt(requestBody.cardAllocationCount, 10) - 1;
+                // }
+                else {
+                    requestBody.cardAllocationCount = parseInt(requestBody.cardAllocationCount, 10) - child_card_allocation;
+                }
+                var tempValue = old_data.cardAllocationCount;
+                if (old_data.createdcardcount == 0) {
+                    tempValue = old_data.cardAllocationCount - 1;
+                }
+                var toatalcount = tempValue - superior_datum.cardAllocationCount;
+                superior_datum_param.cardAllocationCount = 0;
+                if (toatalcount > 0) {
+                    superior_datum_param.cardAllocationCount = toatalcount;
+                }
+            }
+            else {
+                if (old_data.createdcardcount == 0) {
+                    requestBody.cardAllocationCount = parseInt(requestBody.cardAllocationCount, 10) + 1;
+                }
+                // else if (old_data.createdcardcount > 1) {
+                //     requestBody.cardAllocationCount = parseInt(requestBody.cardAllocationCount, 10) - 1;
+                // }
+            }
+
+        
     //    const child_users = await userModel.getALLUserbyQuery({ where: { createdBy: UserId, isDelete: false } });
     }
+    
 
     const old_allocated_count = old_data.userAllocatedCount + old_data.usercreatedCount;
 
