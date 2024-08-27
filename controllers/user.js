@@ -334,6 +334,8 @@ router.get("/user/:ID", auth, bodyParser, async function (req, res) {
         var allocation_count;
         var created_count = 0;
         var used_freeCard = 0;
+        var total_allocation_of_user = 0;
+        var min_allocation_of_user = 0;
 
         if (usr_detail.createdcardcount > 0) {
             // if (usr_detail.cardAllocationCount > 0) {
@@ -347,7 +349,24 @@ router.get("/user/:ID", auth, bodyParser, async function (req, res) {
             allocation_count = usr_detail.cardAllocationCount - 1;
 
         }
-        var allocationDetail = { 'allocation_count': allocation_count, 'created_count': created_count, 'used_freeCard': used_freeCard }
+
+        const child_users = await userModel.getALLUserbyQuery({ where: { createdBy: UserId, isDelete: false, isActive: true } });
+        if (child_users.length > 0) {
+            const totalChildAllocation = child_users.reduce((total, item) => {
+                return total + (item.allocation_count + item.createdcardcount);
+            }, 0);
+            const totalChildcreation = child_users.reduce((total, item) => {
+                return total + item.createdcardcount;
+            }, 0);
+
+            total_allocation_of_user = (allocation_count + created_count) + totalChildAllocation;
+            min_allocation_of_user = created_count;
+
+        } else {
+            total_allocation_of_user = allocation_count + created_count;
+            min_allocation_of_user = created_count + totalChildcreation;
+        }
+        var allocationDetail = { 'allocation_count': allocation_count, 'created_count': created_count, 'used_freeCard': used_freeCard, 'total_allocation_of_user': total_allocation_of_user, 'min_allocation_of_user': min_allocation_of_user }
         UserCollection.dataValues.allocationDetail = allocationDetail;
         responseObj = { "UserCollection": UserCollection };
         return await helperUtil.responseSender(res, 'data', 200, responseObj, 'user retrived successfully');
@@ -410,9 +429,13 @@ router.post("/companybasedUser/:companyId", auth, bodyParser, async function (re
             const active_cards = await cardModel.getALLActiveCardbyUserId(userCollection[index].id);
             const usr_detail = await userModel.getUser(userCollection[index].id);
 
+
+
             var allocation_count;
             var created_count = 0;
             var used_freeCard = 0;
+            var total_allocation_of_user = 0;
+            var min_allocation_of_user = 0;
 
             if (usr_detail.createdcardcount > 0) {
                 // if (usr_detail.cardAllocationCount > 0) {
@@ -426,7 +449,42 @@ router.post("/companybasedUser/:companyId", auth, bodyParser, async function (re
                 allocation_count = usr_detail.cardAllocationCount - 1;
 
             }
-            var allocationDetail = { 'allocation_count': allocation_count, 'created_count': created_count, 'used_freeCard': used_freeCard }
+
+            const child_users = await userModel.getALLUserbyQuery({ where: { createdBy: userCollection[index].id, isDelete: false, isActive: true } });
+            if (child_users.length > 0) {
+                const totalChildAllocation = child_users.reduce((total, item) => {
+                    return total + (item.allocation_count + item.createdcardcount);
+                }, 0);
+                const totalChildcreation = child_users.reduce((total, item) => {
+                    return total + item.createdcardcount;
+                }, 0);
+
+                total_allocation_of_user = (allocation_count + created_count) + totalChildAllocation;
+                min_allocation_of_user = created_count;
+
+            } else {
+                total_allocation_of_user = allocation_count + created_count;
+                min_allocation_of_user = created_count + totalChildcreation;
+            }
+            var allocationDetail = { 'allocation_count': allocation_count, 'created_count': created_count, 'used_freeCard': used_freeCard, 'total_allocation_of_user': total_allocation_of_user, 'min_allocation_of_user': min_allocation_of_user }
+
+            // var allocation_count;
+            // var created_count = 0;
+            // var used_freeCard = 0;
+
+            // if (usr_detail.createdcardcount > 0) {
+            //     // if (usr_detail.cardAllocationCount > 0) {
+
+            //     // }
+            //     allocation_count = usr_detail.cardAllocationCount + (usr_detail.createdcardcount - 1);
+            //     created_count = usr_detail.createdcardcount - 1;
+            //     used_freeCard = 1;
+
+            // } else {
+            //     allocation_count = usr_detail.cardAllocationCount - 1;
+
+            // }
+            // var allocationDetail = { 'allocation_count': allocation_count, 'created_count': created_count, 'used_freeCard': used_freeCard }
             userCollection[index].dataValues.allocationDetail = allocationDetail;
 
         }
