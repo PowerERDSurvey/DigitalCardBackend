@@ -505,15 +505,54 @@ async function cardAllocation(requestBody, UserId, old_data, res) {
         //         superior_datum_param.cardAllocationCount -= 1;
         //     }
         // }
-        if (old_data.createdcardcount == 0) {
-            requestBody.cardAllocationCount = parseInt(requestBody.cardAllocationCount, 10) + 1;
-        } else if (old_data.createdcardcount > 1) {
-            requestBody.cardAllocationCount = parseInt(requestBody.cardAllocationCount, 10) - 1;
-        }
+        
+        
+        if (requestBody.role == 'DEPARTMENT_HEAD') {
+            const child_users = await userModel.getALLUserbyQuery({ where: { createdBy: UserId, isDelete: false } });
 
-        var toatalcount = old_data.cardAllocationCount + superior_datum.cardAllocationCount;
-        var setadtum = toatalcount - requestBody.cardAllocationCount;
-        superior_datum_param.cardAllocationCount = setadtum;
+            var child_card_allocation = 0;
+
+            if (child_users.length > 0) {
+                const totalChildAllocation = child_users.reduce((total, item) => {
+                    var countCalculation = total + (item.cardAllocationCount + item.createdcardcount)
+                    if (item.createdcardcount == 0) {
+                        countCalculation = total + ((item.cardAllocationCount + item.createdcardcount) - 1)
+                    }
+                    return countCalculation;
+                }, 0);
+                child_card_allocation = totalChildAllocation;
+            }
+
+            if (old_data.createdcardcount == 0) {
+                requestBody.cardAllocationCount = parseInt(requestBody.cardAllocationCount, 10) + 1;
+            }
+            // else if (old_data.createdcardcount > 1) {
+            //     requestBody.cardAllocationCount = parseInt(requestBody.cardAllocationCount, 10) - 1;
+            // }
+           else {
+                requestBody.cardAllocationCount = parseInt(requestBody.cardAllocationCount, 10) - child_card_allocation;
+            }
+            var toatalcount = old_data.cardAllocationCount + superior_datum.cardAllocationCount;
+            superior_datum_param.cardAllocationCount = 0;
+            if (toatalcount > 0) {
+                superior_datum_param.cardAllocationCount = toatalcount;
+            }
+        //    const child_users = await userModel.getALLUserbyQuery({ where: { createdBy: UserId, isDelete: false } });
+        } else {
+            if (old_data.createdcardcount == 0) {
+                requestBody.cardAllocationCount = parseInt(requestBody.cardAllocationCount, 10) + 1;
+            } else if (old_data.createdcardcount > 1) {
+                requestBody.cardAllocationCount = parseInt(requestBody.cardAllocationCount, 10) - 1;
+            }
+            var toatalcount = old_data.cardAllocationCount + superior_datum.cardAllocationCount;
+            var setadtum = toatalcount - requestBody.cardAllocationCount;
+            superior_datum_param.cardAllocationCount = setadtum;
+        }
+        
+
+       
+
+      
 
     }
 
