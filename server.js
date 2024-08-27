@@ -575,7 +575,7 @@ async function cardAllocation(requestBody, UserId, old_data, res) {
 
     const old_allocated_count = old_data.userAllocatedCount + old_data.usercreatedCount;
 
-    if (requestBody.userAllocatedCount !== old_allocated_count) {
+    if (requestBody.userAllocatedCount != old_allocated_count) {
         if (requestBody.userAllocatedCount > old_allocated_count) {
             const allocationDifference = requestBody.userAllocatedCount - old_allocated_count;
             superior_datum_param.userAllocatedCount =
@@ -604,7 +604,7 @@ async function cardAllocation(requestBody, UserId, old_data, res) {
             requestBody.userAllocatedCount -= old_data.usercreatedCount;
         }
     } else {
-        requestBody.isUserCardAllocated = false;
+        // requestBody.isUserCardAllocated = false;
         superior_datum_param.userAllocatedCount =
             superior_datum.userAllocatedCount + old_allocated_count;
         superior_datum_param.usercreatedCount =
