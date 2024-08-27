@@ -190,12 +190,12 @@ router.get('/getallocationdetail/:userId', auth, bodyParser, async function (req
         var created_count = 0;
         var used_freeCard = 0;
 
-        if (active_cards.length > 0) {
+        if (usr_detail.createdcardcount > 0) {
             // if (usr_detail.cardAllocationCount > 0) {
 
             // }
-            allocation_count = usr_detail.cardAllocationCount + (active_cards.length - 1);
-            created_count = active_cards.length - 1;
+            allocation_count = usr_detail.cardAllocationCount + (usr_detail.createdcardcount - 1);
+            created_count = usr_detail.createdcardcount - 1;
             used_freeCard = 1;
 
         } else {
