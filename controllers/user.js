@@ -334,6 +334,8 @@ router.get("/user/:ID", auth, bodyParser, async function (req, res) {
         var allocation_count;
         var created_count = 0;
         var used_freeCard = 0;
+        var total_allocation_of_card = 0;
+        var min_allocation_of_card = 0;
 
         if (usr_detail.createdcardcount > 0) {
             // if (usr_detail.cardAllocationCount > 0) {
@@ -347,7 +349,59 @@ router.get("/user/:ID", auth, bodyParser, async function (req, res) {
             allocation_count = usr_detail.cardAllocationCount - 1;
 
         }
-        var allocationDetail = { 'allocation_count': allocation_count, 'created_count': created_count, 'used_freeCard': used_freeCard }
+
+        const child_users = await userModel.getALLUserbyQuery({ where: { createdBy: UserId, isDelete: false } });
+        // if (child_users.length > 0) {
+        //     const totalChildAllocation = child_users.reduce((total, item) => {
+        //         return total + (item.allocation_count + item.createdcardcount);
+        //     }, 0);
+        //     const totalChildcreation = child_users.reduce((total, item) => {
+        //         return total + item.createdcardcount;
+        //     }, 0);
+
+        //     total_allocation_of_card = (allocation_count + created_count) + totalChildAllocation;
+        //     min_allocation_of_card = created_count + totalChildcreation;
+
+
+        // } else {
+        //     total_allocation_of_card = allocation_count + created_count;
+        //     min_allocation_of_card = created_count;
+
+        // }
+        if (child_users.length > 0) {
+            const totalChildAllocation = child_users.reduce((total, item) => {
+                var countCalculation = total + (item.cardAllocationCount + item.createdcardcount)
+                if (item.createdcardcount == 0) {
+                    countCalculation = total + ((item.cardAllocationCount + item.createdcardcount) - 1)
+                }
+                return countCalculation;
+            }, 0);
+            // const totalChildcreation = child_users.reduce((total, item) => {
+            //     var countCalculation = total + item.createdcardcount
+            //     if(item.createdcardcount != 0 ){
+            //         countCalculation = total + (item.createdcardcount - 1 )
+            //     }
+            //     return countCalculation;
+            // }, 0);
+
+            const totalChildcreation = child_users.reduce((total, item) => {
+                var countCalculation;
+                if (item.createdcardcount == 0) {
+                    countCalculation = item.cardAllocationCount - 1
+                } else {
+                    countCalculation = item.cardAllocationCount
+                }
+                return countCalculation + created_count
+            }, 0);
+
+            min_allocation_of_card = created_count + totalChildcreation;
+            total_allocation_of_card = (allocation_count + created_count) + totalChildAllocation;
+        } else {
+            total_allocation_of_card = allocation_count + created_count;
+            min_allocation_of_card = created_count;
+
+        }
+        var allocationDetail = { 'allocation_count': allocation_count, 'created_count': created_count, 'used_freeCard': used_freeCard, 'total_allocation_of_card': total_allocation_of_card, 'min_allocation_of_card': min_allocation_of_card }
         UserCollection.dataValues.allocationDetail = allocationDetail;
         responseObj = { "UserCollection": UserCollection };
         return await helperUtil.responseSender(res, 'data', 200, responseObj, 'user retrived successfully');
@@ -387,32 +441,17 @@ router.post("/getuserbasedcompanyuser/:UserId", auth, bodyParser, async function
     try {
         const userCollection = await userModel.getALLUserbyQuery({ where: { createdBy: UserId, companyId: companyId, role: role, isDelete: false } });
         if (userCollection.length == 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, "no active user in this role");
-
-        responseObj = { "userCollection": userCollection };
-        return await helperUtil.responseSender(res, 'data', 200, responseObj, `user colected successfully`);
-    } catch (error) {
-        message = `user collection failed.`;
-        responseObj = error;
-        return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
-    }
-})
-router.post("/companybasedUser/:companyId", auth, bodyParser, async function (req, res) {
-    const companyId = req.params.companyId;
-    var message = "";
-    var httpStatusCode = 500;
-    var responseObj = {};
-    if (!companyId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
-    try {
-        const userCollection = await userModel.getCompanybasedUser(companyId, req.body.role);
-        if (userCollection.length == 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, "no active user in this role");
-
         for (let index = 0; index < userCollection.length; index++) {
             const active_cards = await cardModel.getALLActiveCardbyUserId(userCollection[index].id);
             const usr_detail = await userModel.getUser(userCollection[index].id);
 
+
+
             var allocation_count;
             var created_count = 0;
             var used_freeCard = 0;
+            var total_allocation_of_card = 0;
+            var min_allocation_of_card = 0;
 
             if (usr_detail.createdcardcount > 0) {
                 // if (usr_detail.cardAllocationCount > 0) {
@@ -426,7 +465,106 @@ router.post("/companybasedUser/:companyId", auth, bodyParser, async function (re
                 allocation_count = usr_detail.cardAllocationCount - 1;
 
             }
-            var allocationDetail = { 'allocation_count': allocation_count, 'created_count': created_count, 'used_freeCard': used_freeCard }
+            var allocationDetail = { 'allocation_count': allocation_count, 'created_count': created_count, 'used_freeCard': used_freeCard, 'total_allocation_of_card': allocation_count, 'min_allocation_of_card': created_count }
+            userCollection[index].dataValues.allocationDetail = allocationDetail;
+
+        }
+        responseObj = { "userCollection": userCollection };
+        return await helperUtil.responseSender(res, 'data', 200, responseObj, `user colected successfully`);
+    } catch (error) {
+        message = `user collection failed.`;
+        responseObj = error;
+        return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
+    }
+})
+router.post("/companybasedUser/:companyId", auth, bodyParser, async function (req, res) {
+    const companyId = req.params.companyId;
+    var message = "";
+    var httpStatusCode = 500;
+    var responseObj = {};
+    if (!UserId && !role && !companyId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
+    try {
+        const userCollection = await userModel.getALLUserbyQuery({ where: { createdBy: UserId, companyId: companyId, role: role, isDelete: false } });
+        if (userCollection.length == 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, "no active user in this role");
+
+        for (let index = 0; index < userCollection.length; index++) {
+            const active_cards = await cardModel.getALLActiveCardbyUserId(userCollection[index].id);
+            const usr_detail = await userModel.getUser(userCollection[index].id);
+
+
+
+            var allocation_count;
+            var created_count = 0;
+            var used_freeCard = 0;
+            var total_allocation_of_card = 0;
+            var min_allocation_of_card = 0;
+
+            if (usr_detail.createdcardcount > 0) {
+                // if (usr_detail.cardAllocationCount > 0) {
+
+                // }
+                allocation_count = usr_detail.cardAllocationCount + (usr_detail.createdcardcount - 1);
+                created_count = usr_detail.createdcardcount - 1;
+                used_freeCard = 1;
+
+            } else {
+                allocation_count = usr_detail.cardAllocationCount - 1;
+
+            }
+
+            const child_users = await userModel.getALLUserbyQuery({ where: { createdBy: userCollection[index].id, isDelete: false } });
+            if (child_users.length > 0) {
+                const totalChildAllocation = child_users.reduce((total, item) => {
+                    var countCalculation = total + (item.cardAllocationCount + item.createdcardcount)
+                    if (item.createdcardcount == 0) {
+                        countCalculation = total + ((item.cardAllocationCount + item.createdcardcount) - 1)
+                    }
+                    return countCalculation;
+                }, 0);
+                // const totalChildcreation = child_users.reduce((total, item) => {
+                //     var countCalculation = total + item.createdcardcount
+                //     if(item.createdcardcount != 0 ){
+                //         countCalculation = total + (item.createdcardcount - 1 )
+                //     }
+                //     return countCalculation;
+                // }, 0);
+
+                const totalChildcreation = child_users.reduce((total, item) => {
+                    var countCalculation;
+                    if (item.createdcardcount == 0) {
+                        countCalculation = item.cardAllocationCount - 1
+                    } else {
+                        countCalculation = item.cardAllocationCount
+                    }
+                    return countCalculation + created_count
+                }, 0);
+
+                min_allocation_of_card = created_count + totalChildcreation;
+                total_allocation_of_card = (allocation_count + created_count) + totalChildAllocation;
+            } else {
+                total_allocation_of_card = allocation_count + created_count;
+                min_allocation_of_card = created_count;
+
+            }
+            var allocationDetail = { 'allocation_count': allocation_count, 'created_count': created_count, 'used_freeCard': used_freeCard, 'total_allocation_of_card': total_allocation_of_card, 'min_allocation_of_card': min_allocation_of_card }
+
+            // var allocation_count;
+            // var created_count = 0;
+            // var used_freeCard = 0;
+
+            // if (usr_detail.createdcardcount > 0) {
+            //     // if (usr_detail.cardAllocationCount > 0) {
+
+            //     // }
+            //     allocation_count = usr_detail.cardAllocationCount + (usr_detail.createdcardcount - 1);
+            //     created_count = usr_detail.createdcardcount - 1;
+            //     used_freeCard = 1;
+
+            // } else {
+            //     allocation_count = usr_detail.cardAllocationCount - 1;
+
+            // }
+            // var allocationDetail = { 'allocation_count': allocation_count, 'created_count': created_count, 'used_freeCard': used_freeCard }
             userCollection[index].dataValues.allocationDetail = allocationDetail;
 
         }
