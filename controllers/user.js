@@ -482,9 +482,9 @@ router.post("/companybasedUser/:companyId", auth, bodyParser, async function (re
     var message = "";
     var httpStatusCode = 500;
     var responseObj = {};
-    if (!UserId && !role && !companyId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
+    if (!companyId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
     try {
-        const userCollection = await userModel.getALLUserbyQuery({ where: { createdBy: UserId, companyId: companyId, role: role, isDelete: false } });
+        const userCollection = await userModel.getCompanybasedUser(companyId, req.body.role);
         if (userCollection.length == 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, "no active user in this role");
 
         for (let index = 0; index < userCollection.length; index++) {
