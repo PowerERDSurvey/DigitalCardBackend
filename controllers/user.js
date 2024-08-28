@@ -515,9 +515,12 @@ router.post("/companybasedUser/:companyId", auth, bodyParser, async function (re
             const child_users = await userModel.getALLUserbyQuery({ where: { createdBy: userCollection[index].id, isDelete: false } });
             if (child_users.length > 0) {
                 const totalChildAllocation = child_users.reduce((total, item) => {
-                    var countCalculation = total + (item.cardAllocationCount + item.createdcardcount)
+                    var countCalculation;
                     if (item.createdcardcount == 0) {
                         countCalculation = total + ((item.cardAllocationCount + item.createdcardcount) - 1)
+                    }
+                    else {
+                        countCalculation = total + item.cardAllocationCount
                     }
                     return countCalculation;
                 }, 0);
@@ -532,11 +535,12 @@ router.post("/companybasedUser/:companyId", auth, bodyParser, async function (re
                 const totalChildcreation = child_users.reduce((total, item) => {
                     var countCalculation;
                     if (item.createdcardcount == 0) {
-                        countCalculation = item.cardAllocationCount - 1
+                        countCalculation = total + (item.cardAllocationCount - 1)
                     } else {
-                        countCalculation = item.cardAllocationCount
+                        countCalculation = total + item.cardAllocationCount
                     }
-                    return countCalculation + created_count
+                    return countCalculation;
+                    // return countCalculation + created_count
                 }, 0);
 
                 min_allocation_of_card = created_count + totalChildcreation;
