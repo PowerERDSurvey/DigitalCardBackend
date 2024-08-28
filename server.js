@@ -643,15 +643,15 @@ async function cardAllocation(requestBody, UserId, old_data, res) {
             requestBody.userAllocatedCount -= old_data.usercreatedCount;
         }
     }
-    // else {
-    //     // requestBody.isUserCardAllocated = false;
-    //     superior_datum_param.userAllocatedCount =
-    //         superior_datum.userAllocatedCount + old_allocated_count;
-    //     superior_datum_param.usercreatedCount =
-    //         superior_datum.usercreatedCount - old_allocated_count;
+    else {
+        // requestBody.isUserCardAllocated = false;
+        // superior_datum_param.userAllocatedCount =
+            // superior_datum.userAllocatedCount + old_allocated_count;
+        // superior_datum_param.usercreatedCount =
+            // superior_datum.usercreatedCount - old_allocated_count;
 
-    //     requestBody.userAllocatedCount -= old_data.usercreatedCount;
-    // }
+        requestBody.userAllocatedCount -= old_data.usercreatedCount;
+    }
 
     await userModel.update(superior_datum.id, superior_datum_param);
     console.log('requestBody', requestBody);
