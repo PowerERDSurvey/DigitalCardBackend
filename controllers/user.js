@@ -371,8 +371,8 @@ router.get("/user/:ID", auth, bodyParser, async function (req, res) {
         if (child_users.length > 0) {
             const totalChildAllocation = child_users.reduce((total, item) => {
                 var countCalculation = total + (item.cardAllocationCount + item.createdcardcount)
-                if(item.createdcardcount == 0 ){
-                    countCalculation = total + ((item.cardAllocationCount + item.createdcardcount) - 1 )
+                if (item.createdcardcount == 0) {
+                    countCalculation = total + ((item.cardAllocationCount + item.createdcardcount) - 1)
                 }
                 return countCalculation;
             }, 0);
@@ -386,13 +386,13 @@ router.get("/user/:ID", auth, bodyParser, async function (req, res) {
 
             const totalChildcreation = child_users.reduce((total, item) => {
                 var countCalculation;
-                if(item.createdcardcount == 0 ){
+                if (item.createdcardcount == 0) {
                     countCalculation = item.cardAllocationCount - 1
                 } else {
                     countCalculation = item.cardAllocationCount
                 }
                 return countCalculation + created_count
-            },0);
+            }, 0);
 
             min_allocation_of_card = created_count + totalChildcreation;
             total_allocation_of_card = (allocation_count + created_count) + totalChildAllocation;
@@ -515,9 +515,12 @@ router.post("/companybasedUser/:companyId", auth, bodyParser, async function (re
             const child_users = await userModel.getALLUserbyQuery({ where: { createdBy: userCollection[index].id, isDelete: false } });
             if (child_users.length > 0) {
                 const totalChildAllocation = child_users.reduce((total, item) => {
-                    var countCalculation = total + (item.cardAllocationCount + item.createdcardcount)
-                    if(item.createdcardcount == 0 ){
-                        countCalculation = total + ((item.cardAllocationCount + item.createdcardcount) - 1 )
+                    var countCalculation;
+                    if (item.createdcardcount == 0) {
+                        countCalculation = total + ((item.cardAllocationCount + item.createdcardcount) - 1)
+                    }
+                    else {
+                        countCalculation = total + item.cardAllocationCount
                     }
                     return countCalculation;
                 }, 0);
@@ -531,13 +534,14 @@ router.post("/companybasedUser/:companyId", auth, bodyParser, async function (re
 
                 const totalChildcreation = child_users.reduce((total, item) => {
                     var countCalculation;
-                    if(item.createdcardcount == 0 ){
-                        countCalculation = item.cardAllocationCount - 1
+                    if (item.createdcardcount == 0) {
+                        countCalculation = total + (item.cardAllocationCount - 1)
                     } else {
-                        countCalculation = item.cardAllocationCount
+                        countCalculation = total + item.cardAllocationCount
                     }
-                    return countCalculation + created_count
-                },0);
+                    return countCalculation;
+                    // return countCalculation + created_count
+                }, 0);
 
                 min_allocation_of_card = created_count + totalChildcreation;
                 total_allocation_of_card = (allocation_count + created_count) + totalChildAllocation;
