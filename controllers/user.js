@@ -550,7 +550,7 @@ router.post("/companybasedUser/:companyId", auth, bodyParser, async function (re
                     // return countCalculation + created_count
                 }, 0);
 
-                min_allocation_of_card = created_count + totalChildcreation;
+                min_allocation_of_card = created_count + totalChildAllocation;
                 // total_allocation_of_card = (allocation_count + created_count) + totalChildAllocation;
                 total_allocation_of_card = allocation_count + totalChildAllocation;
             } else {
