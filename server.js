@@ -523,14 +523,14 @@ async function cardAllocation(requestBody, UserId, old_data, res) {
 
             var child_card_allocation = 0;
             var current_user_allocation = old_data.cardAllocationCount
-
+            var currect_user_activation_count = 0;
         if (child_users.length > 0) {
             const totalChildAllocation = child_users.reduce((total, item) => {
-                var countCalculation = total + item.cardAllocationCount;
+                var countCalculation = total + ((item.cardAllocationCount + item.createdcardcount) - 1)
                 // var countCalculation = total + (item.cardAllocationCount + item.createdcardcount)
-                if (item.createdcardcount == 0) {
-                    countCalculation = total + ((item.cardAllocationCount + item.createdcardcount) - 1)
-                }
+                // if (item.createdcardcount == 0) {
+                //     countCalculation = total + ((item.cardAllocationCount + item.createdcardcount) - 1)
+                // }
                 return countCalculation;
             }, 0);
             child_card_allocation = totalChildAllocation;
@@ -538,8 +538,13 @@ async function cardAllocation(requestBody, UserId, old_data, res) {
 
             }
             if (old_data.createdcardcount ==  0) {
-                current_user_allocation = old_data.cardAllocationCount - 1;
-            } 
+                current_user_allocation = (old_data.cardAllocationCount + old_data.createdcardcount) - 1;
+            } else{
+                current_user_allocation = (old_data.cardAllocationCount + old_data.createdcardcount) - 1;
+                if(old_data.createdcardcount > 1){
+                    currect_user_activation_count = old_data.createdcardcount - 1;
+                }
+            }
             if ((current_user_allocation + child_card_allocation) != requestBody.cardAllocationCount) {
                 // var tempValue;
                 // if (old_data.createdcardcount == 0) {
@@ -580,14 +585,14 @@ async function cardAllocation(requestBody, UserId, old_data, res) {
 
 
                 if (old_data.createdcardcount == 0) {
-                    requestBody.cardAllocationCount = (parseInt(requestBody.cardAllocationCount, 10) - child_card_allocation) + 1;
+                    requestBody.cardAllocationCount = ((parseInt(requestBody.cardAllocationCount, 10) - child_card_allocation ) - currect_user_activation_count) + 1;
                 }
                 else {
-                    requestBody.cardAllocationCount = parseInt(requestBody.cardAllocationCount, 10) - child_card_allocation;
+                    requestBody.cardAllocationCount = (parseInt(requestBody.cardAllocationCount, 10) - child_card_allocation ) - currect_user_activation_count;
                 }
-
-                var toatalcount = old_data.cardAllocationCount + superior_datum.cardAllocationCount + child_card_allocation;
-                var setadtum = toatalcount - (requestBody.cardAllocationCount + child_card_allocation);
+                var superior_datum_allocation = (superior_datum.cardAllocationCount + superior_datum.createdcardcount) - 1;
+                var toatalcount = current_user_allocation + superior_datum_allocation + child_card_allocation;
+                var setadtum = (toatalcount - (current_user_allocation + child_card_allocation)) - requestBody.cardAllocationCount;
                 superior_datum_param.cardAllocationCount = setadtum;
 
 
