@@ -5,43 +5,43 @@ var BusinessCard = require('../models/businesscard')(sequelize, DataTypes);
 var User = require('../models/user')(sequelize, DataTypes);
 
 let businessCard = {
-    createCard: async function (inputparam) {
-        const returnVal = await BusinessCard.create(inputparam);
-        return returnVal;
-
+    createCard: async function (inputparam, transaction) {
+        return await BusinessCard.create(inputparam, { transaction });
     },
-    updateCard: async function (inputparam, cardId) {
+    updateCard: async function (inputparam, cardId, transaction) {
         const returnVal = await BusinessCard.update(
             inputparam,
             {
-                where: {
-                    id: cardId
-                },
+                where: { id: cardId },
                 returning: true,
+                transaction
             }
         );
         return returnVal;
-
     },
-    getALLCardbyUserId: async function (userid) {
-        const returnVal = await BusinessCard.findAll({ where: { userId: userid, isDelete: false } });
-        return returnVal;
+    getALLCardbyUserId: async function (userid, transaction) {
+        return await BusinessCard.findAll({
+            where: { userId: userid, isDelete: false }
+        });
     },
-    getALLActiveCardbyUserId: async function (userid) {
-        const returnVal = await BusinessCard.findAll({ where: { userId: userid, isActive: true, isDelete: false } });
-        return returnVal;
+    getALLActiveCardbyUserId: async function (userid, transaction) {
+        return await BusinessCard.findAll({
+            where: { userId: userid, isActive: true, isDelete: false }
+        });
     },
-    getACardbyCardId: async function (userKey, cardKey) {
-        const userid = await User.findOne({ where: { randomKey: userKey, isActive: true } });
+    getACardbyCardId: async function (userKey, cardKey, transaction) {
+        const userid = await User.findOne({
+            where: { randomKey: userKey, isActive: true }
+        });
         if (!userid) return userid;
-        // const returnVal = await BusinessCard.findOne({where:{randomKey:cardKey, isActive:true, userId :userid.id}})// after add isDelete
-        const returnVal = await BusinessCard.findOne({ where: { randomKey: cardKey, isActive: true, isDelete: false, userId: userid.id } })
-        return returnVal;
+        return await BusinessCard.findOne({
+            where: { randomKey: cardKey, isActive: true, isDelete: false, userId: userid.id }
+        });
     },
-    getACard: async function (cardId) {
-        // const returnVal = await BusinessCard.findOne({where:{id: cardId, isActive:true}});
-        const returnVal = await BusinessCard.findOne({ where: { id: cardId, isDelete: false } });
-        return returnVal;
+    getACard: async function (cardId, transaction) {
+        return await BusinessCard.findOne({
+            where: { id: cardId, isDelete: false }
+        });
     },
 }
 

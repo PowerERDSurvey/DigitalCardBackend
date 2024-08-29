@@ -1,26 +1,25 @@
 const cardRepo = require("../config/businesscard");
+
 let cardModel = {
-    createcreateCard: async function (inputparam) {
-        const returnVal = await cardRepo.createCard(inputparam);
-        return returnVal;
+    createCard: async function (inputparam, transaction) {
+        return await cardRepo.createCard(inputparam, transaction);
     },
-    updateCard: async function (inputparam, cardId) {
-        const returnVal = await cardRepo.updateCard(inputparam, cardId);
-        return returnVal;
+    updateCard: async function (inputparam, cardId, transaction) {
+        return await cardRepo.updateCard(inputparam, cardId, transaction);
     },
-    getALLCardbyUserId: async function (userId) {
+    getALLCardbyUserId: async function (userId, transaction) {
         const returnVal = await cardRepo.getALLCardbyUserId(userId);
         return returnVal;
     },
-    getALLActiveCardbyUserId: async function (userId) {
+    getALLActiveCardbyUserId: async function (userId, transaction) {
         const returnVal = await cardRepo.getALLActiveCardbyUserId(userId);
         return returnVal;
     },
-    getACardbyCardId: async function (userId, cardId) {
+    getACardbyCardId: async function (userId, cardId, transaction) {
         const returnVal = await cardRepo.getACardbyCardId(userId, cardId);
         return returnVal;
     },
-    getACard: async function (cardId) {
+    getACard: async function (cardId, transaction) {
         const returnVal = await cardRepo.getACard(cardId);
         return returnVal;
     }
