@@ -9,7 +9,7 @@ let businessCard = {
         return await BusinessCard.create(inputparam, { transaction });
     },
     updateCard: async function (inputparam, cardId, transaction) {
-        const [numAffected, updatedCards] = await BusinessCard.update(
+        const returnVal = await BusinessCard.update(
             inputparam,
             {
                 where: { id: cardId },
@@ -17,7 +17,7 @@ let businessCard = {
                 transaction
             }
         );
-        return updatedCards[0];
+        return returnVal;
     },
     getALLCardbyUserId: async function (userid, transaction) {
         return await BusinessCard.findAll({
