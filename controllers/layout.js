@@ -92,8 +92,6 @@ router.put('/updateLayout/:superAdmin', auth, bodyParser, async function (req, r
         var inputparam = {
             "name": req.body.name,
             "description": req.body.description,
-            // "isActive": req.body.isActive,
-            // "layoutComponentName": req.body.layoutComponentName
         };
 
         const layoutCollection = await layoutModel.updateLayout(inputparam, layoutId, transaction);

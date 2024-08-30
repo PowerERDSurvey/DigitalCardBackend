@@ -1033,7 +1033,7 @@ app.post('/user/createCard/:userId', auth, upload.fields([
 
        
 
-        const cardCollection = await cardModel.createcreateCard(inputparam);
+        const cardCollection = await cardModel.createCard(inputparam);
         if (!cardCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'there is no error on database but not created please contact BC service');
         responseObj = { "cardCollection": cardCollection };
         // const images = [];
