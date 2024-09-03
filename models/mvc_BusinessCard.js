@@ -1,6 +1,6 @@
 const cardRepo = require("../config/businesscard");
 let cardModel = {
-    createcreateCard: async function (inputparam) {
+    createCard: async function (inputparam) {
         const returnVal = await cardRepo.createCard(inputparam);
         return returnVal;
     },
