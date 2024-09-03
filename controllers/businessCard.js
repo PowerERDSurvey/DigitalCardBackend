@@ -13,17 +13,16 @@ const subscriptionModel = require("../models/mvc_subscription.js");
 const { where } = require("sequelize");
 const productModel = require("../models/mvc_product.js");
 const companyModel = require("../models/mvc_company.js");
-const { sequelize } = require('../config/sequelize'); // Make sure this path is correct
+
 
 router.get('/user/getAllCard/:userId', auth, bodyParser, async function (req, res) {
-    const transaction = await sequelize.transaction();
+    const userId = req.params.userId;
+    var message = "";
+    var httpStatusCode = 500;
+    var responseObj = {};
+    if (!userId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
     try {
-        const userId = req.params.userId;
-        var message = "";
-        var httpStatusCode = 500;
-        var responseObj = {};
-        if (!userId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
-        const cardCollection = await cardModel.getALLCardbyUserId(userId, transaction);
+        const cardCollection = await cardModel.getALLCardbyUserId(userId);
         if (cardCollection.length == 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'there is no cards in active state for this User');
 
         for (let index = 0; index < cardCollection.length; index++) {
@@ -34,14 +33,14 @@ router.get('/user/getAllCard/:userId', auth, bodyParser, async function (req, re
             cardCollection[index].dataValues.images = images;
         }
         responseObj = { "cardCollection": cardCollection };
-        await transaction.commit();
         return await helperUtil.responseSender(res, 'data', 200, responseObj, 'Card collected successfully');
     } catch (error) {
-        await transaction.rollback();
         message = "card retrieved Failed.";
         responseObj = error;
         return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
     }
+
+
 });
 
 
@@ -184,26 +183,23 @@ router.get('/getCardCount/:userId', bodyParser, async function (req, res) {
 
 
 router.put('/user/card/activate/:cardId', auth, bodyParser, async function (req, res) {
-    const transaction = await sequelize.transaction();
+    const cardId = req.params.cardId;
+    var message = "";
+    var httpStatusCode = 500;
+    var responseObj = {};
+    if (!cardId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
+    var key_word = req.body.isActive == true ? 'Acivated' : 'Deactivated';
     try {
-        const cardId = req.params.cardId;
-        var message = "";
-        var httpStatusCode = 500;
-        var responseObj = {};
-        if (!cardId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
-        var key_word = req.body.isActive == true ? 'Activated' : 'Deactivated';
 
-        const cardDetail = await cardModel.getACard(cardId, transaction);
-        const user_detail = await userModel.getUser(cardDetail.userId, transaction);
-        const active_cards = await cardModel.getALLActiveCardbyUserId(cardDetail.userId, transaction);
+        const cardDetail = await cardModel.getACard(cardId);
+        const user_detail = await userModel.getUser(cardDetail.userId);
+        const active_cards = await cardModel.getALLActiveCardbyUserId(cardDetail.userId);
 
         var user_update_param = {};
 
-        if (key_word == 'Activated') {
-            if (user_detail.cardAllocationCount == 0) {
-                await transaction.rollback();
-                return await helperUtil.responseSender(res, 'error', 400, responseObj, `Your account already have ${active_cards.length} Active cards`);
-            }
+        if (key_word == 'Acivated') {
+            if (user_detail.cardAllocationCount == 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Your account already have ${active_cards.length} Active cards`);
+            // if ((user_detail.cardAllocationCount + user_detail.createdcardcount) + 1 <= active_cards.length) return await helperUtil.responseSender(res, 'error', 400, responseObj, `Your account already have ${active_cards.length} Active cards`);
 
             if (user_detail.cardAllocationCount > 0) {
                 user_update_param = {
@@ -211,38 +207,36 @@ router.put('/user/card/activate/:cardId', auth, bodyParser, async function (req,
                     cardAllocationCount: user_detail.cardAllocationCount - 1
                 }
             }
+
         }
         if (key_word == 'Deactivated') {
+            // if (active_cards.length == 1) return await helperUtil.responseSender(res, 'error', 400, responseObj, `You account must have  ${active_cards.length} Active card`);
+
             if (user_detail.createdcardcount > 0) {
                 user_update_param = {
                     createdcardcount: user_detail.createdcardcount - 1,
                     cardAllocationCount: user_detail.cardAllocationCount + 1
                 }
+
             }
+
         }
 
         var inputparam = {
             isActive: req.body.isActive,
         }
-        const cardCollection = await cardModel.updateCard(inputparam, cardId, transaction);
-        if (!cardCollection) {
-            await transaction.rollback();
-            return await helperUtil.responseSender(res, 'error', 400, responseObj, 'card updated. but waiting for response please contact BC');
-        }
+        const cardCollection = await cardModel.updateCard(inputparam, cardId);
+        if (!cardCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'card updated. but waiting for response please contact BC');
 
-        const user_update = await userModel.update(user_detail.id, user_update_param, transaction);
-        if (!user_update) {
-            await transaction.rollback();
-            return await helperUtil.responseSender(res, 'error', 400, responseObj, 'Creation failed');
-        }
+        const user_update = await userModel.update(user_detail.id, user_update_param);
+        if (!user_update) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'Creation faild');
 
-        await transaction.commit();
 
         responseObj = { "cardCollection": cardCollection };
         return await helperUtil.responseSender(res, 'data', 200, responseObj, `card ${key_word} successfully`);
+
     } catch (error) {
-        await transaction.rollback();
-        message = `card ${key_word} failed`;
+        message = `card ${key_word} successfully`;
         responseObj = error;
         return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
     }
@@ -286,46 +280,32 @@ router.get('/getallocationdetail/:userId', auth, bodyParser, async function (req
 })
 
 router.get('/deleteCard/:cardId', auth, bodyParser, async function (req, res) {
-    const transaction = await sequelize.transaction();
+    const cardId = req.params.cardId;
+    var message = "";
+    var httpStatusCode = 500;
+    var responseObj = {};
+    if (!cardId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
     try {
-        const cardId = req.params.cardId;
-        var message = "";
-        var httpStatusCode = 500;
-        var responseObj = {};
-        if (!cardId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
-
-        const getCardDetail = await cardModel.getACard(cardId, transaction);
-        if (!getCardDetail) {
-            await transaction.rollback();
-            return await helperUtil.responseSender(res, 'error', 400, responseObj, 'Card Collection Failed');
-        }
-        const getUseDatail = await userModel.getUser(getCardDetail.userId, transaction);
-        if (!getUseDatail) {
-            await transaction.rollback();
-            return await helperUtil.responseSender(res, 'error', 400, responseObj, 'User Collection Failed');
-        }
+        const getCardDetail = await cardModel.getACard(cardId);
+        if (!getCardDetail) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'Card Collection Failed');
+        const getUseDatail = await userModel.getUser(getCardDetail.userId);
+        if (!getUseDatail) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'User Collection Failed');
         var inputparam = {
             isDelete: true,
         }
-        const cardCollection = await cardModel.updateCard(inputparam, cardId, transaction);
+        const cardCollection = await cardModel.updateCard(inputparam, cardId);
         if (getUseDatail.createdcardcount > 0) {
             var updateParam = {
                 createdcardcount: getUseDatail.createdcardcount - 1,
                 cardAllocationCount: getUseDatail.cardAllocationCount + 1
             }
-            const userUpdate = await userModel.update(getUseDatail.id, updateParam, transaction)
+            const userUpdate = await userModel.update(getUseDatail.id, updateParam)
         }
-        if (!cardCollection) {
-            await transaction.rollback();
-            return await helperUtil.responseSender(res, 'error', 400, responseObj, 'card updated. but waiting for response please contact BC');
-        }
-
-        await transaction.commit();
-
+        if (!cardCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'card updated. but waiting for response please contact BC');
         responseObj = { "cardCollection": cardCollection };
         return await helperUtil.responseSender(res, 'data', 200, responseObj, 'card deleted successfully');
+
     } catch (error) {
-        await transaction.rollback();
         message = "card deletion Failed.";
         responseObj = error;
         return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);

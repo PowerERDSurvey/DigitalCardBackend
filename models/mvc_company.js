@@ -1,24 +1,30 @@
 const companyRepo = require("../config/company");
-
 let companyModel = {
-    createCompany: async function (inputparam, transaction) {
-        return await companyRepo.createCompany(inputparam, transaction);
+    createCompany: async function(inputparam){
+        const returnVal = await companyRepo.createCompany(inputparam) ;
+        return returnVal;
     },
-    updateCompany: async function (inputparam, companyId, transaction) {
-        return await companyRepo.updateCompany(inputparam, companyId, transaction);
+    updateCompany: async function(inputparam,companyId){
+        const returnVal = await companyRepo.updateCompany(inputparam,companyId) ;
+        return returnVal;
     },
-    get_All_ActiveCompanyById: async function (transaction) {
-        return await companyRepo.get_All_ActiveCompanyById(transaction);
+    get_All_ActiveCompanyById: async function(){
+        const returnVal = await companyRepo.get_All_ActiveCompanyById() ;
+        return returnVal;
     },
-    getActiveCompanyById: async function (compId, transaction) {
-        return await companyRepo.getActiveCompanyById(compId, transaction);
+    getActiveCompanyById: async function(compId){
+        const returnVal = await companyRepo.getActiveCompanyById(compId) ;
+        return returnVal;
     },
-    activateOrDeactivate: async function (companyId, is_active, userId, transaction) {
-        return await companyRepo.activateOrDeactivate(companyId, is_active, userId, transaction);
+    activateOrDeactivate: async function(companyId, is_active, userId){
+        const returnVal = await companyRepo.activateOrDeactivate(companyId, is_active, userId) ;
+        return returnVal;
     },
-    deleteCompany: async function (companyId, transaction) {
-        return await companyRepo.deleteCompany(companyId, transaction);
+    deleteCompany: async function(companyId){
+        const returnVal = await companyRepo.deleteCompany(companyId) ;
+        return returnVal;
     },
+
 }
 
 module.exports = companyModel;

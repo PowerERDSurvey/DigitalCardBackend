@@ -19,30 +19,24 @@ const { insertToUsertToken, listUserTokens, getLatestUserToken, deleteExpiredTok
 const { JSON } = require("sequelize");
 const { json } = require("body-parser");
 const cardModel = require("../models/mvc_BusinessCard.js");
-const { sequelize } = require('../config/sequelize'); // Make sure this path is correct
 
 
 router.post("/user", async function (req, res) {
-    const transaction = await sequelize.transaction();
+    const user = req.user;
+    const requestBody = req.body;
+    var Randpassword = await helperUtil.generateRandomPassword();
+    let encryptedPassword = cryptr.encrypt(requestBody.password ? requestBody.password : Randpassword);
+    requestBody.PASSWORD = encryptedPassword;
+    console.log(requestBody);
 
     try {
-        const user = req.user;
-        const requestBody = req.body;
-        var Randpassword = await helperUtil.generateRandomPassword();
-        let encryptedPassword = cryptr.encrypt(requestBody.password ? requestBody.password : Randpassword);
-        requestBody.PASSWORD = encryptedPassword;
-        console.log(requestBody);
-
-        await handleUserCreation(req, res, requestBody, transaction);
-
-        await transaction.commit();
+        await handleUserCreation(req, res, requestBody);
     } catch (error) {
-        await transaction.rollback();
         return await sendErrorResponse(res, 500, error, 'User creation failed.');
     }
 });
 
-async function handleUserCreation(req, res, requestBody, transaction) {
+async function handleUserCreation(req, res, requestBody) {
     const isEmailValid = await helperUtil.checkEmailValid(requestBody.email);
 
     if (!isEmailValid && requestBody.type !== 'GOOGLE_SSO') {
@@ -74,13 +68,13 @@ async function handleUserCreation(req, res, requestBody, transaction) {
             const responseData = createResponseData(email[0], userImages, token);
             return res.json({ status: 200, token: token, data: responseData });
         }
-        return await handleGoogleSSOUser(req, res, requestBody, transaction);
+        return await handleGoogleSSOUser(req, res, requestBody);
     } else {
-        return await handleStandardUser(req, res, requestBody, isEmailValid, transaction);
+        return await handleStandardUser(req, res, requestBody, isEmailValid);
     }
 }
 
-async function handleGoogleSSOUser(req, res, requestBody, transaction) {
+async function handleGoogleSSOUser(req, res, requestBody) {
 
     // if (!result.isActive) {
     //     return await sendErrorResponse(res, 400, {}, 'User is disabled');
@@ -89,7 +83,7 @@ async function handleGoogleSSOUser(req, res, requestBody, transaction) {
     const token = generateToken({ email: requestBody.email });
     const inputObj = createUserInputObject(requestBody, token);
 
-    const result = await userModel.create(inputObj, transaction);
+    const result = await userModel.create(inputObj);
     await deleteExpiredTokenz(result.id);
     await insertTokenAndRespond(res, result.id, token, result);
 }
@@ -160,7 +154,7 @@ async function cardAllocation(requestBody, req, res) {
 
 }
 
-async function handleStandardUser(req, res, requestBody, isEmailValid, transaction) {
+async function handleStandardUser(req, res, requestBody, isEmailValid) {
     if (!isEmailValid) {
         return await handleExistingEmail(req, res, requestBody);
     }
@@ -173,7 +167,7 @@ async function handleStandardUser(req, res, requestBody, isEmailValid, transacti
     const token = generateToken({ email: requestBody.email });
     const inputObj = createUserInputObject(requestBody, token);
     await cardAllocation(inputObj, req, res);
-    const result = await userModel.create(inputObj, transaction);
+    const result = await userModel.create(inputObj);
 
     if (!result) {
         return await sendErrorResponse(res, 400, {}, 'User created but no values to show.');
@@ -401,9 +395,9 @@ router.get("/user/:ID", auth, bodyParser, async function (req, res) {
             }, 0);
 
             min_allocation_of_card = created_count + totalChildcreation;
-            total_allocation_of_card = allocation_count + totalChildAllocation;
+            total_allocation_of_card = (allocation_count + created_count) + totalChildAllocation;
         } else {
-            total_allocation_of_card = allocation_count;
+            total_allocation_of_card = allocation_count + created_count;
             min_allocation_of_card = created_count;
 
         }
@@ -526,7 +520,7 @@ router.post("/companybasedUser/:companyId", auth, bodyParser, async function (re
                         countCalculation = total + ((item.cardAllocationCount + item.createdcardcount) - 1)
                     }
                     else {
-                        countCalculation = total + ((item.cardAllocationCount + item.createdcardcount) - 1)
+                        countCalculation = total + item.cardAllocationCount
                     }
                     return countCalculation;
                 }, 0);
@@ -543,18 +537,16 @@ router.post("/companybasedUser/:companyId", auth, bodyParser, async function (re
                     if (item.createdcardcount == 0) {
                         countCalculation = total + (item.cardAllocationCount - 1)
                     } else {
-                        countCalculation = total + (item.createdcardcount - 1)
+                        countCalculation = total + item.cardAllocationCount
                     }
                     return countCalculation;
                     // return countCalculation + created_count
                 }, 0);
 
-                min_allocation_of_card = created_count + totalChildAllocation;
-                // total_allocation_of_card = (allocation_count + created_count) + totalChildAllocation;
-                total_allocation_of_card = allocation_count + totalChildAllocation;
+                min_allocation_of_card = created_count + totalChildcreation;
+                total_allocation_of_card = (allocation_count + created_count) + totalChildAllocation;
             } else {
-                // total_allocation_of_card = allocation_count + created_count;
-                total_allocation_of_card = allocation_count;
+                total_allocation_of_card = allocation_count + created_count;
                 min_allocation_of_card = created_count;
 
             }
@@ -679,18 +671,16 @@ router.put('/initialPasswordResetuser/:UserId/tocken/:Token', async function (re
 
 
 router.post('/deleteUser/:UserId', auth, bodyParser, async function (req, res) {
-    const transaction = await sequelize.transaction();
+    const { UserId } = req.params;
+    const { id } = req.body;
+    let responseObj = {};
+    const httpStatusCode = 500;
+
+    if (!UserId) {
+        return helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'Requested params missing');
+    }
 
     try {
-        const { UserId } = req.params;
-        const { id } = req.body;
-        let responseObj = {};
-        const httpStatusCode = 500;
-
-        if (!UserId) {
-            return helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'Requested params missing');
-        }
-
         const get_user = await userModel.getUser(id);
         if (!get_user) {
             return helperUtil.responseSender(res, 'error', 400, responseObj, 'User deletion failed');
@@ -711,12 +701,12 @@ router.post('/deleteUser/:UserId', auth, bodyParser, async function (req, res) {
                 await userModel.update(id, {
                     usercreatedCount: get_user.usercreatedCount - 1,
                     userAllocatedCount: get_user.userAllocatedCount + 1
-                }, { transaction });
+                });
             }
             if ((get_user.cardAllocationCount + get_user.createdcardcount) > 0) {
                 await userModel.update(superior_datum.id, {
                     cardAllocationCount: (superior_datum.cardAllocationCount + (get_user.cardAllocationCount + get_user.createdcardcount)) - 1
-                }, { transaction });
+                });
             }
 
             if (superior_datum.role !== 'SUPER_ADMIN') {
@@ -726,23 +716,21 @@ router.post('/deleteUser/:UserId', auth, bodyParser, async function (req, res) {
                     await userModel.update(superior_datum.id, {
                         usercreatedCount: superior_datum.usercreatedCount - userCountsToAdjust,
                         userAllocatedCount: superior_datum.userAllocatedCount + userCountsToAdjust
-                    }, { transaction });
+                    });
                 }
 
 
             }
         }
 
-        const userCollection = await userModel.deleteUser(UserId, id, { transaction });
+        const userCollection = await userModel.deleteUser(UserId, id);
         if (!userCollection) {
             return helperUtil.responseSender(res, 'error', 400, responseObj, 'User deletion failed');
         }
 
-        await transaction.commit();
         responseObj = { userCollection };
         return helperUtil.responseSender(res, 'data', 200, responseObj, 'User deleted successfully');
     } catch (error) {
-        await transaction.rollback();
         return helperUtil.responseSender(res, 'error', httpStatusCode, error, 'User deletion failed.');
     }
 });

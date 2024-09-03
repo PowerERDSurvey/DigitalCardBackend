@@ -1,20 +1,24 @@
 const layoutRepo = require("../config/layout");
-
 let layoutModel = {
-    createLayout: async function (inputparam, transaction) {
-        return await layoutRepo.createLayout(inputparam, transaction);
+    createLayout: async function(inputparam){
+        const returnVal = await layoutRepo.createLayout(inputparam) ;
+        return returnVal;
     },
-    updateLayout: async function (inputparam, layoutId, transaction) {
-        return await layoutRepo.updateLayout(inputparam, layoutId, transaction);
+    updateLayout: async function(inputparam,layoutId){
+        const returnVal = await layoutRepo.updateLayout(inputparam,layoutId) ;
+        return returnVal;
     },
-    getLayout: async function (layoutId, transaction) {
-        return await layoutRepo.getLayout(layoutId, transaction);
+    getLayout: async function(layoutId){
+        const returnVal = await layoutRepo.getLayout(layoutId) ;
+        return returnVal;
     },
-    getAllLayout: async function (transaction) {
-        return await layoutRepo.getAllLayout(transaction);
+    getAllLayout: async function(){
+        const returnVal = await layoutRepo.getAllLayout() ;
+        return returnVal;
     },
-    activateOrDeactivate: async function (layoutId, is_active, transaction) {
-        return await layoutRepo.activateOrDeactivate(layoutId, is_active, transaction);
+    activateOrDeactivate: async function(layoutId, is_active){
+        const returnVal = await layoutRepo.activateOrDeactivate(layoutId, is_active) ;
+        return returnVal;
     },
 }
 
