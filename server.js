@@ -31,10 +31,10 @@ const helperUtil = require('./util/helper.js');
 const upload = require('./middleware/upload.js');
 // var bodyParser = require('body-parser').json();
 const app = express();
-// app.use(cors());
+app.use(cors());
 const { OAuth2Client } = require('google-auth-library');
 const { google } = require('googleapis');
-const corsMiddleware = require("./config/corsConfig");
+// const corsMiddleware = require("./config/corsConfig");
 
 const oAuth2Client = new OAuth2Client(
     process.env.GOOGLE_CLIENT_ID,
@@ -90,37 +90,37 @@ app.get('/auth/callback', async (req, res) => {
 
 
 
-        // const fullUrl = `${req.protocol}://${req.hostname}:3000`
-        // console.log('Hostname:', fullUrl);
-        // process.env.BaseURL = fullUrl;
+        const fullUrl = `${req.protocol}://${req.hostname}:3000`
+        console.log('Hostname:', fullUrl);
+        process.env.BaseURL = fullUrl;
         // Pass token to frontend (or handle as needed)
-        res.redirect(`${process.env.BaseURL}/googleLogin/${data}`);
+        res.redirect(`${fullUrl}/googleLogin/${data}`);
     } catch (error) {
       console.error('Error exchanging code for tokens:', error);
       res.status(500).send('Authentication failed');
     }
   });
 
-// const allowedOrigins = [ 'https://checkout.stripe.com'];
-// app.use((req, res, next) => {
-//     const fullUrl = `${req.protocol}://${req.hostname}:3000`
-//     console.log('Hostname:', fullUrl);
-//     process.env.BaseURL = fullUrl;
-//     allowedOrigins.push(fullUrl);
-//     next();
-// });
+const allowedOrigins = ['https://test.bizcard.pfdigital.in','http://localhost:3000' ,'https://erocard.pfdigital.in', 'https://test.bizcard.pfdigital.in:3000', 'https://erocard.pfdigital.in:3001'];
+app.use((req, res, next) => {
+    const fullUrl = `${req.protocol}://${req.hostname}:3000`
+    console.log('Hostname:', fullUrl);
+    process.env.BaseURL = fullUrl;
+    allowedOrigins.push(fullUrl);
+    next();
+});
 
-// const corsOptions = {
-//     origin: function (origin, callback) {
-//         // Allow requests with no origin like mobile apps or curl requests
-//         if (!origin) return callback(null, true);
-//         if (allowedOrigins.indexOf(origin) === -1) {
-//             const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-//             return callback(new Error(msg), false);
-//         }
-//         return callback(null, true);
-//     }
-// };
+const corsOptions = {
+    origin: function (origin, callback) {
+        // Allow requests with no origin like mobile apps or curl requests
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    }
+};
 
 // Apply the CORS middleware
 
@@ -223,8 +223,8 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (request, 
     response.send();
 });
 
-// app.use(cors(corsOptions));
-app.use(corsMiddleware);
+app.use(cors(corsOptions));
+// app.use(corsMiddleware);
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true }));
 app.use(bodyParser.json({ limit: '50mb' }));
 
@@ -249,12 +249,7 @@ app.use("/",CardCreation);
 var Payment = require('./controllers/payment.js');
 app.use("/", Payment);
 
-var CompanyCreation = require('./controllers/company.js');
-app.use("/",CompanyCreation);
-
-
 var layoutCreation = require('./controllers/layout.js');
-app.use("/",layoutCreation);
 
 var ProductCreation = require('./controllers/product.js');
 app.use("/",ProductCreation);
