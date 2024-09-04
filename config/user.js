@@ -1,19 +1,27 @@
+const { update } = require('lodash');
 const { sequelize, DataTypes } = require('../config/sequelize');
 var User = require('../models/user')(sequelize, DataTypes);
 
+
+
 let users = {
-  create: async function (inputParams, transaction) {
-    return await User.create(inputParams, { transaction });
+  create: async function (inputParams) {
+    console.log('inputParams' + inputParams);
+
+
+    return await User.create(inputParams);
   },
-  update: async function (UserId, inputParams, transaction) {
-    await User.update(
+  update: async function (UserId, inputParams) {
+    const updatedUser = await User.update(
       inputParams,
       {
-        where: { id: UserId },
-        transaction
-      }
+        where: {
+          id: UserId,
+        },
+        returning: true,
+      },
     );
-    return await User.findOne({ where: { id: UserId }, transaction });
+    return await User.findOne({ where: { id: UserId } });
   },
   getActiveEmails: async function () {
     var queryInputs = {
@@ -65,15 +73,14 @@ let users = {
   getCompanybasedUser: async function (companyIdpar, rolepar) {
     return await User.findAll({ where: { companyId: companyIdpar, role: rolepar, isDelete: false } })
   },
-  deleteUser: async function (adminId, UserId, transaction) {
-    return await User.update(
-      { isDelete: true, updatedBy: adminId },
-      {
-        where: { id: UserId },
-        returning: true,
-        transaction
-      }
-    );
+  deleteUser: async function (adminId, UserId) {
+    const updatedUser = await User.update({ isDelete: true, updatedBy: adminId }, {
+      where: {
+        id: UserId
+      },
+      returning: true,
+    });
+    return updatedUser;
   },
   getALLUserbyQuery: async function (query) {
     return await User.findAll(query);
