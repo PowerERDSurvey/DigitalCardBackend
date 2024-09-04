@@ -31,9 +31,10 @@ const helperUtil = require('./util/helper.js');
 const upload = require('./middleware/upload.js');
 // var bodyParser = require('body-parser').json();
 const app = express();
-app.use(cors());
+// app.use(cors());
 const { OAuth2Client } = require('google-auth-library');
 const { google } = require('googleapis');
+const corsMiddleware = require("./config/corsConfig");
 
 const oAuth2Client = new OAuth2Client(
     process.env.GOOGLE_CLIENT_ID,
@@ -100,27 +101,29 @@ app.get('/auth/callback', async (req, res) => {
     }
   });
 
-const allowedOrigins = [ 'https://checkout.stripe.com'];
-app.use((req, res, next) => {
-    const fullUrl = `${req.protocol}://${req.hostname}:3000`
-    console.log('Hostname:', fullUrl);
-    process.env.BaseURL = fullUrl;
-    allowedOrigins.push(fullUrl);
-    next();
-});
+// const allowedOrigins = [ 'https://checkout.stripe.com'];
+// app.use((req, res, next) => {
+//     const fullUrl = `${req.protocol}://${req.hostname}:3000`
+//     console.log('Hostname:', fullUrl);
+//     process.env.BaseURL = fullUrl;
+//     allowedOrigins.push(fullUrl);
+//     next();
+// });
 
-const corsOptions = {
-    origin: function (origin, callback) {
-        // Allow requests with no origin like mobile apps or curl requests
-        if (!origin) return callback(null, true);
-        if (allowedOrigins.indexOf(origin) === -1) {
-            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-            return callback(new Error(msg), false);
-        }
-        return callback(null, true);
-    }
-};
+// const corsOptions = {
+//     origin: function (origin, callback) {
+//         // Allow requests with no origin like mobile apps or curl requests
+//         if (!origin) return callback(null, true);
+//         if (allowedOrigins.indexOf(origin) === -1) {
+//             const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+//             return callback(new Error(msg), false);
+//         }
+//         return callback(null, true);
+//     }
+// };
 
+// Apply the CORS middleware
+app.use(corsMiddleware);
 
 
 // app.use(express.static(path.join(__dirname, 'uploads')));
