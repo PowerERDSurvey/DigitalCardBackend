@@ -418,6 +418,7 @@ async function cardAllocation(requestBody, UserId, old_data, res) {
 
 
     //         if (old_data.cardAllocationCount <= requestBody.cardAllocationCount) {
+
     //             if (superior_datum.createdcardcount > 0 ) {
     //                 superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount - parseInt(requestBody.cardAllocationCount, 10);
     //             } else {
@@ -433,6 +434,7 @@ async function cardAllocation(requestBody, UserId, old_data, res) {
     //             } else {
     //                 superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount + diff;
     //             }
+
     //             // requestBody.cardAllocationCount = ;   
     //         }
     //         requestBody.cardAllocationCount == 0 ? requestBody.cardAllocationCount = 1 : requestBody.cardAllocationCount;
@@ -457,6 +459,7 @@ async function cardAllocation(requestBody, UserId, old_data, res) {
 
         //     x = 'increment';
         // } 
+
         // // if (superior_datum.createdcardcount > 0) {
         // if (x == 'increment') {
         //     // var dif = parseInt(requestBody.cardAllocationCount, 10)  - old_data.cardAllocationCount 
@@ -467,6 +470,7 @@ async function cardAllocation(requestBody, UserId, old_data, res) {
         //     // if (old_data.createdcardcount > 1) {
         //     //     var dif = parseInt(requestBody.cardAllocationCount, 10)  - (old_data.cardAllocationCount +1);
         //     // superior_datum_param.cardAllocationCount = superior_datum.cardAllocationCount - dif;
+
 
 
         //     // superior_datum_param.cardAllocationCount = old_data.cardAllocationCount - superior_datum.cardAllocationCount;
@@ -631,6 +635,53 @@ async function cardAllocation(requestBody, UserId, old_data, res) {
 
         //    const child_users = await userModel.getALLUserbyQuery({ where: { createdBy: UserId, isDelete: false } });
     }
+
+
+    const old_allocated_count = old_data.userAllocatedCount + old_data.usercreatedCount;
+
+    if (requestBody.userAllocatedCount != old_allocated_count) {
+        if (requestBody.userAllocatedCount > old_allocated_count) {
+            const allocationDifference = requestBody.userAllocatedCount - old_allocated_count;
+            superior_datum_param.userAllocatedCount =
+                superior_datum.userAllocatedCount - allocationDifference;
+            superior_datum_param.usercreatedCount =
+                superior_datum.usercreatedCount + allocationDifference;
+
+            requestBody.userAllocatedCount -= old_data.usercreatedCount;
+
+        } else if (requestBody.userAllocatedCount < old_allocated_count) {
+            const exist_user = await userModel.getALLUserbyQuery({
+                where: { isDelete: false, assignedBy: UserId }
+            });
+
+            if (exist_user.length > requestBody.userAllocatedCount) {
+                return await helperUtil.responseSender(res, 'error', 400, {},
+                    `Already the account has ${exist_user.length} users. Please delete and try to update.`);
+            }
+
+            const allocationDifference = old_allocated_count - requestBody.userAllocatedCount;
+            superior_datum_param.userAllocatedCount =
+                superior_datum.userAllocatedCount + allocationDifference;
+            superior_datum_param.usercreatedCount =
+                superior_datum.usercreatedCount - allocationDifference;
+
+            requestBody.userAllocatedCount -= old_data.usercreatedCount;
+        }
+    }
+    else {
+        // requestBody.isUserCardAllocated = false;
+        // superior_datum_param.userAllocatedCount =
+        // superior_datum.userAllocatedCount + old_allocated_count;
+        // superior_datum_param.usercreatedCount =
+        // superior_datum.usercreatedCount - old_allocated_count;
+
+        requestBody.userAllocatedCount -= old_data.usercreatedCount;
+    }
+
+    await userModel.update(superior_datum.id, superior_datum_param);
+    console.log('requestBody', requestBody);
+
+}
 
 
     const old_allocated_count = old_data.userAllocatedCount + old_data.usercreatedCount;
