@@ -18,7 +18,7 @@ const corsMiddleware = (req, res, next) => {
     const frontendUrl = getFrontendUrl(req);
     process.env.BaseURL = frontendUrl;
     cors({
-        origin: [frontendUrl, 'https://checkout.stripe.com'],
+        origin: [frontendUrl, 'https://test.bizcard.pfdigital.in', 'https://erocard.pfdigital.in', 'https://test.bizcard.pfdigital.in:3000', 'https://erocard.pfdigital.in:3001', 'https://checkout.stripe.com'],
         // methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
         // allowedHeaders: ['Content-Type', 'Authorization']
     })(req, res, next);
