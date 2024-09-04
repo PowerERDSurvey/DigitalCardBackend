@@ -4,11 +4,9 @@ const auth = require('../middleware/auth');
 var bodyParser = require('body-parser').json();
 const companyModel = require("../models/mvc_company");
 const userModel = require("../models/mvc_User.js");
-// const UserModel = require("../models/mvc_businessCardImage.js");
-// const userImageModel = require("../models/mvc_UserImage.js");
 const helperUtil = require('../util/helper.js');
 const { where } = require("sequelize");
-// const upload = require('../middleware/upload.js');
+const { sequelize } = require('../config/sequelize');
 
 
 
@@ -202,6 +200,60 @@ router.post('/deleteCompany/:userId', auth, bodyParser, async function (req, res
     }
 })
 
+router.post('/ActivateorDeactivate/:SuperAdmin/:companyRandomkey', auth, bodyParser, async function (req, res) {
+    const transaction = await sequelize.transaction();
+    try {
+        const userId = req.params.SuperAdmin;
+        const companyKey = req.params.companyRandomkey;
+        if (!userId || !companyKey) {
+            await transaction.rollback();
+            return await helperUtil.responseSender(res, 'error', 500, {}, 'requested params missing');
+        }
+        const getSuperAdmin = await userModel.getSuperAdmin(userId, transaction);
+        if (!getSuperAdmin) {
+            await transaction.rollback();
+            return await helperUtil.responseSender(res, 'error', 400, {}, 'company only can modify by the SuperAdmin');
+        }
+        const companyCollection = await companyModel.activateOrDeactivate(companyKey, req.body.isActive, userId, transaction);
+        if (!companyCollection) {
+            await transaction.rollback();
+            return await helperUtil.responseSender(res, 'error', 400, {}, `company ${req.body.isActive ? 'Activation' : 'deActivation'} failed`);
+        }
 
+        await transaction.commit();
+        return await helperUtil.responseSender(res, 'data', 200, { "companyCollection": companyCollection }, `company ${req.body.isActive ? 'Activation' : 'deActivation'} successfully`);
+    } catch (error) {
+        await transaction.rollback();
+        return await helperUtil.responseSender(res, 'error', 500, error, `company ${req.body.isActive ? 'Activation' : 'deActivation'} Failed.`);
+    }
+})
+
+router.post('/deleteCompany/:userId', auth, bodyParser, async function (req, res) {
+    const transaction = await sequelize.transaction();
+    try {
+        const userId = req.params.userId;
+        if (!userId) {
+            await transaction.rollback();
+            return await helperUtil.responseSender(res, 'error', 500, {}, 'requested params missing');
+        }
+        const getSuperAdmin = await userModel.getSuperAdmin(userId, transaction);
+        if (!getSuperAdmin) {
+            await transaction.rollback();
+            return await helperUtil.responseSender(res, 'error', 400, {}, 'company only can delete by the SuperAdmin');
+        }
+
+        const companyCollection = await companyModel.deleteCompany(req.body.companyId, transaction);
+        if (!companyCollection) {
+            await transaction.rollback();
+            return await helperUtil.responseSender(res, 'error', 400, {}, `company deletion failed`);
+        }
+
+        await transaction.commit();
+        return await helperUtil.responseSender(res, 'data', 200, { "companyCollection": companyCollection }, `company deleted successfully`);
+    } catch (error) {
+        await transaction.rollback();
+        return await helperUtil.responseSender(res, 'error', 500, error, `company deletion failed.`);
+    }
+})
 
 module.exports = router;

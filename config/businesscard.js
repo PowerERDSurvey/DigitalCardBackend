@@ -21,7 +21,6 @@ let businessCard = {
             }
         );
         return returnVal;
-
     },
     getALLCardbyUserId: async function (userid) {
         const returnVal = await BusinessCard.findAll({ where: { userId: userid, isDelete: false } });

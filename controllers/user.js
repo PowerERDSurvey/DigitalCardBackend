@@ -395,9 +395,9 @@ router.get("/user/:ID", auth, bodyParser, async function (req, res) {
             }, 0);
 
             min_allocation_of_card = created_count + totalChildcreation;
-            total_allocation_of_card = (allocation_count + created_count) + totalChildAllocation;
+            total_allocation_of_card = allocation_count + totalChildAllocation;
         } else {
-            total_allocation_of_card = allocation_count + created_count;
+            total_allocation_of_card = allocation_count;
             min_allocation_of_card = created_count;
 
         }
@@ -520,7 +520,7 @@ router.post("/companybasedUser/:companyId", auth, bodyParser, async function (re
                         countCalculation = total + ((item.cardAllocationCount + item.createdcardcount) - 1)
                     }
                     else {
-                        countCalculation = total + item.cardAllocationCount
+                        countCalculation = total + ((item.cardAllocationCount + item.createdcardcount) - 1)
                     }
                     return countCalculation;
                 }, 0);
@@ -537,16 +537,18 @@ router.post("/companybasedUser/:companyId", auth, bodyParser, async function (re
                     if (item.createdcardcount == 0) {
                         countCalculation = total + (item.cardAllocationCount - 1)
                     } else {
-                        countCalculation = total + item.cardAllocationCount
+                        countCalculation = total + (item.createdcardcount - 1)
                     }
                     return countCalculation;
                     // return countCalculation + created_count
                 }, 0);
 
-                min_allocation_of_card = created_count + totalChildcreation;
-                total_allocation_of_card = (allocation_count + created_count) + totalChildAllocation;
+                min_allocation_of_card = created_count + totalChildAllocation;
+                // total_allocation_of_card = (allocation_count + created_count) + totalChildAllocation;
+                total_allocation_of_card = allocation_count + totalChildAllocation;
             } else {
-                total_allocation_of_card = allocation_count + created_count;
+                // total_allocation_of_card = allocation_count + created_count;
+                total_allocation_of_card = allocation_count;
                 min_allocation_of_card = created_count;
 
             }
