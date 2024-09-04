@@ -90,18 +90,18 @@ app.get('/auth/callback', async (req, res) => {
 
 
 
-        // const fullUrl = `${req.protocol}://${req.hostname}:3000`
-        // console.log('Hostname:', fullUrl);
-        // process.env.BaseURL = fullUrl;
+        const fullUrl = `${req.protocol}://${req.hostname}:3000`
+        console.log('Hostname:', fullUrl);
+        process.env.BaseURL = fullUrl;
         // Pass token to frontend (or handle as needed)
-        res.redirect(`${process.env.BaseURL}/googleLogin/${data}`);
+        res.redirect(`${fullUrl}/googleLogin/${data}`);
     } catch (error) {
       console.error('Error exchanging code for tokens:', error);
       res.status(500).send('Authentication failed');
     }
   });
 
-const allowedOrigins = [ 'https://checkout.stripe.com'];
+const allowedOrigins = ['https://test.bizcard.pfdigital.in','http://localhost:3000' ,'https://erocard.pfdigital.in', 'https://test.bizcard.pfdigital.in:3000', 'https://erocard.pfdigital.in:3001'];
 app.use((req, res, next) => {
     const fullUrl = `${req.protocol}://${req.hostname}:3000`
     console.log('Hostname:', fullUrl);
