@@ -115,7 +115,7 @@ router.put('/updateSubscription/:superAdmin', auth, bodyParser, async function (
                 "updatedBy": userId,
             }
             message = `Subscription already in use so `;
-            if (req.body.planName) message += 'planName ';
+            if (req.body.planName) message += 'subscription name ';
             if (req.body.Description) message += 'Description ';
             message += 'updated successfully '
         }
