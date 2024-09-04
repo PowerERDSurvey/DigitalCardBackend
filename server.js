@@ -90,11 +90,11 @@ app.get('/auth/callback', async (req, res) => {
 
 
 
-        const fullUrl = `${req.protocol}://${req.hostname}:3000`
-        console.log('Hostname:', fullUrl);
-        process.env.BaseURL = fullUrl;
+        // const fullUrl = `${req.protocol}://${req.hostname}:3000`
+        // console.log('Hostname:', fullUrl);
+        // process.env.BaseURL = fullUrl;
         // Pass token to frontend (or handle as needed)
-        res.redirect(`${fullUrl}/googleLogin/${data}`);
+        res.redirect(`${process.env.BaseURL}/googleLogin/${data}`);
     } catch (error) {
       console.error('Error exchanging code for tokens:', error);
       res.status(500).send('Authentication failed');
@@ -123,7 +123,6 @@ app.get('/auth/callback', async (req, res) => {
 // };
 
 // Apply the CORS middleware
-app.use(corsMiddleware);
 
 
 // app.use(express.static(path.join(__dirname, 'uploads')));
@@ -224,7 +223,8 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (request, 
     response.send();
 });
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
+app.use(corsMiddleware);
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true }));
 app.use(bodyParser.json({ limit: '50mb' }));
 
@@ -640,6 +640,53 @@ async function cardAllocation(requestBody, UserId, old_data, res) {
     }
 
 
+//     const old_allocated_count = old_data.userAllocatedCount + old_data.usercreatedCount;
+
+//     if (requestBody.userAllocatedCount != old_allocated_count) {
+//         if (requestBody.userAllocatedCount > old_allocated_count) {
+//             const allocationDifference = requestBody.userAllocatedCount - old_allocated_count;
+//             superior_datum_param.userAllocatedCount =
+//                 superior_datum.userAllocatedCount - allocationDifference;
+//             superior_datum_param.usercreatedCount =
+//                 superior_datum.usercreatedCount + allocationDifference;
+
+//             requestBody.userAllocatedCount -= old_data.usercreatedCount;
+
+//         } else if (requestBody.userAllocatedCount < old_allocated_count) {
+//             const exist_user = await userModel.getALLUserbyQuery({
+//                 where: { isDelete: false, assignedBy: UserId }
+//             });
+
+//             if (exist_user.length > requestBody.userAllocatedCount) {
+//                 return await helperUtil.responseSender(res, 'error', 400, {},
+//                     `Already the account has ${exist_user.length} users. Please delete and try to update.`);
+//             }
+
+//             const allocationDifference = old_allocated_count - requestBody.userAllocatedCount;
+//             superior_datum_param.userAllocatedCount =
+//                 superior_datum.userAllocatedCount + allocationDifference;
+//             superior_datum_param.usercreatedCount =
+//                 superior_datum.usercreatedCount - allocationDifference;
+
+//             requestBody.userAllocatedCount -= old_data.usercreatedCount;
+//         }
+//     }
+//     else {
+//         // requestBody.isUserCardAllocated = false;
+//         // superior_datum_param.userAllocatedCount =
+//         // superior_datum.userAllocatedCount + old_allocated_count;
+//         // superior_datum_param.usercreatedCount =
+//         // superior_datum.usercreatedCount - old_allocated_count;
+
+//         requestBody.userAllocatedCount -= old_data.usercreatedCount;
+//     }
+
+//     await userModel.update(superior_datum.id, superior_datum_param);
+//     console.log('requestBody', requestBody);
+
+// }
+
+
     const old_allocated_count = old_data.userAllocatedCount + old_data.usercreatedCount;
 
     if (requestBody.userAllocatedCount != old_allocated_count) {
@@ -685,53 +732,6 @@ async function cardAllocation(requestBody, UserId, old_data, res) {
     console.log('requestBody', requestBody);
 
 }
-
-
-    const old_allocated_count = old_data.userAllocatedCount + old_data.usercreatedCount;
-
-    if (requestBody.userAllocatedCount != old_allocated_count) {
-        if (requestBody.userAllocatedCount > old_allocated_count) {
-            const allocationDifference = requestBody.userAllocatedCount - old_allocated_count;
-            superior_datum_param.userAllocatedCount =
-                superior_datum.userAllocatedCount - allocationDifference;
-            superior_datum_param.usercreatedCount =
-                superior_datum.usercreatedCount + allocationDifference;
-
-            requestBody.userAllocatedCount -= old_data.usercreatedCount;
-
-        } else if (requestBody.userAllocatedCount < old_allocated_count) {
-            const exist_user = await userModel.getALLUserbyQuery({
-                where: { isDelete: false, assignedBy: UserId }
-            });
-
-            if (exist_user.length > requestBody.userAllocatedCount) {
-                return await helperUtil.responseSender(res, 'error', 400, {},
-                    `Already the account has ${exist_user.length} users. Please delete and try to update.`);
-            }
-
-            const allocationDifference = old_allocated_count - requestBody.userAllocatedCount;
-            superior_datum_param.userAllocatedCount =
-                superior_datum.userAllocatedCount + allocationDifference;
-            superior_datum_param.usercreatedCount =
-                superior_datum.usercreatedCount - allocationDifference;
-
-            requestBody.userAllocatedCount -= old_data.usercreatedCount;
-        }
-    }
-    else {
-        // requestBody.isUserCardAllocated = false;
-        // superior_datum_param.userAllocatedCount =
-        // superior_datum.userAllocatedCount + old_allocated_count;
-        // superior_datum_param.usercreatedCount =
-        // superior_datum.usercreatedCount - old_allocated_count;
-
-        requestBody.userAllocatedCount -= old_data.usercreatedCount;
-    }
-
-    await userModel.update(superior_datum.id, superior_datum_param);
-    console.log('requestBody', requestBody);
-}
-
 
 // async function getDifferences(requestBody, old_data) {
 //     const differences = {};

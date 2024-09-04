@@ -16,10 +16,11 @@ function getFrontendUrl(req) {
 // CORS configuration middleware
 const corsMiddleware = (req, res, next) => {
     const frontendUrl = getFrontendUrl(req);
+    process.env.BaseURL = frontendUrl;
     cors({
-        origin: frontendUrl,
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization']
+        origin: [frontendUrl, 'https://checkout.stripe.com'],
+        // methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+        // allowedHeaders: ['Content-Type', 'Authorization']
     })(req, res, next);
 };
 
