@@ -93,20 +93,21 @@ app.get('/auth/callback', async (req, res) => {
         // const fullUrl = `${req.protocol}://${req.hostname}:3000`
         // console.log('Hostname:', fullUrl);
         // process.env.BaseURL = fullUrl;
-        const fullUrl = `${req.protocol}://${req.hostname}:3000`
-        const host = req.get('host');
-        if (host.includes('test.bizcard.pfdigital.in')) {
-            fullUrl= 'https://test.bizcard.pfdigital.in';
-        } else if (host.includes('erocard.pfdigital.in')) {
-            fullUrl= 'https://erocard.pfdigital.in';
-        } else {
-            // Default frontend URL or development URL
-            fullUrl= process.env.FRONTEND_URL || 'http://localhost:3000';
-        }
-        // Pass token to frontend (or handle as needed)
-        console.log('fullUrl', fullUrl);
+        // const fullUrl = `${req.protocol}://${req.hostname}:3000`
+        // const host = req.get('host');
+        // if (host.includes('test.bizcard.pfdigital.in')) {
+        //     fullUrl= 'https://test.bizcard.pfdigital.in';
+        // } else if (host.includes('erocard.pfdigital.in')) {
+        //     fullUrl= 'https://erocard.pfdigital.in';
+        // } else {
+        //     // Default frontend URL or development URL
+        //     fullUrl= process.env.FRONTEND_URL || 'http://localhost:3000';
+        // }
+        // // Pass token to frontend (or handle as needed)
+        // console.log('fullUrl', fullUrl);
         
-        res.redirect(`${fullUrl}/googleLogin/${data}`);
+        // res.redirect(`${fullUrl}/googleLogin/${data}`);
+        res.redirect(`http://test.bizcard.pfdigital.in:3000/googleLogin/${data}`);
     } catch (error) {
       console.error('Error exchanging code for tokens:', error);
       res.status(500).send('Authentication failed');
