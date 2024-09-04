@@ -113,7 +113,7 @@ app.get('/auth/callback', async (req, res) => {
     }
   });
 
-const allowedOrigins = ['https://test.bizcard.pfdigital.in','http://localhost:3000' ,'https://erocard.pfdigital.in', 'https://test.bizcard.pfdigital.in:3000', 'https://erocard.pfdigital.in:3001'];
+const allowedOrigins = ['http://test.bizcard.pfdigital.in', 'https://checkout.stripe.com','http://localhost:3000' ,'http://erocard.pfdigital.in', 'http://test.bizcard.pfdigital.in:3000', 'http://erocard.pfdigital.in:3001'];
 app.use((req, res, next) => {
     const fullUrl = `${req.protocol}://${req.hostname}:3000`
     console.log('Hostname:', fullUrl);
