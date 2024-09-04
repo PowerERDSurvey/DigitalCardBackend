@@ -28,7 +28,7 @@ module.exports.authenticate = async function (req, res) {
 
   }).then(async (results) => {
     if (results.length > 0) {
-      var checkCasesen = userame == results[0].userName;
+      var checkCasesen = userame.toLowerCase() == results[0].userName.toLowerCase();
       if (checkCasesen) {
         decryptedString = cryptr.decrypt(results[0].password);
 
@@ -58,7 +58,7 @@ module.exports.authenticate = async function (req, res) {
               //   images.push(element);
               // });
 
-              // console.log("insert usertoken",usertoken);
+              // //console.log("insert usertoken",usertoken);
               responsedata = {
                 "id": user.id,
                 "firstName": user.firstName,
@@ -94,7 +94,7 @@ module.exports.authenticate = async function (req, res) {
               }
               return res.json({ "status": 200, "token": token, "data": responsedata });
             }).catch((err) => {
-              console.log("insert error usertoken", err);
+              //console.log("insert error usertoken", err);
             });
             // } 
             // else {

@@ -65,6 +65,72 @@ router.get('/user/getOneCard/:userrandomkey/:cardrandomkey', bodyParser, async f
         return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
     }
 });
+// router.get('/getCardCount/:userId', bodyParser, async function (req, res) {
+//     // const companyId = req.body.companyId;
+//     const userId = req.params.userId;
+//     var message = "";
+//     var httpStatusCode = 500;
+//     var responseObj = {};
+//     if (!userId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
+//     try {
+//         const userDetail = await userModel.getUser(userId);
+//         if (!userDetail) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'userDetail not found');
+
+//         var getCompanyId = userDetail.dataValues.companyId;
+
+//         // get all the user by companyid
+//         // var userquery = {
+//         //     where: {
+//         //         id: userId
+//         //     }
+//         // }
+//         var userSubscriptionquery = {
+//             where: {
+//                 userId: userId,
+//                 isActive: true
+//             }
+//         }
+//         var company_Detail;
+//         const userIds = [];
+//         if (userDetail.role == 'COMPANY_USER') {
+
+//             userSubscriptionquery.where = {
+//                 companyId: getCompanyId,
+//                 isActive: true
+//             }
+//             company_Detail = await companyModel.getActiveCompanyById(getCompanyId);
+//             var userquery = { where: { companyId: getCompanyId } }; const company_usersDetail = await userModel.getALLUserbyQuery(userquery);
+//             userIds.push(...company_usersDetail.map((item) => item.id));
+//         }
+
+//         const cardDetails = userDetail.role == 'COMPANY_USER' ? await cardModel.getALLCardbyUserId(userIds) : await cardModel.getALLCardbyUserId(userId);
+//         var exsitingCardCount = cardDetails.length;
+
+//         //get subscription ids from userSubscription
+//         const userSubscription = await userSubscriptionModel.getAllUserSubscriptionByQuery(userSubscriptionquery);
+
+//         var userSubscriptionIds = userSubscription.map((item) => item.subscriptionId);
+
+//         //console.log('userSubscriptionIds', userSubscriptionIds);
+
+//         //get Active subscription from subscription id //forloop
+//         var getSubscription = [];
+//         for (let index = 0; index < userSubscriptionIds.length; index++) {
+//             // const element = array[index];
+
+//             var subs = await subscriptionModel.getAllSubscriptionByquery({ where: { isActive: true, id: userSubscriptionIds[index] } });
+//             getSubscription.push(subs[0]);
+
+//         }
+
+//         var subscriptionCardCount = 0;
+
+//         for (let index = 0; index < getSubscription.length; index++) {
+//             var sub = getSubscription[index];
+//             const getplans = await productModel.getOneProductById(sub.dataValues.productId);
+//             subscriptionCardCount += getplans.cardCount;
+//             // getSubscription[index].dataValues.plan = [getplans];
+//         }
 
 
 router.get('/getCardCount/:userId', bodyParser, async function (req, res) {

@@ -10,7 +10,7 @@ let businessCard = {
         return returnVal;
 
     },
-    updateCard: async function (inputparam, cardId, transaction) {
+    updateCard: async function (inputparam, cardId) {
         const returnVal = await BusinessCard.update(
             inputparam,
             {

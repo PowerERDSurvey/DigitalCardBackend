@@ -6,7 +6,7 @@ var User = require('../models/user')(sequelize, DataTypes);
 
 let users = {
   create: async function (inputParams) {
-    console.log('inputParams' + inputParams);
+    //console.log('inputParams' + inputParams);
 
 
     return await User.create(inputParams);
