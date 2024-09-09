@@ -263,6 +263,10 @@ app.use("/",CardCreation);
 var Payment = require('./controllers/payment.js');
 app.use("/", Payment);
 
+var CompanyCreation = require('./controllers/company.js');
+app.use("/",CompanyCreation);
+
+
 var layoutCreation = require('./controllers/layout.js');
 
 var ProductCreation = require('./controllers/product.js');

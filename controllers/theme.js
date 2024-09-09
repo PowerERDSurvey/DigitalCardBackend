@@ -42,7 +42,8 @@ router.post('/createTheme', auth, bodyParser, async function (req, res) {
             "cardId": req.body.cardId,
             "fontFamily": req.body.fontFamily,
             "fontStyle": req.body.fontStyle,
-            "backgroundColor": req.body.backgroundColor
+            "backgroundColor": req.body.backgroundColor,
+            "textColor": req.body.textColor
         }
         const themeCollection = await themeModel.createTheme(inputparam);
         if (!themeCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'Theme created but no data to view');
@@ -70,7 +71,8 @@ router.put('/updateTheme/:themeId', auth, bodyParser, async function (req, res) 
             "layoutId": req.body.layoutId,
             "fontFamily": req.body.fontFamily,
             "fontStyle": req.body.fontStyle,
-            "backgroundColor": req.body.backgroundColor
+            "backgroundColor": req.body.backgroundColor,
+            "textColor": req.body.textColor
         }
         const themeCollection = await themeModel.updateTheme(inputparam, themeId);
         if (!themeCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'Theme created but no data to view');

@@ -26,7 +26,8 @@ module.exports = (sequelize, DataTypes) => {
     cardId: DataTypes.INTEGER,
     fontFamily: DataTypes.STRING,
     fontStyle: DataTypes.STRING,
-    backgroundColor: DataTypes.STRING
+    backgroundColor: DataTypes.STRING,
+    textColor: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'theme',
