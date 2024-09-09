@@ -249,41 +249,40 @@ app.use(bodyParser.json({ limit: '50mb' }));
 // app.get('/contact',(req,res)=>{
 //     res.send("get all contact");
 // })
-
 app.use('/uploads', express.static(path.join(__dirname, 'resources/static/assets/uploads')));
 
 var User = require("./controllers/user.js");
 //console.log(User);
-app.use("/",User);
+app.use("/", User);
 
 
 var CardCreation = require('./controllers/businessCard.js');
-app.use("/",CardCreation);
+app.use("/", CardCreation);
 
 var Payment = require('./controllers/payment.js');
 app.use("/", Payment);
 
 var CompanyCreation = require('./controllers/company.js');
-app.use("/",CompanyCreation);
+app.use("/", CompanyCreation);
 
 
 var layoutCreation = require('./controllers/layout.js');
+app.use("/", layoutCreation);
 
 var ProductCreation = require('./controllers/product.js');
-app.use("/",ProductCreation);
+app.use("/", ProductCreation);
 
 var SubscriptionCreation = require('./controllers/subscription.js');
-app.use("/",SubscriptionCreation);
+app.use("/", SubscriptionCreation);
 
 var ThemeCreation = require('./controllers/theme.js');
-app.use("/",ThemeCreation);
+app.use("/", ThemeCreation);
 
 var userSubscriptionCreation = require('./controllers/userSubscription.js');
-app.use("/",userSubscriptionCreation);
+app.use("/", userSubscriptionCreation);
 
 var CountryANDState = require('./controllers/countryAndState.js');
-app.use("/",CountryANDState);
-
+app.use("/", CountryANDState);
 // app.use();
 
 
