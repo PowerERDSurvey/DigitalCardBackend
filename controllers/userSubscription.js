@@ -32,7 +32,7 @@ router.get('/getUserSubscriptionbycompanyId/:companyId', auth, bodyParser, async
     var responseObj = {};
     if (!companyId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
     try {
-        const userSubscriptionCollection = await userSubscriptionModel.getAllUserSubscriptionByQuery({ where: { companyId: companyId } });
+        const userSubscriptionCollection = await userSubscriptionModel.getAllUserSubscriptionByQuery({ where: { companyId: companyId, isActive: true } });
         if (!userSubscriptionCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'there is no userSubscription to get');
 
         responseObj = { "userSubscriptionCollection": userSubscriptionCollection };
@@ -52,7 +52,7 @@ router.get('/getUserSubscriptionbyUserId/:userId', auth, bodyParser, async funct
     var responseObj = {};
     if (!userId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
     try {
-        const userSubscriptionCollection = await userSubscriptionModel.getAllUserSubscriptionByQuery({ where: { userId: userId } });
+        const userSubscriptionCollection = await userSubscriptionModel.getAllUserSubscriptionByQuery({ where: { userId: userId, isActive: true } });
         if (!userSubscriptionCollection) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'there is no userSubscription to get');
 
         responseObj = { "userSubscriptionCollection": userSubscriptionCollection };
