@@ -88,12 +88,15 @@ router.post('/payment/checkOut:userId', auth, bodyParser, async function (req, r
         var inputParams = {
             productName: req.body.planName,
             checkoutId: session.id,
-            subId: req.body.id,
+            planId: req.body.id,
             status: session.status,
             created: session.created,
             amount: session.amount_total / 100,
             paymentStatus: session.payment_status,
-            userId: userId
+            userId: userId,
+            cardCount: req.body.cardCount,
+            layouts: req.body.layout,
+            duration: req.body.duration
         }
 
         const paymentCreate = await paymentModel.createpayment(inputParams);
