@@ -17,10 +17,13 @@ module.exports = (sequelize, DataTypes) => {
     productName: DataTypes.STRING,
     status: DataTypes.STRING,
     created: DataTypes.INTEGER,
-    subId: DataTypes.INTEGER,
+    planId: DataTypes.INTEGER,
     amount: DataTypes.INTEGER,
     paymentStatus: DataTypes.STRING,
-    userId: DataTypes.INTEGER
+    userId: DataTypes.INTEGER,
+    layouts: DataTypes.STRING,
+    duration: DataTypes.STRING,
+    cardCount: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'payment',
