@@ -31,13 +31,14 @@ let product = {
             }
         }
 
-
         const productz = await productModel.findOne(condition);
 
-        var layoutIds = productz.layoutId.split(',').map(Number);
 
+        const layoutIdString = productz.layoutId.replace(/^"(.*)"$/, '$1');
+        const layoutIdArray = await this.parseLayoutIdArray(layoutIdString);
+        const layoutIds = layoutIdArray.map(item => item.id);
         // Fetch the layouts
-        const layouts = await layoutModel.findAll({
+        const layoutDetails = await layoutModel.findAll({
             where: {
                 id: layoutIds
             }
@@ -45,24 +46,25 @@ let product = {
 
         // Combine product data with layouts data
         var productData = productz.dataValues;
-        var layoutData = layouts.map(layout => layout.dataValues);
+        var layoutData = layoutDetails.map(layout => layout.dataValues);
 
         // Construct the return value
         var returnVal = {
             ...productData,
-            layouts: layoutData
+            layouts: layoutIdArray,
+            layoutDetails: layoutData
         };
 
         return returnVal;
-
-
-
     },
-    getAllProduct: async function () {
+    getAllProduct: async function (plantype) {
         var condition = {
             where: {
-                isDelete: false
+                isDelete: false,
             }
+        }
+        if (plantype) {
+            condition.where.plantype = plantype;
         }
 
         return await productModel.findAll(condition);
@@ -76,6 +78,16 @@ let product = {
                 }
             });
     },
+    parseLayoutIdArray: async function (str) {
+        if (!str || str === '[]') return [];
+        return str.slice(1, -1).split('},{').map(item => {
+            const [id, price] = item.split(',');
+            return {
+                id: parseInt(id.split(':')[1]),
+                price: parseFloat(price.split(':')[1])
+            };
+        });
+    }
 }
 
 module.exports = product;

@@ -18,9 +18,35 @@ router.get('/getallPlan/:superAdmin', auth, bodyParser, async function (req, res
     try {
         const getSuperAdmin = await userModel.getSuperAdmin(userId);
         if (!getSuperAdmin) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'company only can get by the SuperAdmin');
+        var planCollection = [];
 
-        const planCollection = await productModel.getAllProduct();
+        planCollection = await productModel.getAllProduct();
         if (!planCollection || planCollection.length == 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'there is no plan In Active state');
+
+        //todo get all the templates
+        responseObj = { "planCollection": planCollection };
+        return await helperUtil.responseSender(res, 'data', 200, responseObj, 'plan collected successfully');
+    } catch (error) {
+        message = "plan retrieved Failed.";
+        responseObj = error;
+        return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, message);
+    }
+})
+router.get('/getallPlan/:superAdmin/:plantype', auth, bodyParser, async function (req, res) {
+    const userId = req.params.superAdmin;
+    const plantype = req.params.plantype;
+    var message = "";
+    var httpStatusCode = 500;
+    var responseObj = {};
+    if (!userId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
+    try {
+        const getSuperAdmin = await userModel.getSuperAdmin(userId);
+        if (!getSuperAdmin) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'company only can get by the SuperAdmin');
+        var planCollection = [];
+        if (plantype) {
+            planCollection = await productModel.getAllProduct(plantype);
+            if (!planCollection || planCollection.length == 0) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'there is no plan In Active state');
+        }
         //todo get all the templates
         responseObj = { "planCollection": planCollection };
         return await helperUtil.responseSender(res, 'data', 200, responseObj, 'plan collected successfully');
@@ -43,13 +69,16 @@ router.post('/createPlan/:superAdmin', auth, bodyParser, async function (req, re
 
         var inputparam = {
             "name": req.body.name,
-            "cardCount": req.body.cardCount,
+            "cardPrice": req.body.cardPrice,
             "layoutCount": req.body.layoutCount,
             "layoutId": req.body.layoutId,
+            "duration": req.body.duration,
+            "currency": req.body.currency,
             "createdBy": userId,
             "updatedBy": userId,
             "isDelete": false,
-            "isActive": true
+            "isActive": true,
+            "plantype": req.body.plantype
         }
 
 
@@ -77,9 +106,11 @@ router.put('/updatePlan/:superAdmin', auth, bodyParser, async function (req, res
 
         var inputparam = {
             "name": req.body.name,
-            "cardCount": req.body.cardCount,
+            "cardPrice": req.body.cardPrice,
             "layoutCount": req.body.layoutCount,
             "layoutId": req.body.layoutId,
+            "duration": req.body.duration,
+            "currency": req.body.currency,
             "isActive": req.body.isActive,
             "updatedBy": userId,
 
