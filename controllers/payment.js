@@ -62,13 +62,13 @@ router.post('/payment/checkOut:userId', auth, bodyParser, async function (req, r
         console.log('req data', req);
 
 
-        const userData = await userModel.getUser(userId);
+        // const userData = await userModel.getUser(userId);
 
 
         const session = await stripe.checkout.sessions.create({
             success_url: `${process.env.BaseURL}/userSubscriptions`,
             cancel_url: `${process.env.BaseURL}/subscriptions`,
-            customer_email: userData.primaryEmail,
+            customer_email: req.body.primaryEmail,
             line_items: [
                 {
                     price_data: {
