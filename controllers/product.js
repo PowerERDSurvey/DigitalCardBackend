@@ -16,8 +16,8 @@ router.get('/getallPlan/:superAdmin', auth, bodyParser, async function (req, res
     var responseObj = {};
     if (!userId) return await helperUtil.responseSender(res, 'error', httpStatusCode, responseObj, 'requested params missing');
     try {
-        const getSuperAdmin = await userModel.getSuperAdmin(userId);
-        if (!getSuperAdmin) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'company only can get by the SuperAdmin');
+        // const getSuperAdmin = await userModel.getSuperAdmin(userId);
+        // if (!getSuperAdmin) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'company only can get by the SuperAdmin');
         var planCollection = [];
 
         planCollection = await productModel.getAllProduct();
