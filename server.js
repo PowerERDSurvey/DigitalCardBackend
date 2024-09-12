@@ -1,5 +1,6 @@
 const express=require("express");
-const cors=require("cors");
+const cors = require("cors");
+
 const dotenv = require("dotenv").config();
 const bodyParser = require("body-parser");
 const jwt = require('jsonwebtoken');
@@ -29,6 +30,7 @@ const userModel = require("./models/mvc_User");
 const helperUtil = require('./util/helper.js');
 
 const upload = require('./middleware/upload.js');
+require('./util/cornJob.js')
 // var bodyParser = require('body-parser').json();
 const app = express();
 app.use(cors());
@@ -196,13 +198,52 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (request, 
 
                 const userCollection = await userModel.getUser(paymetscollection.userId);
 
+
+
+
+
+                // Calculate endDate based on the duration
+                let endDate = new Date(paymetscollection.createdAt); // Start with the createdAt date
+
+                if (paymetscollection.duration) {
+                    const durationParts = paymetscollection.duration.split(' '); // Split the duration into parts
+                    const value = parseInt(durationParts[0]); // Get the numeric value
+                    const unit = durationParts[1].toLowerCase(); // Get the unit (day, days)
+
+                        // Adjust the endDate based on the unit
+                        switch (unit) {
+                            case 'day':
+                            case 'days':
+                                endDate.setDate(endDate.getDate() + value); // Add days
+                                break;
+                            case 'month':
+                            case 'months':
+                                endDate.setMonth(endDate.getMonth() + value); // Add months
+                                break;
+                            case 'year':
+                            case 'years':
+                                endDate.setFullYear(endDate.getFullYear() + value); // Add years
+                                break;
+                            default:
+                                throw new Error('Invalid duration format');
+                        }
+                    
+                } else {
+                    // Handle case where duration is not provided
+                    endDate = null; // or set a default value
+                }
+                const endDateTimestamp = endDate ? endDate.getTime() : null;
+                console.log('endDate - ', endDateTimestamp,'now',now());
+
                 var user_sub_inputParam = {
                     subscriptionName: lineItems.data[0].description,
                     startDate: now(),
-                    // endDate: DataTypes.DATE,
+                    endDate: endDateTimestamp,
                     userId: userCollection.id,
-                    subscriptionId: paymetscollection.subId,
+                    planId: paymetscollection.planId,
                     isActive: true,
+                    layout: paymetscollection.layouts,
+                    cardCount: paymetscollection.cardCount
                     // companyId: userCollection.companyId
                 }
 
@@ -210,20 +251,22 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (request, 
                     user_sub_inputParam = {
                         subscriptionName: lineItems.data[0].description,
                         startDate: now(),
-                        // endDate: DataTypes.DATE,
+                        endDate: endDateTimestamp,
                         // userId: userCollection.id,
-                        subscriptionId: paymetscollection.subId,
+                        planId: paymetscollection.planId,
                         isActive: true,
-                        companyId: userCollection.companyId
+                        companyId: userCollection.companyId,
+                        layout: paymetscollection.layouts,
+                        cardCount: paymetscollection.cardCount
                     }
                 }
 
 
                 const user_sub_collection = await userSubscriptionModel.createuserSubscription(user_sub_inputParam);
-                const sub_collection = await subscriptionModel.getAllSubscriptionByquery({ where: { id: paymetscollection.subId } });
-                const getplans = await productModel.getOneProductById(sub_collection[0].productId);
+                // const sub_collection = await subscriptionModel.getAllSubscriptionByquery({ where: { id: paymetscollection.subId } });
+                // const getplans = await productModel.getOneProductById(sub_collection[0].productId);
                 const user_update = await userModel.update(userCollection.id,{
-                    cardAllocationCount: userCollection.cardAllocationCount + getplans.cardCount
+                    cardAllocationCount: userCollection.cardAllocationCount + paymetscollection.cardCount
                 });
                 if (!user_update) return await helperUtil.responseSender(res, 'error', 400, responseObj, 'updation faild');
             }
@@ -258,6 +301,9 @@ app.use("/", User);
 
 var CardCreation = require('./controllers/businessCard.js');
 app.use("/", CardCreation);
+
+var Payment = require('./controllers/payment.js');
+app.use("/", Payment);
 
 var Payment = require('./controllers/payment.js');
 app.use("/", Payment);

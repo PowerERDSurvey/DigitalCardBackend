@@ -10,28 +10,30 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      userSubscription.belongsTo(models.subscription,{
-        foreignKey:'subscriptionId',
-        as:'subscription'
+      userSubscription.belongsTo(models.product, {
+        foreignKey: 'planId',
+        as: 'product'
       });
-      userSubscription.belongsTo(models.User,{
-        foreignKey:'userId',
-        as:'User'
+      userSubscription.belongsTo(models.User, {
+        foreignKey: 'userId',
+        as: 'User'
       });
-      userSubscription.belongsTo(models.company,{
-        foreignKey:'companyId',
-        as:'company'
+      userSubscription.belongsTo(models.company, {
+        foreignKey: 'companyId',
+        as: 'company'
       });
     }
   }
   userSubscription.init({
     subscriptionName: DataTypes.STRING,
+    layout: DataTypes.STRING,
     startDate: DataTypes.DATE,
     endDate: DataTypes.DATE,
     userId: DataTypes.INTEGER,
-    subscriptionId: DataTypes.INTEGER,
+    planId: DataTypes.INTEGER,
     isActive: DataTypes.BOOLEAN,
-    companyId: DataTypes.INTEGER
+    companyId: DataTypes.INTEGER,
+    cardCount: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'userSubscription',

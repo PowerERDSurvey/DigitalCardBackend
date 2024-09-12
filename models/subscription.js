@@ -22,10 +22,6 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'productId',
         as: 'product'
       });
-      subscription.hasMany(models.userSubscription, {
-        foreignKey: 'subscriptionId',
-        as: 'userSubscription'
-      })
     }
   }
   subscription.init({
