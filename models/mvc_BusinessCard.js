@@ -23,6 +23,10 @@ let cardModel = {
     getACard: async function (cardId) {
         const returnVal = await cardRepo.getACard(cardId);
         return returnVal;
+    },
+    getCardByQuery: async function (param) {
+        const returnVal = await cardRepo.getCardByQuery(param);
+        return returnVal;
     }
 }
 

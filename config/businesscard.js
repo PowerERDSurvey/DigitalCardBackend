@@ -42,6 +42,11 @@ let businessCard = {
         const returnVal = await BusinessCard.findOne({ where: { id: cardId, isDelete: false } });
         return returnVal;
     },
+    getCardByQuery: async function (param) {
+        // const returnVal = await BusinessCard.findOne({where:{id: cardId, isActive:true}});
+        const returnVal = await BusinessCard.findAll(param);
+        return returnVal;
+    },
 }
 
 module.exports = businessCard;

@@ -32,7 +32,8 @@ module.exports = (sequelize, DataTypes) => {
     userId: DataTypes.INTEGER,
     planId: DataTypes.INTEGER,
     isActive: DataTypes.BOOLEAN,
-    companyId: DataTypes.INTEGER
+    companyId: DataTypes.INTEGER,
+    cardCount: DataTypes.INTEGER,
   }, {
     sequelize,
     modelName: 'userSubscription',

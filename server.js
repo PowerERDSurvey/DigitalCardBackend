@@ -228,7 +228,8 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (request, 
                     userId: userCollection.id,
                     planId: paymetscollection.planId,
                     isActive: true,
-                    layout: paymetscollection.layouts
+                    layout: paymetscollection.layouts,
+                    cardCount: paymetscollection.cardCount
                     // companyId: userCollection.companyId
                 }
 
@@ -241,7 +242,8 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (request, 
                         planId: paymetscollection.planId,
                         isActive: true,
                         companyId: userCollection.companyId,
-                        layout: paymetscollection.layouts
+                        layout: paymetscollection.layouts,
+                        cardCount: paymetscollection.cardCount
                     }
                 }
 
