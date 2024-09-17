@@ -122,7 +122,6 @@ app.use((req, res, next) => {
     console.log('Hostname:', fullUrl);
     process.env.BaseURL = fullUrl;
     allowedOrigins.push(fullUrl);
-    console.log('allowedOrigins', allowedOrigins);
     next();
 });
 
@@ -301,6 +300,9 @@ app.use("/", User);
 
 var CardCreation = require('./controllers/businessCard.js');
 app.use("/", CardCreation);
+
+var Payment = require('./controllers/payment.js');
+app.use("/", Payment);
 
 var Payment = require('./controllers/payment.js');
 app.use("/", Payment);

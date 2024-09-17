@@ -58,5 +58,50 @@ const sendVerificationEmail = {
     }
   },
 }
+// const sendVerificationEmail = {
+//   sendInitialVerificationEmail: async (userId, email, token, collection) => {
+//     var url = `${process.env.BaseURL}/resetpassword/${userId}/verify/${token}/password`;
+
+//     // Manual email sending logic (example using SMTP)
+//     const smtpServer = 'your.smtp.server'; // Replace with your SMTP server
+//     const smtpPort = 25; // Replace with your SMTP port
+//     const message = `Subject: DigitalCard Account Initial Verification\n\nPlease verify your account by clicking the link: ${url}\n\nOne time password: ${collection.password}`;
+
+//     // Use a simple TCP connection to send the email
+//     const net = require('net');
+//     const client = net.createConnection(smtpPort, smtpServer, () => {
+//       client.write(`HELO ${smtpServer}\r\n`);
+//       client.write(`MAIL FROM: <${process.env.EMAIL_USER}>\r\n`);
+//       client.write(`RCPT TO: <${email}>\r\n`);
+//       client.write(`DATA\r\n`);
+//       client.write(`${message}\r\n.\r\n`);
+//       client.write(`QUIT\r\n`);
+//     });
+
+//     client.on('data', (data) => {
+//       console.log(data.toString());
+//     });
+
+//     client.on('end', () => {
+//       console.log('Email sent successfully');
+//     });
+
+//     client.on('error', (error) => {
+//       console.log('Error sending email - ', error);
+//     });
+//   },
+//   sendVerificationEmail: async (userId, email, token, collection) => {
+//     var url = `${process.env.BaseURL}/user/${userId}/verify/${token}`;
+//     // Similar manual sending logic can be added here
+//     return url;
+//   },
+//   sendForgetPassEmail: async (userId, email, token) => {
+//     var url = `${process.env.BaseURL}/user/${userId}/passwordReset/${token}`;
+//     // Similar manual sending logic can be added here
+//     return { success: true, message: 'Password reset email sent successfully' };
+//   },
+// }
+
+module.exports = sendVerificationEmail;
 
 module.exports = sendVerificationEmail;
