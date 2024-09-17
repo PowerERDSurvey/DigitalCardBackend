@@ -40,36 +40,36 @@ cron.schedule('0 12 * * *', async () => {
 
 
 
-                const user_last_Active_cards = await cardModel.getCardByQuery({
-                    where: {
-                        userId: subscription.userId
-                    },
-                    order: [['updatedAt', 'DESC']], // Order by updatedAt in descending order
-                    limit: subscription.cardCount
-                });
-                if (user_last_Active_cards.length > 0) {
-                    for (let index = 0; index < user_last_Active_cards.length; index++) {
+                //         const user_last_Active_cards = await cardModel.getCardByQuery({
+                //             where: {
+                //                 userId: subscription.userId
+                //             },
+                //             order: [['updatedAt', 'DESC']], // Order by updatedAt in descending order
+                //             limit: subscription.cardCount
+                //         });
+                //         if (user_last_Active_cards.length > 0) {
+                //             for (let index = 0; index < user_last_Active_cards.length; index++) {
 
-                        user_last_Active_cards[index].isActive = false;
-                        await user_last_Active_cards[index].save();
-                        const themeCollection = await themeModel.getThemeByCardId(user_last_Active_cards[index].id);
-                        themeCollection.layoutId = 1;
-                        themeCollection.save();
-                    }
-                }
+                //                 user_last_Active_cards[index].isActive = false;
+                //                 await user_last_Active_cards[index].save();
+                //                 const themeCollection = await themeModel.getThemeByCardId(user_last_Active_cards[index].id);
+                //                 themeCollection.layoutId = 1;
+                //                 themeCollection.save();
+                //             }
+                //         }
 
 
+                //     }
+
+                //     await userDeatil.save();
+                // }
+
+
+
+                console.log('Daily subscription check completed.');
+            } catch (error) {
+                console.error('Error during subscription check:', error);
             }
-
-            await userDeatil.save();
-        }
-
-
-
-        console.log('Daily subscription check completed.');
-    } catch (error) {
-        console.error('Error during subscription check:', error);
-    }
-});
+        });
 
 console.log('Cron job scheduled to run every day at 12:00 PM.');
