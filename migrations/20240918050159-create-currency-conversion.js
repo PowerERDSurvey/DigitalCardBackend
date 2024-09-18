@@ -2,33 +2,44 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('CurrencyConversions', {
+    await queryInterface.createTable('currencyConversion', {
       id: {
-        allowNull: false,
+        type: Sequelize.INTEGER,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
       },
       source: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       destination: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       value: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       createdAt: {
+        type: Sequelize.DATE,
         allowNull: false,
-        type: Sequelize.DATE
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
       updatedAt: {
+        type: Sequelize.DATE,
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        defaultValue: Sequelize.literal('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'),
+      },
+    });
+
+    // Add unique constraint on source and destination
+    await queryInterface.addConstraint('currencyConversion', {
+      fields: ['source', 'destination'],
+      type: 'unique',
+      name: 'unique_currency_conversion' // Custom name for the constraint
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('CurrencyConversions');
+    await queryInterface.dropTable('currencyConversion');
   }
 };

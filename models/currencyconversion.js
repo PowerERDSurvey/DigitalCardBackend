@@ -1,25 +1,30 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class CurrencyConversion extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
+      // Define associations here if needed
     }
   }
+
   CurrencyConversion.init({
-    source: DataTypes.STRING,
-    destination: DataTypes.STRING,
-    value: DataTypes.STRING
+    source: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    destination: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    value: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   }, {
     sequelize,
     modelName: 'CurrencyConversion',
   });
+
   return CurrencyConversion;
 };
