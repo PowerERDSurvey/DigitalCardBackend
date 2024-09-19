@@ -17,7 +17,15 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Country.init({
-    countryName: DataTypes.STRING
+    countryName: DataTypes.STRING,
+    timezone: {
+      type: DataTypes.STRING,
+      allowNull: true, // Set to false if you want to make it required
+    },
+    currency: {
+      type: DataTypes.STRING,
+      allowNull: true, // Set to false if you want to make it required
+    },
   }, {
     sequelize,
     modelName: 'Country',
