@@ -57,11 +57,11 @@ cron.schedule('0 12 * * *', async () => {
                         themeCollection.save();
                     }
                 }
-
+                await userDeatil.save();
 
             }
 
-            await userDeatil.save();
+
         }
 
 
@@ -70,6 +70,9 @@ cron.schedule('0 12 * * *', async () => {
     } catch (error) {
         console.error('Error during subscription check:', error);
     }
+}, {
+    scheduled: true,
+    timezone: "UTC" // Specify the timezone as UTC
 });
 
 console.log('Cron job scheduled to run every day at 12:00 PM.');

@@ -209,30 +209,32 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (request, 
                     const value = parseInt(durationParts[0]); // Get the numeric value
                     const unit = durationParts[1].toLowerCase(); // Get the unit (day, days)
 
-                        // Adjust the endDate based on the unit
-                        switch (unit) {
-                            case 'day':
-                            case 'days':
-                                endDate.setDate(endDate.getDate() + value); // Add days
-                                break;
-                            case 'month':
-                            case 'months':
-                                endDate.setMonth(endDate.getMonth() + value); // Add months
-                                break;
-                            case 'year':
-                            case 'years':
-                                endDate.setFullYear(endDate.getFullYear() + value); // Add years
-                                break;
-                            default:
-                                throw new Error('Invalid duration format');
-                        }
-                    
+                    // Adjust the endDate based on the unit
+                    switch (unit) {
+                        case 'day':
+                        case 'days':
+                            endDate.setUTCDate(endDate.getUTCDate() + value); // Add days in UTC
+                            break;
+                        case 'month':
+                        case 'months':
+                            endDate.setUTCMonth(endDate.getUTCMonth() + value); // Add months in UTC
+                            break;
+                        case 'year':
+                        case 'years':
+                            endDate.setUTCFullYear(endDate.getUTCFullYear() + value); // Add years in UTC
+                            break;
+                        default:
+                            throw new Error('Invalid duration format');
+                    }
                 } else {
                     // Handle case where duration is not provided
                     endDate = null; // or set a default value
                 }
-                const endDateTimestamp = endDate ? endDate.getTime() : null;
-                console.log('endDate - ', endDateTimestamp,'now',now());
+
+                // Convert endDate to UTC timestamp
+                const endDateTimestamp = endDate ? Date.UTC(endDate.getUTCFullYear(), endDate.getUTCMonth(), endDate.getUTCDate(), endDate.getUTCHours(), endDate.getUTCMinutes(), endDate.getUTCSeconds()) : null;
+
+                console.log('endDate - ', endDateTimestamp, 'now', now());
 
                 var user_sub_inputParam = {
                     subscriptionName: lineItems.data[0].description,
@@ -310,6 +312,9 @@ app.use("/", Payment);
 var Payment = require('./controllers/payment.js');
 app.use("/", Payment);
 
+var Payment = require('./controllers/payment.js');
+app.use("/", Payment);
+
 var CompanyCreation = require('./controllers/company.js');
 app.use("/", CompanyCreation);
 
@@ -330,7 +335,10 @@ var userSubscriptionCreation = require('./controllers/userSubscription.js');
 app.use("/", userSubscriptionCreation);
 
 var CountryANDState = require('./controllers/countryAndState.js');
-app.use("/", CountryANDState);
+app.use("/",CountryANDState);
+var Currency = require('./controllers/currencyconversion.js');
+app.use("/", Currency);
+
 // app.use();
 
 
