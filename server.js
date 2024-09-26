@@ -297,11 +297,14 @@ app.use('/uploads', express.static(path.join(__dirname, 'resources/static/assets
 
 var User = require("./controllers/user.js");
 //console.log(User);
-app.use("/", User);
+app.use("/",User);
 
 
 var CardCreation = require('./controllers/businessCard.js');
 app.use("/", CardCreation);
+
+var Payment = require('./controllers/payment.js');
+app.use("/", Payment);
 
 var Payment = require('./controllers/payment.js');
 app.use("/", Payment);
