@@ -92,18 +92,37 @@ app.get('/auth/callback', async (req, res) => {
 
 
 
-        const fullUrl = `${req.protocol}://${req.hostname}:3000`
+        const fullUrl = `${req.protocol}://${req.hostname}`
+        // const fullUrl = `${req.protocol}://${req.hostname}:3000`
         console.log('Hostname:', fullUrl);
         process.env.BaseURL = fullUrl;
         // Pass token to frontend (or handle as needed)
         res.redirect(`${fullUrl}/googleLogin/${data}`);
+        // const fullUrl = `${req.protocol}://${req.hostname}:3000`
+        // console.log('Hostname:', fullUrl);
+        // process.env.BaseURL = fullUrl;
+        // const fullUrl = `${req.protocol}://${req.hostname}:3000`
+        // const host = req.get('host');
+        // if (host.includes('test.bizcard.pfdigital.in')) {
+        //     fullUrl= 'https://test.bizcard.pfdigital.in';
+        // } else if (host.includes('erocard.pfdigital.in')) {
+        //     fullUrl= 'https://erocard.pfdigital.in';
+        // } else {
+        //     // Default frontend URL or development URL
+        //     fullUrl= process.env.FRONTEND_URL || 'http://localhost:3000';
+        // }
+        // // Pass token to frontend (or handle as needed)
+        // console.log('fullUrl', fullUrl);
+        
+        // res.redirect(`${fullUrl}/googleLogin/${data}`);
+        // res.redirect(`http://test.bizcard.pfdigital.in:3000/googleLogin/${data}`);
     } catch (error) {
       console.error('Error exchanging code for tokens:', error);
       res.status(500).send('Authentication failed');
     }
   });
 
-const allowedOrigins = ['https://test.bizcard.pfdigital.in','http://localhost:3000' ,'https://erocard.pfdigital.in', 'https://test.bizcard.pfdigital.in:3000', 'https://erocard.pfdigital.in:3001'];
+const allowedOrigins = ['http://test.bizcard.pfdigital.in', 'https://checkout.stripe.com','http://localhost:3000' ,'http://erocard.pfdigital.in', 'http://test.bizcard.pfdigital.in:3000', 'http://erocard.pfdigital.in:3001'];
 app.use((req, res, next) => {
     const fullUrl = `${req.protocol}://${req.hostname}:3000`
     console.log('Hostname:', fullUrl);
@@ -280,7 +299,6 @@ app.use(bodyParser.json({ limit: '50mb' }));
 // app.get('/contact',(req,res)=>{
 //     res.send("get all contact");
 // })
-
 app.use('/uploads', express.static(path.join(__dirname, 'resources/static/assets/uploads')));
 
 var User = require("./controllers/user.js");
@@ -289,29 +307,44 @@ app.use("/",User);
 
 
 var CardCreation = require('./controllers/businessCard.js');
-app.use("/",CardCreation);
+app.use("/", CardCreation);
+
+var Payment = require('./controllers/payment.js');
+app.use("/", Payment);
+
+var Payment = require('./controllers/payment.js');
+app.use("/", Payment);
+
+var Payment = require('./controllers/payment.js');
+app.use("/", Payment);
+
+var Payment = require('./controllers/payment.js');
+app.use("/", Payment);
+
+var Payment = require('./controllers/payment.js');
+app.use("/", Payment);
 
 var Payment = require('./controllers/payment.js');
 app.use("/", Payment);
 
 var CompanyCreation = require('./controllers/company.js');
-app.use("/",CompanyCreation);
+app.use("/", CompanyCreation);
 
 
 var layoutCreation = require('./controllers/layout.js');
-app.use("/",layoutCreation);
+app.use("/", layoutCreation);
 
 var ProductCreation = require('./controllers/product.js');
-app.use("/",ProductCreation);
+app.use("/", ProductCreation);
 
 var SubscriptionCreation = require('./controllers/subscription.js');
-app.use("/",SubscriptionCreation);
+app.use("/", SubscriptionCreation);
 
 var ThemeCreation = require('./controllers/theme.js');
-app.use("/",ThemeCreation);
+app.use("/", ThemeCreation);
 
 var userSubscriptionCreation = require('./controllers/userSubscription.js');
-app.use("/",userSubscriptionCreation);
+app.use("/", userSubscriptionCreation);
 
 var CountryANDState = require('./controllers/countryAndState.js');
 app.use("/",CountryANDState);

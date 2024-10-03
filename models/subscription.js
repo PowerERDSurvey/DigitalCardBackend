@@ -22,7 +22,6 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'productId',
         as: 'product'
       });
-
     }
   }
   subscription.init({

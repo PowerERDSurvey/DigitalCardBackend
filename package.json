@@ -4,13 +4,13 @@
   "description": "this is the backend for digital card",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js",
-    "dev": "cross-env NODE_ENV=development npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all && npm run start",
-    "migrate": "sequelize db:migrate",
-    "seed": "sequelize db:seed:all",
-    "test": "cross-env NODE_ENV=test jest",
-    "test:single": "jest __tests__/app.test.js --runInBand"
-  },
+  "start": "node server.js",
+  "dev": "cross-env NODE_ENV=development npx sequelize-cli db:migrate && npx sequelize-cli db:seed:all && npm run start",
+  "migrate": "sequelize db:migrate",
+  "seed": "sequelize db:seed:all",
+  "test": "cross-env NODE_ENV=test jest",
+  "test:single": "jest __tests__/app.test.js --runInBand"
+},
   "author": "babish m j",
   "license": "ISC",
   "dependencies": {
