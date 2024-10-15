@@ -105,13 +105,15 @@ ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'babish19
 FLUSH PRIVILEGES;
 
 
-scp C:/Users/User/Downloads/backendwhatsapperocrmkey.key babish@34.139.11.97:/home/babish/
-scp C:/Users/User/Downloads/backend.whatsapp.erocrm.com.cer babish@34.139.11.97:/home/babish/
+scp C:/Users/User/Downloads/backendwhatsapperocrmkey.key babish@172.31.32.145:/home/babish/
+scp C:/Users/User/Downloads/backend.whatsapp.erocrm.com.cer babish@172.31.32.145:/home/babish/
 
-sudo mv /home/your_username/backendwhatsapperocrmkey.key /etc/ssl/
+sudo mv /home/babish/backendwhatsapperocrmkey.key /etc/ssl/
+sudo mv /home/babish/backend.whatsapp.erocrm.com.cer /etc/ssl/
 sudo mv /home/your_username/backend.whatsapp.erocrm.com.cer /etc/ssl/
 sudo vi /etc/nginx/sites-available/bizcard
 sudo nano /etc/nginx/sites-available/bizcard
+sudo nano /etc/nginx/sites-available/test.bizcard.pfdigital.in.conf
 upstream backend_bizcard_nodejs_upstream {
     server 127.0.0.1:8080;
     keepalive 64;
@@ -143,9 +145,74 @@ server {
 }
 
 upstream frontend_bizcard_nodejs_upstream {
-    server 127.0.0.1:3000;
+    server 127.0.0.1:3002;
     keepalive 64;
 }
+server {
+    listen 81;
+    server_name test.bizcard.pfdigital.in www.test.bizcard.pfdigital.in;
+
+    location / {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+
+        proxy_pass http://backend_bizcard_nodejs_upstream;  # Upstream block
+        proxy_redirect off;
+    }
+}
+
+upstream frontend_bizcard_nodejs_upstream {
+    server 127.0.0.1:3002;
+    keepalive 64;
+}
+server {
+    listen 81;
+    server_name test.bizcard.pfdigital.in www.test.bizcard.pfdigital.in;
+
+    location / {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+
+        proxy_pass http://backend_bizcard_nodejs_upstream;  # Upstream block
+        proxy_redirect off;
+    }
+}
+
+
+
+
+upstream frontend_bizcard_nodejs_upstream {
+    server 127.0.0.1:3003;
+    keepalive 64;
+}
+server {
+    listen 82;
+   server_name erocard.pfdigital.in www.erocard.pfdigital.in;
+    location / {
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+
+        proxy_pass http://frontend_bizcard_nodejs_upstream;  # Upstream block
+        proxy_redirect off;
+    }
+}
+
+
 
 server {
     listen 443 ssl;
@@ -172,6 +239,8 @@ server {
     }
 }
 sudo ln -s /etc/nginx/sites-available/bizcard /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/bizcard_frontend_test /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/bizcard /etc/nginx/sites-enabled/
 sudo systemctl restart nginx
 
 
@@ -179,5 +248,23 @@ sudo systemctl restart nginx
 ssh-keygen -t rsa -b 2048 -f ~/.ssh/my-gcp-key
 
 
+
+docker build -t my-react-app .
+ docker tag my-react-app:latest moni36/digitalcard:frontend_testv1
+ docker push moni36/digitalcard:frontend_testv1
+
+
+ip find extrenal
+curl ifconfig.me
+
+ babish@ec2-43-204-26-48.ap-south-1.compute.amazonaws.com
+
+
+sudo ss -tuln | grep :3002
+
+/etc/mysql/my.cnf
+/etc/my.cnf
+bind= 0.0.0.0
+restart 
 
 

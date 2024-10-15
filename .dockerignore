@@ -1,0 +1,6 @@
+.git
+.gitignore
+node_modules
+resources\static\assets\uploads
+_mocks_
+_tests_
