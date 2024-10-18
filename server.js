@@ -92,11 +92,11 @@ app.get('/auth/callback', async (req, res) => {
 
 
 
-        const fullUrl = `${req.protocol}://${req.hostname}:3000`
+        const fullUrl = req.headers.origin || req.headers.referer;
         console.log('Hostname:', fullUrl);
         process.env.BaseURL = fullUrl;
         // Pass token to frontend (or handle as needed)
-        res.redirect(`${fullUrl}/googleLogin/${data}`);
+        res.redirect(`${fullUrl}googleLogin/${data}`);
     } catch (error) {
       console.error('Error exchanging code for tokens:', error);
       res.status(500).send('Authentication failed');
@@ -105,7 +105,7 @@ app.get('/auth/callback', async (req, res) => {
 
 const allowedOrigins = ['https://test.bizcard.pfdigital.in','http://localhost:3000' ,'https://erocard.pfdigital.in', 'https://test.bizcard.pfdigital.in:3000', 'https://erocard.pfdigital.in:3001'];
 app.use((req, res, next) => {
-    const fullUrl = `${req.protocol}://${req.hostname}:3000`
+    const fullUrl = req.headers.origin;
     console.log('Hostname:', fullUrl);
     process.env.BaseURL = fullUrl;
     allowedOrigins.push(fullUrl);
