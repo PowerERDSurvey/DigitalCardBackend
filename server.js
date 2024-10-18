@@ -62,6 +62,7 @@ app.get('/api/google-client-id', (request, res) => {
   
 // Redirect user to Google consent screen
 app.get('/auth/google', (req, res) => {
+    var origin = req.headers.origin;
     var httpStatusCode = 200;
     var responseObj = {};
     const authUrl = oAuth2Client.generateAuthUrl({
@@ -92,7 +93,8 @@ app.get('/auth/callback', async (req, res) => {
 
 
 
-        const fullUrl = `${req.protocol}://${req.hostname}`
+        const fullUrl = req.headers.origin;
+        // const fullUrl = `${req.protocol}://${req.hostname}`
         // const fullUrl = `${req.protocol}://${req.hostname}:3000`
         console.log('Hostname:', fullUrl);
         process.env.BaseURL = fullUrl;
@@ -124,7 +126,8 @@ app.get('/auth/callback', async (req, res) => {
 
 const allowedOrigins = ['http://test.bizcard.pfdigital.in', 'https://checkout.stripe.com','http://localhost:3000' ,'http://erocard.pfdigital.in', 'http://test.bizcard.pfdigital.in:3000', 'http://erocard.pfdigital.in:3001'];
 app.use((req, res, next) => {
-    const fullUrl = `${req.protocol}://${req.hostname}:3000`
+    const fullUrl = req.headers.origin;
+    // const fullUrl = `${req.protocol}://${req.hostname}:3000`
     console.log('Hostname:', fullUrl);
     process.env.BaseURL = fullUrl;
     allowedOrigins.push(fullUrl);
@@ -148,9 +151,19 @@ const corsOptions = {
 
 // app.use(express.static(path.join(__dirname, 'uploads')));
 // app.use(express.static(__dirname + "/public"));
+// app.use(express.static(path.join(__dirname, 'build')));
 console.log(__dirname, 'DIR')
+// app.get('*', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'build', 'index.html'), (err) => {
+//         if (err) {
+//             res.status(err.status).end();
+//         }
+//     });
+// });
 
-
+app.get('/', (req, res) => {
+    res.send('Welcome to the API!');
+});
 
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 app.post('/webhook', express.raw({ type: 'application/json' }), async (request, response) => {
@@ -1266,7 +1279,7 @@ let server;
 
 if (require.main === module) {
     server = app.listen(port, () => {
-        //console.log(`Server running on port ${port}`);
+        console.log(`Server running on port ${port}`);
     });
 }
 
@@ -1278,7 +1291,7 @@ module.exports = {
                 if (err) {
                     reject(err);
                 } else {
-                    //console.log(`Server running on port ${port}`);
+                    console.log(`Server running on port ${port}`);
                     resolve(server);
                 }
             });

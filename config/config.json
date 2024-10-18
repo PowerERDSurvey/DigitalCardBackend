@@ -1,8 +1,8 @@
 {
  
    "development": {
-    "database": "DigitalCard",
-    "username": "DigiUser",
+    "database": "DigitalCardTest",
+    "username": "DigiUserTest",
     "password": "password",
     "host": "43.204.26.48",
     "dialect": "mysql",

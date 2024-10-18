@@ -19,7 +19,7 @@ docker push moni36/digitalcard:backend
 docker push moni36/digitalcard:latest
 -----------------------------------------
 
-sudo docker exec -it mysql_container mysql -u DigiUser -p
+sudo docker exec -it mysql_container mysql -u DigiUserTest -p
 
 -------------------------------------------
 
@@ -58,8 +58,8 @@ sudo kill -9 568
 create new user in DB
 
 mysql -u root -p
-CREATE USER 'DigiUser'@'%' IDENTIFIED BY 'babish1998';
-GRANT ALL PRIVILEGES ON *.* TO 'DigiUser'@'%' WITH GRANT OPTION; --> privillage permission for all host with %
+CREATE USER 'DigiUserTest'@'%' IDENTIFIED BY 'babish1998';
+GRANT ALL PRIVILEGES ON *.* TO 'DigiUserTest'@'%' WITH GRANT OPTION; --> privillage permission for all host with %
 FLUSH PRIVILEGES;
 
 -------------------------------------
@@ -238,8 +238,8 @@ server {
         proxy_read_timeout 240s;
     }
 }
-sudo ln -s /etc/nginx/sites-available/bizcard /etc/nginx/sites-enabled/
-sudo ln -s /etc/nginx/sites-available/bizcard_frontend_test /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/backend_bizcard_test /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/bizcard_test /etc/nginx/sites-enabled/
 sudo ln -s /etc/nginx/sites-available/bizcard /etc/nginx/sites-enabled/
 sudo systemctl restart nginx
 
