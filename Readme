@@ -172,6 +172,7 @@ server {
     }
 }
 sudo ln -s /etc/nginx/sites-available/bizcard /etc/nginx/sites-enabled/
+sudo ln -s /etc/nginx/sites-available/bizcard_prod /etc/nginx/sites-enabled/
 sudo systemctl restart nginx
 
 

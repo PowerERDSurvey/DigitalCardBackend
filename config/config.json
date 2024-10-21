@@ -3,8 +3,8 @@
    "development": {
     "database": "DigitalCard",
     "username": "DigiUser",
-    "password": "Babish@1998",
-    "host": "10.142.0.2",
+    "password": "password",
+    "host": "43.204.26.48",
     "dialect": "mysql",
     "migrationStorage": "sequelize",
     "seederStorage": "sequelize"
