@@ -99,7 +99,7 @@ app.get('/auth/callback', async (req, res) => {
         console.log('Hostname:', fullUrl);
         process.env.BaseURL = fullUrl;
         // Pass token to frontend (or handle as needed)
-        res.redirect(`${fullUrl}/googleLogin/${data}`);
+        // res.redirect(`${fullUrl}/googleLogin/${data}`);
         // const fullUrl = `${req.protocol}://${req.hostname}:3000`
         // console.log('Hostname:', fullUrl);
         // process.env.BaseURL = fullUrl;
@@ -117,7 +117,7 @@ app.get('/auth/callback', async (req, res) => {
         // console.log('fullUrl', fullUrl);
         
         // res.redirect(`${fullUrl}/googleLogin/${data}`);
-        // res.redirect(`http://test.bizcard.pfdigital.in:3000/googleLogin/${data}`);
+        res.redirect(`http://test.bizcard.pfdigital.in/googleLogin/${data}`);
     } catch (error) {
       console.error('Error exchanging code for tokens:', error);
       res.status(500).send('Authentication failed');
