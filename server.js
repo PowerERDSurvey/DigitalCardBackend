@@ -129,7 +129,7 @@ app.use((req, res, next) => {
     const fullUrl = req.headers.origin;
     // const fullUrl = `${req.protocol}://${req.hostname}:3000`
     console.log('Hostname:', fullUrl);
-    process.env.BaseURL = fullUrl;
+    process.env.BaseURL = 'http://test.bizcard.pfdigital.in';
     allowedOrigins.push(fullUrl);
     next();
 });
