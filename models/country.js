@@ -26,6 +26,10 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: true, // Set to false if you want to make it required
     },
+    pincode: {
+      type: DataTypes.INTEGER,
+      allowNull: false, // Set to false if you want to make it required
+    },
   }, {
     sequelize,
     modelName: 'Country',
