@@ -268,3 +268,21 @@ bind= 0.0.0.0
 restart 
 
 
+
+deployment-- testing
+
+last deployement -- bakend-Tv7
+
+#use testing env
+# testing
+
+# create docker image with --- docker build -t digitalcard-bakend-test{ count} .
+
+# tag the image--- docker tag digitalcard-bakend-test{count}:latest moni36/digitalcard:bakend-Tv{count}
+
+# push the image to docker --- docker push moni36/digitalcard:bakend-Tv{count}
+
+deployement in server
+
+# docker compose -f docker-compose-test.yml -p test_project up -d
+
