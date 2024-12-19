@@ -9,6 +9,7 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const helperUtil = require('../util/helper.js');
 const paymentModel = require("../models/mvc_payment.js");
 const userModel = require("../models/mvc_User.js");
+const companyModel = require("../models/mvc_company.js");
 
 
 router.get('/getallpayments/:userId', auth, bodyParser, async function (req, res) {
@@ -85,6 +86,9 @@ router.post('/payment/checkOut:userId', auth, bodyParser, async function (req, r
         });
         console.log(session.url);
         // if (session.payment_status )
+
+        const userCollection = await userModel.getUser(userId);
+
         var inputParams = {
             productName: req.body.planName,
             checkoutId: session.id,
@@ -96,7 +100,20 @@ router.post('/payment/checkOut:userId', auth, bodyParser, async function (req, r
             userId: userId,
             cardCount: req.body.cardCount,
             layouts: req.body.layout,
-            duration: req.body.duration
+            duration: req.body.duration,
+
+
+
+
+
+
+            Name: userCollection.firstName + userCollection.lastName,
+            userName: userCollection.userName
+        }
+        //added fields for extra visiblity num 11(add the full payment details in payment details)
+        if (userCollection?.companyId) {
+            const companyDetail = await companyModel.getActiveCompanyById(userCollection.companyId);
+            inputParams.companyName = companyDetail.companyName;
         }
 
         const paymentCreate = await paymentModel.createpayment(inputParams);
