@@ -23,7 +23,10 @@ module.exports = (sequelize, DataTypes) => {
     userId: DataTypes.INTEGER,
     layouts: DataTypes.STRING,
     duration: DataTypes.STRING,
-    cardCount: DataTypes.INTEGER
+    cardCount: DataTypes.INTEGER,
+    Name: DataTypes.STRING,
+    userName: DataTypes.STRING,
+    companyName: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'payment',
